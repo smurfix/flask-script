@@ -1,7 +1,7 @@
 import pprint
 
-from flask import Flask, current_app
-from flaskext.script import Manager
+from flask import Flask
+from flaskext.script import Manager, Command, Shell, Server
 
 from optparse import make_option
 
@@ -10,14 +10,28 @@ def create_app():
 
 manager = Manager(create_app)
 
-@manager.register('dumpconf')
-def dump_config():
-    pprint.pprint(current_app.config)
+class DumpConfig(Command):
 
-@manager.register('printme', 
-                  options=(make_option('-n', '--name'),))
-def printme(name):
-    print name
+    help = "Dumps config"
+
+    def run(self, app):
+        pprint.pprint(app.config)
+
+class PrintSomething(Command):
+
+    help = "print something"
+
+    options_list = (
+        make_option("-n", "--name", dest="name"),
+    )
+
+    def run(self, app, name):
+        print name
+
+manager.register("dumpconfig", DumpConfig())
+manager.register("print", PrintSomething())
+manager.register("shell", Shell())
+manager.register("runserver", Server())
 
 if __name__ == "__main__":
     manager.run()
