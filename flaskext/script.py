@@ -27,15 +27,30 @@ class Command(object):
 
 class Shell(Command):
 
-    title = 'Flask shell'
+    banner = 'Flask shell'
     help = 'Runs a Flask shell'
     
+    option_list = (
+        make_option('--use_ipython',
+                    dest='use_ipython',
+                    default=True),
+    )
+
     def get_context(self, app):
         return dict(app=app)
 
-    def run(self, app):
-        # TBD: add auto iPython support
-        code.interact(self.title, local=self.get_context(app))
+    def run(self, app, use_ipython):
+        context = self.get_context(app)
+        if use_ipython:
+            try:
+                import IPython
+                sh = IPython.Shell.IPShellEmbed(banner=self.banner)
+                sh(global_ns=dict(), local_ns=context)
+                return
+            except ImportError:
+                pass
+
+        code.interact(self.banner, local=context)
 
 
 class Server(Command):
