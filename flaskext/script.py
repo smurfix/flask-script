@@ -43,15 +43,31 @@ class Manager(object):
         self.app_factory = app_factory
         self._scripts = dict()
     
-    def register(self, func, name=None):
-        if name is None:
-            name = func.__name__
-        self._scripts[name] = func
+    def register(self, name=None):
+        def decorator(f):
+            self._scripts[name or f.__name__] = f
+            print self._scripts
+            f.option_list = getattr(f, 'option_list', [])
+        return decorator
 
+    def usage(self, script):
+        return "ok"
+
+    def create_parser(self, name, script):
+        return OptionParser(prog=name,
+                            usage=self.usage(script),
+                            option_list=script.option_list)
     def run(self):
 
-        script = self._scripts[sys.argv[1]]
+        try:
+            script = self._scripts[sys.argv[1]]
+        except KeyError:
+            print "Command %s not found" % script
+            return
+
         # get option list
-        parser = self.create_parser()
-        options, args = parser.parse_args(argv[2:])
-        script(*args, **options)
+        parser = self.create_parser(sys.argv[0], script)
+        options, args = parser.parse_args(sys.argv[2:])
+        app = self.app_factory()
+        with app.test_request_context():
+            script(*args, **options.__dict__)
