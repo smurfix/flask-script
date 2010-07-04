@@ -1,0 +1,14 @@
+syntax: glob
+
+*.egg-info
+*.pyc
+*.db
+*.swp
+*.swo
+*.zip
+*~
+
+dist
+docs/output
+
+
