@@ -11,12 +11,14 @@ class SimpleCommand(Command):
 
     def run(self, app):
         print "OK"
-        
+
+
 class CommandWithArgs(Command):
     help = "command with args"
 
     def run(self, app, name):
         print name
+
 
 class CommandWithOptions(Command):
     help = "command with options"
@@ -29,8 +31,20 @@ class CommandWithOptions(Command):
     def run(self, app, name):
         print name
 
+
 class TestCommands(unittest.TestCase):
-    pass
+
+    TESTING = True
+
+    def setUp(self):
+
+        self.app = Flask(__name__)
+        self.app.config.from_object(self)
+
+    def test_usage_simple(self):
+
+        command = SimpleCommand()
+        assert command.usage("manage.py") == "manage.py simple"
 
 class TestManager(unittest.TestCase):
     
