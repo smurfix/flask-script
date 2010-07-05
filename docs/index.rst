@@ -13,12 +13,12 @@ You define and add commands that can be called from the command line to a ``Mana
 
     from myapp import create_app
 
-    class PrintCommand(Command):
+    class Print(Command):
         def run(self):
             print "hello"
 
     manager = Manager(create_app)
-    manager.add_command("print", PrintCommand())
+    manager.add_command("print", Print())
 
     if __name__ == "__main__":
         manager.run()
