@@ -4,7 +4,7 @@ import unittest
 from optparse import make_option
 
 from flask import Flask
-from flaskext.script import Command, Manager, CommandNotFound
+from flaskext.script import Command, Manager, InvalidCommand
 
 class SimpleCommand(Command):
     help = "simple command"
@@ -23,6 +23,7 @@ class CommandWithArgs(Command):
 
 class CommandWithOptions(Command):
     help = "command with options"
+    args = 'foo'
 
     option_list = (
         make_option("-n", "--name", 
@@ -82,7 +83,7 @@ class TestManager(unittest.TestCase):
     def test_run_non_existant_command(self):
 
         manager = Manager(self.app)
-        self.assertRaises(CommandNotFound, 
+        self.assertRaises(InvalidCommand, 
                            manager.run_command,
                            "manage.py", "simple")
     
@@ -107,7 +108,7 @@ class TestManager(unittest.TestCase):
             assert e.code == 1
         assert 'OK' not in sys.stdout.getvalue()
 
-    def test_run_bad_args(self):
+    def test_run_no_name(self):
 
         manager = Manager(self.app)
         sys.argv = ["manage.py"]
@@ -116,3 +117,15 @@ class TestManager(unittest.TestCase):
         except SystemExit, e:
             assert e.code == 1
         assert "No command provided" in sys.stdout.getvalue()
+
+    def test_run_bad_options(self):
+
+        manager = Manager(self.app)
+        manager.register("simple", CommandWithOptions())
+        sys.argv = ["manage.py", "simple", "--foo=bar"]
+        try:
+            manager.run()
+        except SystemExit, e:
+            assert e.code == 2
+
+

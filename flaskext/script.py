@@ -13,7 +13,6 @@ class Command(object):
     args = ''
     help = ''
     
-
     def usage(self, name):
         usage = "%s [options] %s" % (name, self.args)
         if self.help:
@@ -103,9 +102,8 @@ class Server(Command):
         app.run(port=port)
 
 
-class CommandNotFound(Exception):
+class InvalidCommand(Exception):
     pass
-
 
 class Manager(object):
 
@@ -137,11 +135,12 @@ class Manager(object):
         try:
             command = self._commands[name]
         except KeyError:
-            raise CommandNotFound, "Command %s not found" % name
+            raise InvalidCommand, "Command %s not found" % name
 
         parser = command.create_parser(prog, name)
-
+        
         options, args = parser.parse_args(list(args))
+
         kwargs = options.__dict__
 
         with app.test_request_context():
@@ -159,7 +158,7 @@ class Manager(object):
             print "No command provided"
             self.print_usage()
         
-        except CommandNotFound, e:
+        except InvalidCommand, e:
             print e
             self.print_usage()
 
