@@ -75,7 +75,7 @@ Calling ``manager.run()`` prepares your ``Manager`` instance to receive input fr
 The ``Manager`` requires a single argument, a **Flask** instance. This may also be a function or callable
 that returns a **Flask** instance instead, if you want to use a factory pattern.
 
-The next step is to create and add_command your commands. First you need to subclass the ``Command`` class.
+The next step is to create and add your commands. First you need to subclass the ``Command`` class.
 You then need, at the very least, to define a ``run`` method for this class.
 
 To take a very simple example, we want to create a ``Print`` command that just prints out "hello world". It 
