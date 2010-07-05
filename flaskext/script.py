@@ -5,7 +5,7 @@ import argparse
 
 from flask import Flask
 
-__all__ = ["Command", "Shell", "Server", "Manager"]
+__all__ = ["Command", "Shell", "Server", "Manager", "Option"]
 
 class Option(object):
 
