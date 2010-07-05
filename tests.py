@@ -72,17 +72,17 @@ class TestManager(unittest.TestCase):
         self.app = Flask(__name__)
         self.app.config.from_object(self)
 
-    def test_register(self):
+    def test_add_command(self):
 
         manager = Manager(self.app)
-        manager.register("simple", SimpleCommand())
+        manager.add_command("simple", SimpleCommand())
         
         assert isinstance(manager._commands['simple'], SimpleCommand)
 
     def test_run_existing_command(self):
         
         manager = Manager(self.app)
-        manager.register("simple", SimpleCommand())
+        manager.add_command("simple", SimpleCommand())
         manager.run_command("manage.py", "simple")
         assert 'OK' in sys.stdout.getvalue()
 
@@ -96,7 +96,7 @@ class TestManager(unittest.TestCase):
     def test_run_existing(self):
 
         manager = Manager(self.app)
-        manager.register("simple", SimpleCommand())
+        manager.add_command("simple", SimpleCommand())
         sys.argv = ["manage.py", "simple"]
         try:
             manager.run()
@@ -127,7 +127,7 @@ class TestManager(unittest.TestCase):
     def test_run_good_options(self):
 
         manager = Manager(self.app)
-        manager.register("simple", CommandWithOptions())
+        manager.add_command("simple", CommandWithOptions())
         sys.argv = ["manage.py", "simple", "--name=Joe"]
         try:
             manager.run()
@@ -138,7 +138,7 @@ class TestManager(unittest.TestCase):
     def test_run_bad_options(self):
 
         manager = Manager(self.app)
-        manager.register("simple", CommandWithOptions())
+        manager.add_command("simple", CommandWithOptions())
         sys.argv = ["manage.py", "simple", "--foo=bar"]
         try:
             manager.run()

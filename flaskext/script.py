@@ -114,9 +114,9 @@ class Manager(object):
             self.app_factory = app
         self._commands = dict()
         
-        self.register("help", self.help_class(self))
+        self.add_command("help", self.help_class(self))
 
-    def register(self, name, command):
+    def add_command(self, name, command):
         self._commands[name] = command
 
     def print_usage(self):

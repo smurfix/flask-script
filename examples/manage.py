@@ -28,10 +28,10 @@ class PrintSomething(Command):
     def run(self, app, name=''):
         print name
 
-manager.register("dumpconfig", DumpConfig())
-manager.register("print", PrintSomething())
-manager.register("shell", Shell())
-manager.register("runserver", Server())
+manager.add_command("dumpconfig", DumpConfig())
+manager.add_command("print", PrintSomething())
+manager.add_command("shell", Shell())
+manager.add_command("runserver", Server())
 
 if __name__ == "__main__":
     manager.run()

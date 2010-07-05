@@ -5,7 +5,7 @@ Flask-Script
 
 The **Flask-Script** extension provides support for writing external scripts in Flask. It uses `argparse`_ to parse command line arguments.
 
-You define and register commands that can be called from the command line::
+You define and add_command commands that can be called from the command line::
 
     # manage.py
     
@@ -18,7 +18,7 @@ You define and register commands that can be called from the command line::
             print "hello"
 
     manager = Manager(create_app)
-    manager.register("print", PrintCommand())
+    manager.add_command("print", PrintCommand())
 
     if __name__ == "__main__":
         manager.run()
@@ -75,7 +75,7 @@ Calling ``manager.run()`` prepares your ``Manager`` instance to receive input fr
 The ``Manager`` requires a single argument, a **Flask** instance. This may also be a function or callable
 that returns a **Flask** instance instead, if you want to use a factory pattern.
 
-The next step is to create and register your commands. First you need to subclass the ``Command`` class.
+The next step is to create and add_command your commands. First you need to subclass the ``Command`` class.
 You then need, at the very least, to define a ``run`` method for this class.
 
 To take a very simple example, we want to create a ``Print`` command that just prints out "hello world". It 
@@ -90,9 +90,9 @@ doesn't take any arguments so is very straightforward::
         def run(self, app):
             print "hello world"
 
-Now the command needs to be registered with our ``Manager`` instance, created above::
+Now the command needs to be add_commanded with our ``Manager`` instance, created above::
 
-    manager.register('print', Print())
+    manager.add_command('print', Print())
 
 This of course needs to be called before ``manager.run``. Now in our command line::
 
@@ -107,7 +107,7 @@ There is a default ``help`` command::
 
     >>> python manage.py help
 
-This will print a list of registered commands.
+This will print a list of add_commanded commands.
 
 To get help text for a particular command::
 
@@ -148,7 +148,7 @@ Options are provided as ``Option`` instances. The ``Option`` takes exactly the s
 Default commands
 ----------------
 
-**Flask-Script** has a couple of ready commands you can register and customize (in addition to the ``help`` command): ``Server``
+**Flask-Script** has a couple of ready commands you can add_command and customize (in addition to the ``help`` command): ``Server``
 and ``Shell``.
 
 The ``Server`` command runs the **Flask** development server. It takes an optional ``port`` argument (default **5000**)::
@@ -157,7 +157,7 @@ The ``Server`` command runs the **Flask** development server. It takes an option
     from myapp import create_app
 
     manager = Manager(create_app)
-    manager.register("runserver", Server())
+    manager.add_command("runserver", Server())
 
     if __name__ == "__main__":
         manager.run()
@@ -180,7 +180,7 @@ The ``Shell`` command starts a Python shell. You can pass in a ``make_context`` 
         return dict(app=app, db=db, models=models)
 
     manager = Manager(create_app)
-    manager.register("shell", Shell(make_context=_make_context))
+    manager.add_command("shell", Shell(make_context=_make_context))
     
 This is handy if you want to include a bunch of defaults in your shell to save typing lots of ``import`` statements.
 
@@ -192,22 +192,44 @@ API
 .. module:: flaskext.script
 
 .. class:: Manager
-
+    
 Manages a set of commands.
+
+.. method:: __init__(app)
+
+    ..param:: app : **Flask** application instance or callable that returns a **Flask** application.
+
+.. method:: run()
+
+Run a command based on command-line inputs. Typically you would call this inside a ``if __name__ == "__main__"`` block.
 
 .. class:: Command
 
 Base class for creating new commands.
 
+..attribute:: description
+
+Description added to help text.
+
+..attribute:: options_list
+
+List of options passed to argument parser. Each item must be an ``Option`` instance.
+
 .. class:: Shell
 
 Command to start a Python shell.
+
+.. method:: __init__(banner='', make_context=None)
+
+    ..param:: banner : banner appearing in shell when started.
+    ..param:: make_context: a function that must return a ``dict``. If you wish to add any context variables to your shell namespace, then
+    add them here. The ``make_context`` function takes one argument, ``app``. By default the ``app`` instance is passed to the shell.
 
 .. class:: Server
 
 Command to start the Flask development server.
 
-..class:: Option
+.. class:: Option
 
 Stores option parameters for ``argparse.add_argument``. Use with ``Command.option_list``.
 
