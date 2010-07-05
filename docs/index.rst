@@ -207,45 +207,53 @@ API
 
 .. class:: Manager
     
-Manages a set of commands.
+    Manages a set of commands.
 
-.. method:: __init__(app)
+    .. method:: __init__(app)
 
-    ..param:: app : **Flask** application instance or callable that returns a **Flask** application.
+        :param app: **Flask** application instance or callable that returns a **Flask** application.
 
-.. method:: run()
+    .. method:: run()
 
-Run a command based on command-line inputs. Typically you would call this inside a ``if __name__ == "__main__"`` block.
+    Run a command based on command-line inputs. Typically you would call this inside a ``if __name__ == "__main__"`` block.
 
 .. class:: Command
 
-Base class for creating new commands.
+    Base class for creating new commands.
 
-..attribute:: description
+    .. attribute:: description
 
-Description added to help text.
+    Description added to help text.
 
-..attribute:: options_list
+    .. attribute:: option_list
 
-List of options passed to argument parser. Each item must be an ``Option`` instance.
+    List of options passed to argument parser. Each item must be an ``Option`` instance.
 
+    .. method:: get_options()
+
+    Returns list of ``Option`` instances. By default just returns ``option_list``. This is useful if you need to do per-instance configuration. 
+
+    .. method:: run(app)
+
+    Runs the command. This must be defined or ``NotImplementedError`` is raised. Takes at least one argument, ``app``, plus any specific positional or optional arguments required by the command.
+
+    
 .. class:: Shell
 
-Command to start a Python shell.
+    Command to start a Python shell.
 
-.. method:: __init__(banner='', make_context=None)
+    .. method:: __init__(banner='', make_context=None)
 
-    ..param:: banner : banner appearing in shell when started.
-    ..param:: make_context: a function that must return a ``dict``. If you wish to add any context variables to your shell namespace, then
-    add them here. The ``make_context`` function takes one argument, ``app``. By default the ``app`` instance is passed to the shell.
+        :param banner: banner appearing in shell when started.
+        :param make_context: a function that must return a ``dict``. If you wish to add any context variables to your shell namespace, then add them here. The ``make_context`` function takes one argument, ``app``. By default the ``app`` instance is passed to the shell.
 
 .. class:: Server
 
-Command to start the Flask development server.
+    Command to start the Flask development server.
 
 .. class:: Option
 
-Stores option parameters for ``argparse.add_argument``. Use with ``Command.option_list``.
+    Stores option parameters for ``argparse.add_argument``. Use with ``Command.option_list``.
 
 .. _Flask: http://flask.pocoo.org
 .. _Bitbucket: http://bitbucket.org/danjac/Flask-Script
