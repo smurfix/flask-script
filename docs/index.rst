@@ -3,7 +3,7 @@ Flask-Script
 
 .. module:: Flask-Script
 
-The **Flask-Script** extension provides support for writing external scripts in Flask.
+The **Flask-Script** extension provides support for writing external scripts in Flask. It uses `argparse`_ to parse command line arguments.
 
 You define and register commands that can be called from the command line::
 
@@ -83,7 +83,7 @@ doesn't take any arguments so is very straightforward::
 
     class Print(Command):
 
-        help = "prints hello world"
+        description = "prints hello world"
 
         def run(self, app):
             print "hello world"
@@ -101,16 +101,11 @@ The first argument to your ``run`` command, other than ``self``, is always ``app
 application instance provided by the ``app`` passed to the ``Manager``. Additional arguments
 are configured through the ``option_list`` (see below).
 
-Notice also the ``help`` attribute. If you type the following::
-
-    >>> python manage.py help print
-    ... "prints hello world"
-
-Typing "help" before a command will display the ``help`` attribute of that command. If you just type::
+There is a default ``help`` command::
 
     >>> python manage.py help
 
-You get a list of registered commands.
+This will print a list of registered commands.
 
 Adding arguments to commands
 ----------------------------
@@ -129,30 +124,18 @@ or alternatively:
 
 To facilitate this you use the ``option_list`` attribute of the ``Command`` class::
 
-    from optparse import make_option
-    from flaskext.script import Command, Manager
+    from flaskext.script import Command, Manager, Option
 
     class Print(Command):
 
         option_list = (
-            make_option('--name', '-n', dest='name'),
+            Option('--name', '-n', dest='name'),
         )
 
         def run(self, app, name):
             print "hello %s" % name
 
-Options must be created using the ``make_option`` function from the `optparse <http://docs.python.org/library/optparse.html>`_ 
-library.
-
-If you want to just use positional arguments, just skip the ``option_list``::
-
-    class Print(Command):
-        
-        def run(self, app, name):
-            print "hello %s" % name
-
-    >>> python manage.py print Joe
-    ... "hello Joe"
+Options are provided as ``Option`` instances. The ``Option`` takes exactly the same arguments as `argparse.ArgumentParser.add_argument <http://argparse.googlecode.com/svn/trunk/doc/add_argument.html>`_.
 
 Default commands
 ----------------
@@ -202,3 +185,4 @@ API
 
 .. _Flask: http://flask.pocoo.org
 .. _Bitbucket: http://bitbucket.org/danjac/Flask-Script
+.. _argparse: http://pypi.python.org/pypi/argparse
