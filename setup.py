@@ -31,6 +31,7 @@ setup(
     platforms='any',
     install_requires=[
         'Flask',
+        'argparse',
     ],
     classifiers=[
         'Development Status :: 4 - Beta',

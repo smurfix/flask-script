@@ -46,6 +46,7 @@ class Help(Command):
 
         self.manager.print_usage()
 
+
 class Shell(Command):
 
     banner = 'Flask shell'
@@ -101,6 +102,10 @@ class Server(Command):
         app.run(port=port)
 
 
+class CommandNotFound(Exception):
+    pass
+
+
 class Manager(object):
 
     help_class = Help
@@ -124,27 +129,39 @@ class Manager(object):
         usage = "\n".join(commands)
         print usage
 
-    def run(self):
-        
-        prog = sys.argv[0]
+    def run_command(self, prog, name, *args):
 
         app = self.app_factory()
 
         try:
-            name = sys.argv[1]
             command = self._commands[name]
-        except (IndexError, KeyError):
-            name = "help"
-            command = self._commands[name]
-
-        args = sys.argv[2:]
+        except KeyError:
+            raise CommandNotFound, "Command %s not found" % name
 
         parser = command.create_parser(prog, name)
 
-        options, args = parser.parse_args(args)
+        options, args = parser.parse_args(list(args))
         kwargs = options.__dict__
 
         with app.test_request_context():
             command.run(app, *args, **kwargs)
+    
+    def run(self):
+        
+        try:
+            self.run_command(sys.argv[0],
+                             sys.argv[1],
+                             *sys.argv[2:])
+            sys.exit(0)
 
-        sys.exit(0)
+        except IndexError:
+            print "No command provided"
+            self.print_usage()
+        
+        except CommandNotFound, e:
+            print e
+            self.print_usage()
+
+        sys.exit(1)
+
+
