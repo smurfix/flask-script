@@ -105,14 +105,13 @@ class Manager(object):
 
     help_class = Help
 
-    def __init__(self, app, option_list=None):
+    def __init__(self, app):
 
         if isinstance(app, Flask):
             self.app_factory = lambda: app
         else:
             self.app_factory = app
         self._commands = dict()
-        self.option_list = option_list or []
         
         self.register("help", self.help_class(self))
 
@@ -125,20 +124,11 @@ class Manager(object):
         usage = "\n".join(commands)
         print usage
 
-    def create_parser(self, prog):
-        return OptionParser(prog=prog,
-                            option_list=self.option_list)
-
     def run(self):
         
         prog = sys.argv[0]
-        args = sys.argv[2:]
 
-        parser = self.create_parser(prog)
-        manager_options, args = parser.parse_args(args)
-        manager_options = manager_options.__dict__
-
-        app = self.app_factory(*args, **manager_options)
+        app = self.app_factory()
 
         try:
             name = sys.argv[1]
@@ -147,9 +137,10 @@ class Manager(object):
             name = "help"
             command = self._commands[name]
 
+        args = sys.argv[2:]
+
         parser = command.create_parser(prog, name)
 
-        args = [arg for arg in args if arg not in manager_options]
         options, args = parser.parse_args(args)
         kwargs = options.__dict__
 

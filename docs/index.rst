@@ -185,39 +185,6 @@ This is handy if you want to include a bunch of defaults in your shell to save t
 
 The ``Shell`` command will use `IPython <http://ipython.scipy.org/moin/>`_ if it is installed, otherwise it defaults to the standard Python shell. You can disable this behaviour in two ways: by passing the ``use_ipython`` argument to the ``Shell`` constructor, or passing the flag ``--no-ipython`` in the command line. 
 
-
-Passing ommand-line arguments to your application
--------------------------------------------------
-
-Sometimes it's useful to be able to pass in arguments to the application. For example, if you want to specify a ``config`` file in the command line, that applies to all commands::
-
-    >>> python manage.py createdb --config=production.cfg
-    >>> python manage.py createuser --config=production.cfg --username=homer
-
-In order to do this, you have to do two things. First, instead of passing a ready ``Flask`` instance to your ``Manager``, pass in a function instead. This function should take whatever arguments you need::
-
-    from flask import Flask
-    from flaskext import Manager
-
-    def create_app(config=None):
-        app = Flask(__name__)
-        if config:
-            app.config.from_pyfile(config)
-
-    
-Secondly, you need to pass an ``option_list`` argument to ``Manager``. The ``option_list`` is configured using ``make_option``, same as for ``Command``::
-
-    manager_options = (
-        make_option('-c', '--config',
-                    dest='config',
-                    type='string',
-                    default=None),
-    )
-
-    manager = Manager(create_app, option_list=manager_options)
-
-The option ``config`` will no be passed to your ``create_app`` function. It will **not** be passed to any of your commands.
-
 API
 ---
 

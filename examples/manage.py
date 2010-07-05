@@ -5,18 +5,12 @@ from flaskext.script import Manager, Command, Shell, Server
 
 from optparse import make_option
 
-def create_app(config=None):
-    if config:
-        print "CONFIG", config
-    return Flask(__name__)
+def create_app():
+    app = Flask(__name__)
+    app.config.from_envvar('APP_CONFIG', silent=True)
+    return app
 
-manager_options = (
-    make_option('-c', '--config',
-                dest='config',
-                type='string'),
-)
-
-manager = Manager(create_app, option_list=manager_options)
+manager = Manager(create_app)
 
 class DumpConfig(Command):
 
