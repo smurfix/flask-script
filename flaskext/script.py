@@ -3,6 +3,8 @@ import code
 
 from optparse import OptionParser, make_option
 
+from flask import Flask
+
 __all__ = ["Command", "Shell", "Server", "Manager"]
 
 class Command(object):
@@ -102,8 +104,12 @@ class Manager(object):
 
     help_class = Help
 
-    def __init__(self, app_factory):
-        self.app_factory = app_factory
+    def __init__(self, app):
+
+        if isinstance(app, Flask):
+            self.app_factory = lambda: app
+        else:
+            self.app_factory = app
         self._commands = dict()
         
         self.register("help", self.help_class(self))

@@ -60,18 +60,18 @@ keeps track of all the commands and handles how they are called from the command
 
     from flaskext.script import Manager
 
-    from myapp import create_app
+    app = Flask(__name__)
+    # configure your app
 
-    manager = Manager(app_factory=create_app)
+    manager = Manager(app)
 
     if __name__ == "__main__":
         manager.run()
 
 Calling ``manager.run()`` prepares your ``Manager`` instance to receive input from the command line.
 
-The ``Manager`` class requires a single argument, the ``app_factory``. This is any function that returns
-a ``Flask`` application instance. In the above example it is assumed that you have a ``create_app`` factory
-function that returns a ready application.
+The ``Manager`` requires a single argument, a **Flask** instance. This may also be a function or callable
+that returns a **Flask** instance instead, if you want to use a factory pattern.
 
 The next step is to create and register your commands. First you need to subclass the ``Command`` class.
 You then need, at the very least, to define a ``run`` method for this class.
