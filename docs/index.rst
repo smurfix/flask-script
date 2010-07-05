@@ -23,9 +23,11 @@ You define and register commands that can be called from the command line::
     if __name__ == "__main__":
         manager.run()
 
+Then run the script like this::
+
     >>> python manage.py print
     ... "hello"
-
+    
 Source code and issue tracking at `Bitbucket`_.
 
 Installing Flask-Script
@@ -182,6 +184,26 @@ API
 ---
 
 .. module:: flaskext.script
+
+.. class:: Manager
+
+Manages a set of commands.
+
+.. class:: Command
+
+Base class for creating new commands.
+
+.. class:: Shell
+
+Command to start a Python shell.
+
+.. class:: Server
+
+Command to start the Flask development server.
+
+..class:: Option
+
+Stores option parameters for ``argparse.add_argument``. Use with ``Command.option_list``.
 
 .. _Flask: http://flask.pocoo.org
 .. _Bitbucket: http://bitbucket.org/danjac/Flask-Script

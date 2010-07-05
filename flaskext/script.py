@@ -26,6 +26,9 @@ class Command(object):
             parser.add_argument(*option.args, **option.kwargs)
         return parser
 
+    def add_option(self, option):
+        self.option_list.append(option)
+
     def run(self, app):
         raise NotImplementedError
 
