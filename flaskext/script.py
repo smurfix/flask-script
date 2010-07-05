@@ -10,13 +10,14 @@ __all__ = ["Command", "Shell", "Server", "Manager"]
 class Command(object):
 
     option_list = []
-    help = None
+    args = ''
+    help = ''
+    
 
     def usage(self, name):
-        options = [o.help for o in self.option_list]
-        usage = "%s %s" % (name, options or '')
+        usage = "%s [options] %s" % (name, self.args)
         if self.help:
-            usage += " " + self.help
+            usage += "\n\n" + self.help
         return usage
 
     def create_parser(self, prog, name):
