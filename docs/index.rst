@@ -90,7 +90,7 @@ doesn't take any arguments so is very straightforward::
         def run(self, app):
             print "hello world"
 
-Now the command needs to be add_commanded with our ``Manager`` instance, created above::
+Now the command needs to be added with our ``Manager`` instance, created above::
 
     manager.add_command('print', Print())
 
