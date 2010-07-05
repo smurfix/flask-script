@@ -179,6 +179,8 @@ and then run as so:
 
     >>> python manage.py runserver
 
+The ``Server`` command has a number of command-line arguments - run ``python manage.py runserver -h`` for details on these.
+
 Needless to say the development server is not intended for production use.
 
 The ``Shell`` command starts a Python shell. You can pass in a ``make_context`` argument, which must be a ``callable`` returning a ``dict``. By default, this is just a dict returning the ``app`` instance::
@@ -251,6 +253,13 @@ API
 .. class:: Server
 
     Command to start the Flask development server.
+
+    .. method:: __init__(host='127.0.0.1', port=5000, use_debugger=True, use_reloader=True)
+
+        :param host: hostname. Can be overriden with **--host** command-line option.
+        :param port: port. Can be overriden with **--port** command-line option.
+        :param use_debugger: whether to use the Flask debugger. If ``False`` can be overriden by **--debug** command-line option.
+        :param use_reloader: whether to use the Flask auto-reloader. If ``False`` can be overriden by **--reload** command-line option.
 
 .. class:: Option
 
