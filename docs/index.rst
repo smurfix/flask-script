@@ -90,7 +90,7 @@ doesn't take any arguments so is very straightforward::
         def run(self, app):
             print "hello world"
 
-Now the command needs to be added with our ``Manager`` instance, created above::
+Now the command needs to be added to our ``Manager`` instance, created above::
 
     manager.add_command('print', Print())
 
@@ -162,8 +162,7 @@ to return options at runtime based on for example per-instance attributes::
 Default commands
 ----------------
 
-**Flask-Script** has a couple of ready commands you can add_command and customize (in addition to the ``help`` command): ``Server``
-and ``Shell``.
+**Flask-Script** has a couple of ready commands you can add and customize: ``Server`` and ``Shell``.
 
 The ``Server`` command runs the **Flask** development server. It takes an optional ``port`` argument (default **5000**)::
 
