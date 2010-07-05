@@ -81,6 +81,14 @@ class TestCommands(unittest.TestCase):
         ns = parser.parse_args(["--name=Joe"])
         assert ns.name == "Joe"
     
+    def test_create_with_dynamic_options_parser(self):
+
+        command = CommandWithDynamicOptions("Fred")
+
+        parser = command.create_parser("manage.py", "simple")
+
+        ns = parser.parse_args([])
+        assert ns.name == "Fred"
 
 class TestManager(unittest.TestCase):
     
