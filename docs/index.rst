@@ -103,11 +103,9 @@ The first argument to your ``run`` command, other than ``self``, is always ``app
 application instance provided by the ``app`` passed to the ``Manager``. Additional arguments
 are configured through the ``option_list`` (see below).
 
-There is a default ``help`` command::
+To get a list of available commands and their descriptions, just run with no command::
 
-    >>> python manage.py help
-
-This will print a list of add_commanded commands.
+    >>> python manage.py
 
 To get help text for a particular command::
 

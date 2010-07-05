@@ -106,6 +106,13 @@ class TestManager(unittest.TestCase):
         
         assert isinstance(manager._commands['simple'], SimpleCommand)
 
+    def test_get_usage(self):
+
+        manager = Manager(self.app)
+        manager.add_command("simple", SimpleCommand())
+
+        assert manager.get_usage() == "simple: simple command"
+
     def test_run_existing_command(self):
         
         manager = Manager(self.app)
@@ -148,8 +155,7 @@ class TestManager(unittest.TestCase):
         try:
             manager.run()
         except SystemExit, e:
-            assert e.code == 1
-        assert "No command provided" in sys.stdout.getvalue()
+            assert e.code == 0
 
     def test_run_good_options(self):
 

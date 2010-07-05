@@ -13,6 +13,7 @@ class Option(object):
         self.args = args
         self.kwargs = kwargs
 
+
 class Command(object):
 
     option_list = []
@@ -41,17 +42,6 @@ class Command(object):
         raise NotImplementedError
 
 
-class Help(Command):
-    
-    def __init__(self, manager):
-        
-        self.manager = manager
-        
-    def run(self, app):
-
-        self.manager.print_usage()
-
-
 class Shell(Command):
 
     banner = ''
@@ -63,7 +53,6 @@ class Shell(Command):
                dest='no_ipython',
                default=False),
     )
-
     
     def __init__(self, banner=None, make_context=None, use_ipython=True):
 
@@ -144,9 +133,8 @@ class Server(Command):
 class InvalidCommand(Exception):
     pass
 
-class Manager(object):
 
-    help_class = Help
+class Manager(object):
 
     def __init__(self, app):
 
@@ -155,17 +143,25 @@ class Manager(object):
         else:
             self.app_factory = app
         self._commands = dict()
-        
-        self.add_command("help", self.help_class(self))
 
     def add_command(self, name, command):
         self._commands[name] = command
 
+    def get_usage(self):
+        
+        rv = []
+
+        for name, command in self._commands.iteritems():
+            usage = name
+            if command.description:
+                usage += ": " + command.description
+            rv.append(usage)
+
+        return "\n".join(rv)
+    
     def print_usage(self):
         
-        commands = [k for k in sorted(self._commands)]
-        usage = "\n".join(commands)
-        print usage
+        print self.get_usage()
 
     def run_command(self, prog, name, *args):
 
@@ -192,8 +188,8 @@ class Manager(object):
             sys.exit(0)
 
         except IndexError:
-            print "No command provided"
             self.print_usage()
+            sys.exit(0)
         
         except InvalidCommand, e:
             print e
