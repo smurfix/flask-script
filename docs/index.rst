@@ -98,7 +98,7 @@ This of course needs to be called before ``manager.run``. Now in our command lin
     ... "hello world"
 
 The first argument to your ``run`` command, other than ``self``, is always ``app``: this is the Flask
-application instance provided by the ``app_factory`` passed to the ``Manager``. Additional arguments
+application instance provided by the ``app`` passed to the ``Manager``. Additional arguments
 are configured through the ``option_list`` (see below).
 
 Notice also the ``help`` attribute. If you type the following::
@@ -143,6 +143,16 @@ To facilitate this you use the ``option_list`` attribute of the ``Command`` clas
 
 Options must be created using the ``make_option`` function from the `optparse <http://docs.python.org/library/optparse.html>`_ 
 library.
+
+If you want to just use positional arguments, just skip the ``option_list``::
+
+    class Print(Command):
+        
+        def run(self, app, name):
+            print "hello %s" % name
+
+    >>> python manage.py print Joe
+    ... "hello Joe"
 
 Default commands
 ----------------
