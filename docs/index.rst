@@ -109,6 +109,12 @@ There is a default ``help`` command::
 
 This will print a list of registered commands.
 
+To get help text for a particular command::
+
+    >>> python manage.py runserver -h
+
+This will print usage plus the ``description`` of the ``Command``.
+
 Adding arguments to commands
 ----------------------------
 
