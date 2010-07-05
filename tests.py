@@ -1,10 +1,8 @@
 import sys
 import unittest
 
-from optparse import make_option
-
 from flask import Flask
-from flaskext.script import Command, Manager, InvalidCommand
+from flaskext.script import Command, Manager, InvalidCommand, Option
 
 class SimpleCommand(Command):
     help = "simple command"
@@ -26,9 +24,9 @@ class CommandWithOptions(Command):
     args = 'foo'
 
     option_list = (
-        make_option("-n", "--name", 
-                    help="name to pass in",
-                    dest="name"),
+        Option("-n", "--name", 
+               help="name to pass in",
+               dest="name"),
     )
 
     def run(self, app, name):

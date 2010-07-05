@@ -1,11 +1,17 @@
 import sys
 import code
 
-from optparse import OptionParser, make_option
+import argparse
 
 from flask import Flask
 
 __all__ = ["Command", "Shell", "Server", "Manager"]
+
+class Option(object):
+
+    def __init__(self, *args, **kwargs):
+        self.args = args
+        self.kwargs = kwargs
 
 class Command(object):
 
@@ -20,9 +26,10 @@ class Command(object):
         return usage
 
     def create_parser(self, prog, name):
-        return OptionParser(prog=prog,
-                            usage=self.usage(name),
-                            option_list=self.option_list)
+        parser = argparse.ArgumentParser(prog=prog)
+        for option in self.option_list:
+            parser.add_argument(*option.args, **option.kwargs)
+        return parser
 
     def run(self, app):
         raise NotImplementedError
@@ -53,10 +60,10 @@ class Shell(Command):
     help = 'Runs a Flask shell'
     
     option_list = (
-        make_option('--no-ipython',
-                    action="store_true",
-                    dest='no_ipython',
-                    default=False),
+        Option('--no-ipython',
+               action="store_true",
+               dest='no_ipython',
+               default=False),
     )
 
     
@@ -92,10 +99,10 @@ class Server(Command):
     help = "Runs Flask development server"
 
     option_list = (
-        make_option('-p', '--port', 
-                    dest='port', 
-                    type='int', 
-                    default=5000),
+        Option('-p', '--port', 
+               dest='port', 
+               type='int', 
+               default=5000),
     )
 
     def run(self, app, port):
@@ -139,12 +146,11 @@ class Manager(object):
 
         parser = command.create_parser(prog, name)
         
-        options, args = parser.parse_args(list(args))
-
-        kwargs = options.__dict__
-
+        ns = parser.parse_args(list(args))
+        print dir(ns)
+        
         with app.test_request_context():
-            command.run(app, *args, **kwargs)
+            command.run(app, **ns.__dict__)
     
     def run(self):
         
