@@ -16,6 +16,9 @@ class SimpleCommand(Command):
 class CommandWithArgs(Command):
     help = "command with args"
 
+    def usage(self, prog):
+        return "%s NAME"
+
     def run(self, app, name):
         print name
 
@@ -25,6 +28,7 @@ class CommandWithOptions(Command):
 
     option_list = (
         make_option("-n", "--name", 
+                    help="name to pass in",
                     dest="name"),
     )
 
@@ -44,7 +48,21 @@ class TestCommands(unittest.TestCase):
     def test_usage_simple(self):
 
         command = SimpleCommand()
-        assert command.usage("manage.py") == "manage.py simple"
+
+        assert command.usage("manage.py") == "manage.py simple command"
+
+    def test_usage_custom(self):
+
+        command = CommandWithArgs()
+
+        assert command.usage("manage.py") == "manage.py NAME"
+
+    def test_usage_options(self):
+
+        command = CommandWithOptions()
+
+        assert command.usage("manage.py") == "manage.py --name=name to pass in"
+
 
 class TestManager(unittest.TestCase):
     

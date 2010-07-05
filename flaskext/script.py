@@ -14,9 +14,9 @@ class Command(object):
 
     def usage(self, name):
         options = [o.help for o in self.option_list]
-        usage = "%s [options] %s" % (name, options or '')
+        usage = "%s %s" % (name, options or '')
         if self.help:
-            usage += "\n\n" + self.help
+            usage += " " + self.help
         return usage
 
     def create_parser(self, prog, name):
