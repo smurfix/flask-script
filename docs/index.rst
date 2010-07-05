@@ -5,7 +5,7 @@ Flask-Script
 
 The **Flask-Script** extension provides support for writing external scripts in Flask. It uses `argparse`_ to parse command line arguments.
 
-You define and add_command commands that can be called from the command line::
+You define and add commands that can be called from the command line to a ``Manager`` instance::
 
     # manage.py
     
@@ -238,6 +238,8 @@ API
     Runs the command. This must be defined or ``NotImplementedError`` is raised. Takes at least one argument, ``app``, plus any specific positional or optional arguments required by the command.
 
     
+    :param app: Flask application instance
+
 .. class:: Shell
 
     Command to start a Python shell.
