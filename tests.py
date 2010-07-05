@@ -56,6 +56,39 @@ class TestCommands(unittest.TestCase):
 
         assert '[NAME]' in command.usage("simple")
 
+    def test_create_simple_parser(self):
+
+        command = SimpleCommand()
+
+        parser = command.create_parser("manage.py", "simple")
+
+        assert command.help in parser.usage
+
+        options, args = parser.parse_args([])
+        assert args == []
+
+    def test_create_with_args_parser(self):
+
+        command = CommandWithArgs()
+
+        parser = command.create_parser("manage.py", "simple")
+        
+        assert command.help in parser.usage
+
+        options, args = parser.parse_args(["Joe"])
+        assert args == ["Joe"]
+
+    def test_create_with_options_parser(self):
+
+        command = CommandWithOptions()
+
+        parser = command.create_parser("manage.py", "simple")
+
+        assert command.help in parser.usage
+
+        options, args = parser.parse_args(["--name=Joe"])
+        assert options.name == "Joe"
+    
 
 class TestManager(unittest.TestCase):
     
