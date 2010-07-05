@@ -113,7 +113,7 @@ Typing "help" before a command will display the ``help`` attribute of that comma
 You get a list of registered commands.
 
 Adding arguments to commands
---------------------------
+----------------------------
 
 Most commands take a number of named or positional arguments that you pass in the command line.
 
@@ -123,7 +123,7 @@ arbitrary name, like this::
     >>> python manage.py print --name=Joe
     ... "hello Joe"
 
- or alternatively:
+or alternatively:
 
     >>> python manage.py print -n Joe
 
@@ -141,8 +141,49 @@ To facilitate this you use the ``option_list`` attribute of the ``Command`` clas
         def run(self, app, name):
             print "hello %s" % name
 
-Options must be created using the ``make_option`` function from the ``optparse <http://docs.python.org/library/optparse.html>``_ 
+Options must be created using the ``make_option`` function from the `optparse <http://docs.python.org/library/optparse.html>`_ 
 library.
+
+Default commands
+----------------
+
+``Flask-Script`` has a couple of ready commands you can register and customize (in addition to the ``help`` command): ``Server``
+and ``Shell``.
+
+The ``Server`` command runs the **Flask** development server. It takes an optional ``port`` argument (default **5000**)::
+
+    from flaskext.script import Server, Manager
+    from myapp import create_app
+
+    manager = Manager(create_app)
+    manager.register("runserver", Server())
+
+    if __name__ == "__main__":
+        manager.run()
+
+and then run as so:
+
+    >>> python manage.py runserver
+
+Needless to say the development server is not intended for production use.
+
+The ``Shell`` command starts a Python shell. You can pass in a ``make_context`` argument, which must be a ``callable`` returning a ``dict``. By default, this is just a dict returning the ``app`` instance::
+
+    from flaskext.script import Shell, Manager
+    
+    from myapp import create_app
+    from myapp import models
+    from myapp.models import db
+
+    def _make_context(app):
+        return dict(app=app, db=db, models=models)
+
+    manager = Manager(create_app)
+    manager.register("shell", Shell(make_context=_make_context))
+    
+This is handy if you want to include a bunch of defaults in your shell to save typing lots of ``import`` statements.
+
+The ``Shell`` command will use `IPython <http://ipython.scipy.org/moin/>`_ if it is installed, otherwise it defaults to the standard Pythonshell. You can disable this behaviour in two ways: by passing the ``use_ipython`` argument to the ``Shell`` constructor, or passing ``--use-ipython=no`` in the command line. 
 
 API
 ---

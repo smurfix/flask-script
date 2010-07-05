@@ -11,7 +11,7 @@ class Command(object):
     help = None
 
     def usage(self, name):
-        usage = "%s [options] %s" % (name, self.option_list)
+        usage = "%s [options] %s" % (name, self.option_list or '')
         if self.help:
             usage += "\n\n" + self.help
         return usage
@@ -24,6 +24,24 @@ class Command(object):
     def run(self, app):
         raise NotImplementedError
 
+
+class Help(Command):
+    
+    def __init__(self, manager):
+        
+        self.manager = manager
+        
+    def run(self, app, command=None):
+    
+        if command:
+            try:
+                command = self.manager._commands[command]
+                print command.help
+                return
+            except KeyError:
+                print "Command %s not found in list:\n" % command
+
+        self.manager.print_usage()
 
 class Shell(Command):
 
@@ -38,12 +56,23 @@ class Shell(Command):
                     default="yes"),
     )
 
+    
+    def __init__(self, banner=None, make_context=None, use_ipython=True):
+
+        self.banner = banner or self.banner
+        self.use_ipython = use_ipython
+
+        if make_context is None:
+            make_context = lambda app: dict(app=app)
+
+        self.make_context = make_context
+
     def get_context(self, app):
-        return dict(app=app)
+        return self.make_context(app)
 
     def run(self, app, use_ipython):
         context = self.get_context(app)
-        if use_ipython == "yes":
+        if self.use_ipython and use_ipython == "yes":
             try:
                 import IPython
                 sh = IPython.Shell.IPShellEmbed(banner=self.banner)
@@ -70,16 +99,20 @@ class Server(Command):
 
 class Manager(object):
 
+    help_class = Help
+
     def __init__(self, app_factory):
         self.app_factory = app_factory
         self._commands = dict()
-    
+        
+        self.register("help", self.help_class(self))
+
     def register(self, name, command):
         self._commands[name] = command
 
     def print_usage(self):
         
-        commands = sorted(self._commands.keys())
+        commands = [self._commands[k].usage(k) for k in sorted(self._commands)]
         usage = "\n".join(commands)
         print usage
 
@@ -89,29 +122,10 @@ class Manager(object):
 
         try:
             name = sys.argv[1]
-            if name == "help":
-                self.print_usage()
-                sys.exit(0)
-
-        except IndexError:
-            print "Usage: %s [command]" % prog
-            sys.exit(1)
-        
-        try:
             command = self._commands[name]
-        except KeyError:
-            print "Command %s not found" % name
-            self.print_usage()
-            sys.exit(1)
-
-        try:
-            help = sys.argv[2] == "help"
-        except IndexError:
-            help = False
-
-        if help:
-            print command.help
-            sys.exit(0)
+        except (IndexError, KeyError):
+            name = "help"
+            command = self._commands[name]
 
         parser = command.create_parser(prog, name)
         options, args = parser.parse_args(sys.argv[2:])
