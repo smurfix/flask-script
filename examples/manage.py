@@ -21,11 +21,11 @@ class PrintSomething(Command):
 
     help = "print something"
 
-    options_list = (
+    option_list = (
         make_option("-n", "--name", dest="name"),
     )
 
-    def run(self, app, name):
+    def run(self, app, name=''):
         print name
 
 manager.register("dumpconfig", DumpConfig())

@@ -1,155 +1,153 @@
-Flask-Testing
+Flask-Script
 ======================================
 
-.. module:: flask-testing
+.. module:: Flask-Script
 
-The **Flask-Testing** extension provides unit testing utilities for Flask.
+The **Flask-Script** extension provides support for writing external scripts in Flask.
+
+You define and register commands that can be called from the command line::
+
+    # manage.py
+    
+    from flaskext.script import Manager
+
+    from myapp import create_app
+
+    class PrintCommand(Command):
+        def run(self):
+            print "hello"
+
+    manager = Manager(create_app)
+    manager.register("print", PrintCommand())
+
+    if __name__ == "__main__":
+        manager.run()
+
+    >>> python manage.py print
+    ... "hello"
 
 Source code and issue tracking at `Bitbucket`_.
 
-Installing Flask-Testing
+Installing Flask-Script
 ------------------------
 
 Install with **pip** and **easy_install**::
 
-    pip install Flask-Testing
+    pip install Flask-Script
 
 or download the latest version from Bitbucket::
 
-    hg clone http://bitbucket.org/danjac/flask-testing
+    hg clone http://bitbucket.org/danjac/flask-script
 
-    cd flask-testing
+    cd flask-script
 
     python setup.py develop
 
-If you are using **virtualenv**, it is assumed that you are installing **Flask-Testing**
+If you are using **virtualenv**, it is assumed that you are installing **Flask-Script**
 in the same virtualenv as your Flask application(s).
 
-Writing unit tests
-------------------
+Creating and running commands
+-----------------------------
 
-Simply subclass the ``TestCase`` class::
+The first step is to create a Python module to run your script commands in. You can call it
+anything you like, for our examples we'll call it **manage.py**.
 
-    from flaskext.testing import TestCase
+You don't have to place all your commands in the same file; for example, in a larger project
+with lots of commands you might want to split them into a number of files with related commands.
 
-    class MyTest(TestCase):
+In your **manage.py** file you have to create a ``Manager`` instance. The ``Manager`` class
+keeps track of all the commands and handles how they are called from the command line::
 
-        pass
+    from flaskext.script import Manager
 
+    from myapp import create_app
 
-You must specify the ``create_app`` method, which should return a Flask instance::
+    manager = Manager(app_factory=create_app)
 
-    from flaskext.testing import TestCase
+    if __name__ == "__main__":
+        manager.run()
 
-    class MyTest(TestCase):
+Calling ``manager.run()`` prepares your ``Manager`` instance to receive input from the command line.
 
-        def create_app(self):
+The ``Manager`` class requires a single argument, the ``app_factory``. This is any function that returns
+a ``Flask`` application instance. In the above example it is assumed that you have a ``create_app`` factory
+function that returns a ready application.
 
-            app = Flask(__name__)
-            app.config['TESTING'] = True
-            return app
+The next step is to create and register your commands. First you need to subclass the ``Command`` class.
+You then need, at the very least, to define a ``run`` method for this class.
 
-If you don't define ``create_app`` a ``NotImplementedError`` will be raised.
+To take a very simple example, we want to create a ``Print`` command that just prints out "hello world". It 
+doesn't take any arguments so is very straightforward::
 
-Testing JSON responses
-----------------------
+    from flaskext.script import Command
 
-If you are testing a view that returns a JSON response, you can test the output using
-a special ``json`` attribute appended to the ``Response`` object::
+    class Print(Command):
 
-    @app.route("/ajax/")
-    def some_json():
-        return jsonify(success=True)
+        help = "prints hello world"
 
-    class TestViews(TestCase):
-        def test_some_json(self):
-            response = self.client.get("/ajax/")
-            self.assertEquals(response.json, dict(success=True))
+        def run(self, app):
+            print "hello world"
 
-Using with Twill
-----------------
+Now the command needs to be registered with our ``Manager`` instance, created above::
 
-`Twill`_ is a simple language for browing the Web through
-a command line interface. You can use it in conjunction with ``TwillTestCase`` to write
-functional tests for your views. 
+    manager.register('print', Print())
 
-``TwillTestCase`` is a subclass of ``TestCase``. It sets up `Twill`_ for use with your test 
-cases. See the API below for details.
+This of course needs to be called before ``manager.run``. Now in our command line::
+
+    >>> python manage.py print
+    ... "hello world"
+
+The first argument to your ``run`` command, other than ``self``, is always ``app``: this is the Flask
+application instance provided by the ``app_factory`` passed to the ``Manager``. Additional arguments
+are configured through the ``option_list`` (see below).
+
+Notice also the ``help`` attribute. If you type the following::
+
+    >>> python manage.py help print
+    ... "prints hello world"
+
+Typing "help" before a command will display the ``help`` attribute of that command. If you just type::
+
+    >>> python manage.py help
+
+You get a list of registered commands.
+
+Adding arguments to commands
+--------------------------
+
+Most commands take a number of named or positional arguments that you pass in the command line.
+
+Taking the above example, rather than just print "hello world" we would like to be able to print some
+arbitrary name, like this::
+
+    >>> python manage.py print --name=Joe
+    ... "hello Joe"
+
+ or alternatively:
+
+    >>> python manage.py print -n Joe
+
+To facilitate this you use the ``option_list`` attribute of the ``Command`` class::
+
+    from optparse import make_option
+    from flaskext.script import Command, Manager
+
+    class Print(Command):
+
+        option_list = (
+            make_option('--name', '-n', dest='name'),
+        )
+
+        def run(self, app, name):
+            print "hello %s" % name
+
+Options must be created using the ``make_option`` function from the ``optparse <http://docs.python.org/library/optparse.html>``_ 
+library.
 
 API
 ---
 
-.. module:: flaskext.testing
-
-.. class:: TestCase
-        
-    Subclass of ``unittest.TestCase``. When run the following properties are defined:
-
-        * ``self.app`` : Flask application defined by ``create_app``
-        * ``self.client`` : Test client instance
-    
-    The Flask application test context is created and disposed of inside the test run.
-
-    .. method:: create_app()
-        
-        Returns a Flask app instance. If not defined raises ``NotImplementedError``.
-    
-    .. method:: assertRedirects(response, location)
-        
-        Checks if HTTP response and redirect URL matches location.
-
-        :param response: Response returned from test client
-        :param location: URL (automatically prefixed by `http://localhost`)
-
-    .. method:: assert_redirects(response)
-        
-        Alias of ``assertRedirects``.
-
-    .. method:: assert200(response)
-        
-        Checks if ``response.status_code`` == 200
-
-        :param response: Response returned from test client
-
-    .. method:: assert_202(response)
-        
-        Alias of ``assert202``.
-
-    .. method:: assert404(response)
-        
-        Checks if ``response.status_code`` == 404
-
-        :param response: Response returned from test client
-
-    .. method:: assert_404(response)
-        
-        Alias of ``assert404``.
-        
-.. class:: TwillTestCase(TestCase)
-    
-    Subclass of ``TestCase`` with additional functionality
-    for managing `Twill`_. Handles WSGI intercept inside each
-    test. 
-
-    A ``browser`` instance is created with each setup, which is a `Twill`_ browser instance.
-
-    .. attribute:: twill_scheme
-
-        HTTP scheme used by `Twill`_ (default **http**)
-
-    .. attribute:: twill_host
-
-        HTTP host used by `Twill`_ (default **127.0.0.1**)
-
-    .. attribute:: twill_port
-
-        HTTP port used by `Twill`_ (default **5000**)
-
-    .. method:: make_twill_url(url)
-
-        Creates an absolute URL based on the `Twill`_ URL attributes.
-
+.. module:: flaskext.script
 
 .. _Flask: http://flask.pocoo.org
-.. _Bitbucket: http://bitbucket.org/danjac/flask-testing
-.. _Twill: http://twill.idyll.org/
+.. _Bitbucket: http://bitbucket.org/danjac/Flask-Script

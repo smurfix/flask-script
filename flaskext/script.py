@@ -77,29 +77,49 @@ class Manager(object):
     def register(self, name, command):
         self._commands[name] = command
 
+    def print_usage(self):
+        
+        commands = sorted(self._commands.keys())
+        usage = "\n".join(commands)
+        print usage
+
     def run(self):
         
         prog = sys.argv[0]
 
-        # TBD: add help support
         try:
             name = sys.argv[1]
+            if name == "help":
+                self.print_usage()
+                sys.exit(0)
+
         except IndexError:
             print "Usage: %s [command]" % prog
             sys.exit(1)
-
+        
         try:
             command = self._commands[name]
         except KeyError:
             print "Command %s not found" % name
+            self.print_usage()
             sys.exit(1)
 
-        # get option list
+        try:
+            help = sys.argv[2] == "help"
+        except IndexError:
+            help = False
+
+        if help:
+            print command.help
+            sys.exit(0)
+
         parser = command.create_parser(prog, name)
         options, args = parser.parse_args(sys.argv[2:])
+        kwargs = options.__dict__
 
         app = self.app_factory()
+
         with app.test_request_context():
-            command.run(app, *args, **options.__dict__)
+            command.run(app, *args, **kwargs)
 
         sys.exit(0)

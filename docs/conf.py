@@ -40,7 +40,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'Flask-Testing'
+project = u'Flask-Script'
 copyright = u'2010, Dan Jacob'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -94,7 +94,7 @@ exclude_patterns = ['_build']
 html_theme = 'flask_small'
 
 html_theme_options = {
-     'index_logo': 'flask-testing.png',
+     'index_logo': 'flask-script.png',
      'github_fork': None
 }
 # Theme options are theme-specific and customize the look and feel of a theme
@@ -168,7 +168,7 @@ html_static_path = ['_static']
 #html_file_suffix = ''
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'flask-testingdoc'
+htmlhelp_basename = 'flask-scriptdoc'
 
 
 # -- Options for LaTeX output --------------------------------------------------
@@ -182,7 +182,7 @@ htmlhelp_basename = 'flask-testingdoc'
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'flask-testing.tex', u'Flask-Testing Documentation',
+  ('index', 'flask-script.tex', u'Flask-Script Documentation',
    u'Dan Jacob', 'manual'),
 ]
 
@@ -215,6 +215,6 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'flask-testing', u'Flask-Testing Documentation',
+    ('index', 'flask-script', u'Flask-Script Documentation',
      [u'Dan Jacob'], 1)
 ]
