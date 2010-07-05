@@ -52,11 +52,10 @@ class Shell(Command):
     help = 'Runs a Flask shell'
     
     option_list = (
-        make_option('--use-ipython',
-                    dest='use_ipython',
-                    type='choice',
-                    choices=("yes", "no"),
-                    default="yes"),
+        make_option('--no-ipython',
+                    action="store_true",
+                    dest='no_ipython',
+                    default=False),
     )
 
     
@@ -73,9 +72,9 @@ class Shell(Command):
     def get_context(self, app):
         return self.make_context(app)
 
-    def run(self, app, use_ipython):
+    def run(self, app, no_ipython):
         context = self.get_context(app)
-        if self.use_ipython and use_ipython == "yes":
+        if self.use_ipython and not no_ipython:
             try:
                 import IPython
                 sh = IPython.Shell.IPShellEmbed(banner=self.banner)
