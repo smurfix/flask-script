@@ -35,6 +35,25 @@ class CommandWithOptions(Command):
         print name
 
 
+class CommandWithDynamicOptions(Command):
+    description = "command with options"
+
+    def __init__(self, default_name='Joe'):
+        self.default_name = default_name
+
+    def get_options(self):
+
+        return ( 
+            Option("-n", "--name", 
+                   help="name to pass in",
+                   dest="name",
+                   default=self.default_name),
+            )
+
+    def run(self, app, name):
+        print name
+
+
 class TestCommands(unittest.TestCase):
 
     TESTING = True
@@ -134,6 +153,17 @@ class TestManager(unittest.TestCase):
         except SystemExit, e:
             assert e.code == 0
         assert "Joe" in sys.stdout.getvalue()
+
+    def test_run_dynamic_options(self):
+
+        manager = Manager(self.app)
+        manager.add_command("simple", CommandWithDynamicOptions('Fred'))
+        sys.argv = ["manage.py", "simple"]
+        try:
+            manager.run()
+        except SystemExit, e:
+            assert e.code == 0
+        assert "Fred" in sys.stdout.getvalue()
 
     def test_run_bad_options(self):
 

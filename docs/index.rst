@@ -145,6 +145,22 @@ To facilitate this you use the ``option_list`` attribute of the ``Command`` clas
 
 Options are provided as ``Option`` instances. The ``Option`` takes exactly the same arguments as `argparse.ArgumentParser.add_argument <http://argparse.googlecode.com/svn/trunk/doc/add_argument.html>`_.
 
+Alternatively, you can define a ``get_options`` method for your ``Command`` class. This is useful if you want to be able
+to return options at runtime based on for example per-instance attributes::
+
+    class Print(Command):
+
+        def __init__(self, default_name='Joe'):
+            self.default_name=default_name
+
+        def get_options(self):
+            return [
+                Option('--name', '-n', dest='name', default=self.default_name),
+            ]
+
+        def run(self, app, name):
+            print "hello %s" % name
+
 Default commands
 ----------------
 
