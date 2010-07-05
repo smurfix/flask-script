@@ -118,6 +118,17 @@ class TestManager(unittest.TestCase):
             assert e.code == 1
         assert "No command provided" in sys.stdout.getvalue()
 
+    def test_run_good_options(self):
+
+        manager = Manager(self.app)
+        manager.register("simple", CommandWithOptions())
+        sys.argv = ["manage.py", "simple", "--name=Joe"]
+        try:
+            manager.run()
+        except SystemExit, e:
+            assert e.code == 0
+        assert "Joe" in sys.stdout.getvalue()
+
     def test_run_bad_options(self):
 
         manager = Manager(self.app)
