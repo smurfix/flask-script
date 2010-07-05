@@ -5,23 +5,25 @@ from flask import Flask
 from flaskext.script import Command, Manager, InvalidCommand, Option
 
 class SimpleCommand(Command):
-    help = "simple command"
+    description = "simple command"
 
     def run(self, app):
         print "OK"
 
 
 class CommandWithArgs(Command):
-    help = "command with args"
-    args = '[NAME]'
+    description = "command with args"
+
+    option_list = (
+        Option("name"),
+    )
 
     def run(self, app, name):
         print name
 
 
 class CommandWithOptions(Command):
-    help = "command with options"
-    args = 'foo'
+    description = "command with options"
 
     option_list = (
         Option("-n", "--name", 
@@ -42,39 +44,14 @@ class TestCommands(unittest.TestCase):
         self.app = Flask(__name__)
         self.app.config.from_object(self)
 
-    def test_usage_simple(self):
-
-        command = SimpleCommand()
-
-        assert 'simple command' in command.usage("simple")
-
-    def test_usage_custom(self):
-
-        command = CommandWithArgs()
-
-        assert '[NAME]' in command.usage("simple")
-
-    def test_create_simple_parser(self):
-
-        command = SimpleCommand()
-
-        parser = command.create_parser("manage.py", "simple")
-
-        assert command.help in parser.usage
-
-        options, args = parser.parse_args([])
-        assert args == []
-
     def test_create_with_args_parser(self):
 
         command = CommandWithArgs()
 
         parser = command.create_parser("manage.py", "simple")
-        
-        assert command.help in parser.usage
 
-        options, args = parser.parse_args(["Joe"])
-        assert args == ["Joe"]
+        ns = parser.parse_args(["Joe"])
+        assert ns.name == "Joe"
 
     def test_create_with_options_parser(self):
 
@@ -82,10 +59,8 @@ class TestCommands(unittest.TestCase):
 
         parser = command.create_parser("manage.py", "simple")
 
-        assert command.help in parser.usage
-
-        options, args = parser.parse_args(["--name=Joe"])
-        assert options.name == "Joe"
+        ns = parser.parse_args(["--name=Joe"])
+        assert ns.name == "Joe"
     
 
 class TestManager(unittest.TestCase):

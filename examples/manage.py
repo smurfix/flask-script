@@ -1,9 +1,7 @@
 import pprint
 
 from flask import Flask
-from flaskext.script import Manager, Command, Shell, Server
-
-from optparse import make_option
+from flaskext.script import Manager, Command, Option, Shell, Server
 
 def create_app():
     app = Flask(__name__)
@@ -24,7 +22,7 @@ class PrintSomething(Command):
     help = "print something"
 
     option_list = (
-        make_option("-n", "--name", dest="name"),
+        Option("-n", "--name", dest="name"),
     )
 
     def run(self, app, name=''):

@@ -16,17 +16,12 @@ class Option(object):
 class Command(object):
 
     option_list = []
-    args = ''
-    help = ''
-    
-    def usage(self, name):
-        usage = "%s [options] %s" % (name, self.args)
-        if self.help:
-            usage += "\n\n" + self.help
-        return usage
+    description = None
 
     def create_parser(self, prog, name):
-        parser = argparse.ArgumentParser(prog=prog)
+
+        parser = argparse.ArgumentParser(prog=prog, 
+                                         description=self.description)
         for option in self.option_list:
             parser.add_argument(*option.args, **option.kwargs)
         return parser
@@ -56,8 +51,8 @@ class Help(Command):
 
 class Shell(Command):
 
-    banner = 'Flask shell'
-    help = 'Runs a Flask shell'
+    banner = ''
+    description = 'Runs a Flask shell'
     
     option_list = (
         Option('--no-ipython',
@@ -96,12 +91,12 @@ class Shell(Command):
 
 class Server(Command):
 
-    help = "Runs Flask development server"
+    description = "Runs Flask development server"
 
     option_list = (
         Option('-p', '--port', 
                dest='port', 
-               type='int', 
+               type=int, 
                default=5000),
     )
 
@@ -131,7 +126,7 @@ class Manager(object):
 
     def print_usage(self):
         
-        commands = [self._commands[k].usage(k) for k in sorted(self._commands)]
+        commands = [k for k in sorted(self._commands)]
         usage = "\n".join(commands)
         print usage
 
@@ -147,7 +142,6 @@ class Manager(object):
         parser = command.create_parser(prog, name)
         
         ns = parser.parse_args(list(args))
-        print dir(ns)
         
         with app.test_request_context():
             command.run(app, **ns.__dict__)
