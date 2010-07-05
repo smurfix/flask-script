@@ -171,7 +171,7 @@ The ``Shell`` command starts a Python shell. You can pass in a ``make_context`` 
 
     from flaskext.script import Shell, Manager
     
-    from myapp import create_app
+    from myapp import app
     from myapp import models
     from myapp.models import db
 
