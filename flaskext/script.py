@@ -39,15 +39,7 @@ class Help(Command):
         
         self.manager = manager
         
-    def run(self, app, command=None):
-    
-        if command:
-            try:
-                command = self.manager._commands[command]
-                print command.help
-                return
-            except KeyError:
-                print "Command %s not found in list:\n" % command
+    def run(self, app):
 
         self.manager.print_usage()
 
