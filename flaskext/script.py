@@ -22,12 +22,20 @@ class Command(object):
 
         parser = argparse.ArgumentParser(prog=prog, 
                                          description=self.description)
-        for option in self.option_list:
+        for option in self.get_options():
             parser.add_argument(*option.args, **option.kwargs)
         return parser
 
     def add_option(self, option):
         self.option_list.append(option)
+
+    def get_options(self):
+        """
+        By default, returns self.option_list.Override if you
+        need to do instance-specific configuration.
+        """
+
+        return self.option_list
 
     def run(self, app):
         raise NotImplementedError
@@ -67,12 +75,20 @@ class Shell(Command):
 
         self.make_context = make_context
 
+    def get_options(self):
+
+        return (
+                Option('--no-ipython',
+                       action="store_true",
+                       dest='no_ipython',
+                       default=not(self.use_ipython)))
+
     def get_context(self, app):
         return self.make_context(app)
 
     def run(self, app, no_ipython):
         context = self.get_context(app)
-        if self.use_ipython and not no_ipython:
+        if not no_ipython:
             try:
                 import IPython
                 sh = IPython.Shell.IPShellEmbed(banner=self.banner)
@@ -88,15 +104,41 @@ class Server(Command):
 
     description = "Runs Flask development server"
 
-    option_list = (
-        Option('-p', '--port', 
-               dest='port', 
-               type=int, 
-               default=5000),
-    )
+    def __init__(self, host='127.0.0.1', port=5000, use_debugger=True,
+        use_reloader=True):
 
-    def run(self, app, port):
-        app.run(port=port)
+        self.port = port
+        self.host = host
+        self.use_debugger = use_debugger
+        self.use_reloader = use_reloader
+    
+    def get_options(self):
+
+        return (
+                Option('-t', '--host',
+                       dest='host',
+                       default=self.host),
+
+                Option('-p', '--port', 
+                       dest='port', 
+                       type=int,
+                       default=self.port),
+
+                Option('-d', '--debug',
+                       action='store_true',
+                       dest='use_debugger',
+                       default=self.use_debugger),
+        
+                Option('-r', '--reload',
+                       action='store_true',
+                       dest='use_reloader',
+                       default=self.use_reloader))
+
+    def run(self, app, host, port, use_debugger, use_reloader):
+        app.run(host=host,
+                port=port,
+                use_debugger=use_debugger,
+                use_reloader=use_reloader)
 
 
 class InvalidCommand(Exception):
