@@ -11,7 +11,8 @@ class Command(object):
     help = None
 
     def usage(self, name):
-        usage = "%s [options] %s" % (name, self.option_list or '')
+        options = [o.help for o in self.option_list]
+        usage = "%s [options] %s" % (name, options or '')
         if self.help:
             usage += "\n\n" + self.help
         return usage

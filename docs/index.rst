@@ -147,7 +147,7 @@ library.
 Default commands
 ----------------
 
-``Flask-Script`` has a couple of ready commands you can register and customize (in addition to the ``help`` command): ``Server``
+**Flask-Script** has a couple of ready commands you can register and customize (in addition to the ``help`` command): ``Server``
 and ``Shell``.
 
 The ``Server`` command runs the **Flask** development server. It takes an optional ``port`` argument (default **5000**)::
@@ -183,7 +183,7 @@ The ``Shell`` command starts a Python shell. You can pass in a ``make_context`` 
     
 This is handy if you want to include a bunch of defaults in your shell to save typing lots of ``import`` statements.
 
-The ``Shell`` command will use `IPython <http://ipython.scipy.org/moin/>`_ if it is installed, otherwise it defaults to the standard Pythonshell. You can disable this behaviour in two ways: by passing the ``use_ipython`` argument to the ``Shell`` constructor, or passing ``--use-ipython=no`` in the command line. 
+The ``Shell`` command will use `IPython <http://ipython.scipy.org/moin/>`_ if it is installed, otherwise it defaults to the standard Python shell. You can disable this behaviour in two ways: by passing the ``use_ipython`` argument to the ``Shell`` constructor, or passing ``--use-ipython=no`` in the command line. 
 
 API
 ---
