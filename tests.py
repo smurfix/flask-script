@@ -191,4 +191,13 @@ class TestManager(unittest.TestCase):
         except SystemExit, e:
             assert e.code == 2
 
+    def test_init_with_flask_instance(self):
+        
+        manager = Manager(self.app)
+        assert callable(manager.app_factory)
+
+    def test_init_with_callable(self):
+
+        manager = Manager(lambda: app)
+        assert callable(manager.app_factory)
 
