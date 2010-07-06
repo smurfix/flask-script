@@ -85,6 +85,14 @@ class Command(object):
                 else:
                     return rv
 
+    def handle(self, app, prog, name, args):
+
+        parser = self.create_parser(prog, name)
+        ns = parser.parse_args(list(args))
+        
+        with app.test_request_context():
+            self.run(app, **ns.__dict__)
+
     def run(self, app):
         raise NotImplementedError
 
@@ -205,19 +213,13 @@ class Manager(object):
 
     def run_command(self, prog, name, *args):
 
-        app = self.app_factory()
-
         try:
             command = self._commands[name]
         except KeyError:
             raise InvalidCommand, "Command %s not found" % name
 
-        parser = command.create_parser(prog, name)
-        
-        ns = parser.parse_args(list(args))
-        
-        with app.test_request_context():
-            command.run(app, **ns.__dict__)
+        command.handle(self.app_factory(), prog, name, args)
+
     
     def run(self):
         
