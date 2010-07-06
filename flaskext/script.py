@@ -2,6 +2,7 @@
 
 import sys
 import code
+import getpass
 
 import argparse
 
@@ -39,6 +40,48 @@ class Command(object):
         """
 
         return self.option_list
+
+    def prompt(self, name, default=None):
+        prompt = name + (default and ' [%s]' % default or '')
+        prompt += name.endswith('?') and ' ' or ': '
+        while True:
+            rv = raw_input(prompt)
+            if rv:
+                return rv
+            if default is not None:
+                return default
+
+    def prompt_pass(self, name, default=None):
+        prompt = name + (default and ' [%s]' % default or '')
+        prompt += name.endswith('?') and ' ' or ': '
+        while True:
+            rv = getpass.getpass(prompt)
+            if rv:
+                return rv
+            if default is not None:
+                return default
+
+    def prompt_bool(self, name, default=False):
+        while True:
+            rv = prompt(name + '?', default and 'Y' or 'N')
+            if not rv:
+                return default
+            if rv.lower() in ('y', 'yes', '1', 'on', 'true', 't'):
+                return True
+            elif rv.lower() in ('n', 'no', '0', 'off', 'false', 'f'):
+                return False
+
+    def prompt_choices(self, name, choices):
+        while True:
+            rv = prompt(name + '? - (%s)' % ', '.join(choices), choices[0])
+            rv = rv.lower()
+            if not rv:
+                return choices[0]
+            if rv in choices:
+                if rv == 'none':
+                    return None
+                else:
+                    return rv
 
     def run(self, app):
         raise NotImplementedError
