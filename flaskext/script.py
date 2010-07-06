@@ -49,13 +49,6 @@ class Shell(Command):
     banner = ''
     description = 'Runs a Flask shell'
     
-    option_list = (
-        Option('--no-ipython',
-               action="store_true",
-               dest='no_ipython',
-               default=False),
-    )
-    
     def __init__(self, banner=None, make_context=None, use_ipython=True):
 
         self.banner = banner or self.banner
@@ -72,7 +65,7 @@ class Shell(Command):
                 Option('--no-ipython',
                        action="store_true",
                        dest='no_ipython',
-                       default=not(self.use_ipython)))
+                       default=not(self.use_ipython),))
 
     def get_context(self, app):
         return self.make_context(app)
