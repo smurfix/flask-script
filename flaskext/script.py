@@ -211,7 +211,9 @@ class Manager(object):
         
         print self.get_usage()
 
-    def handle(self, prog, name, *args):
+    def handle(self, prog, name, args=None):
+
+        args = args or []
 
         try:
             command = self._commands[name]
@@ -225,7 +227,7 @@ class Manager(object):
         try:
             self.handle(sys.argv[0],
                         sys.argv[1],
-                        *sys.argv[2:])
+                        sys.argv[2:])
             
             sys.exit(0)
 
