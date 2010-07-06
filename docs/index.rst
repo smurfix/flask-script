@@ -300,7 +300,21 @@ API
 
 .. class:: Option
 
-    Stores option parameters for ``argparse.add_argument``. Use with ``Command.option_list``.
+    Stores option parameters for `argparse.ArgumentParser.add_argument <http://pypi.python.org/pypi/argparse>`_. Use with ``Command.option_list`` or ``Command.get_options()``. 
+
+    .. method:: __init__(name_or_flags, action, nargs, const, default, type, choices, required, help, metavar, dest)
+
+        :param name_or_flags: Either a name or a list of option strings, e.g. foo or -f, --foo
+        :param action: The basic type of action to be taken when this argument is encountered at the command-line.
+        :param nargs: The number of command-line arguments that should be consumed.
+        :param const: A constant value required by some action and nargs selections.
+        :param default: The value produced if the argument is absent from the command-line.
+        :param type: The type to which the command-line arg should be converted.
+        :param choices: A container of the allowable values for the argument.
+        :param required: Whether or not the command-line option may be omitted (optionals only).
+        :param help: A brief description of what the argument does.
+        :param metavar: A name for the argument in usage messages.
+        :param dest: The name of the attribute to be added to the object returned by parse_args().
 
 .. _Flask: http://flask.pocoo.org
 .. _Bitbucket: http://bitbucket.org/danjac/Flask-Script
