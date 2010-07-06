@@ -63,7 +63,7 @@ class Command(object):
 
     def prompt_bool(self, name, default=False):
         while True:
-            rv = prompt(name + '?', default and 'Y' or 'N')
+            rv = self.prompt(name + '?', default and 'Y' or 'N')
             if not rv:
                 return default
             if rv.lower() in ('y', 'yes', '1', 'on', 'true', 't'):
@@ -71,12 +71,14 @@ class Command(object):
             elif rv.lower() in ('n', 'no', '0', 'off', 'false', 'f'):
                 return False
 
-    def prompt_choices(self, name, choices):
+    def prompt_choices(self, name, choices, default=None):
+        if default is None:
+            default = choices[0]
         while True:
-            rv = prompt(name + '? - (%s)' % ', '.join(choices), choices[0])
+            rv = self.prompt(name + '? - (%s)' % ', '.join(choices), default)
             rv = rv.lower()
             if not rv:
-                return choices[0]
+                return default
             if rv in choices:
                 if rv == 'none':
                     return None

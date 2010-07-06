@@ -241,6 +241,38 @@ API
     
     :param app: Flask application instance
 
+    .. method:: prompt(prompt, default=None)
+
+    Prompts the user for input, if ``default`` is provided then that is used instead.
+
+    :param prompt: formatted prompt text
+    :param default: default if no input entered
+
+    .. method:: prompt_pass(prompt, default=None)
+
+    Prompts the user for hidden (password) input, if ``default`` is provided then that is used instead.
+
+    :param prompt: formatted prompt text
+    :param default: default if no input entered
+
+
+    .. method:: prompt_choices(prompt, choices, default=None)
+
+    Prompts the user for input from available choices, if ``default`` is provided then that is used instead.
+
+    :param prompt: formatted prompt text
+    :param choices: list of available choices
+    :param default: default if no input entered
+
+
+    .. method:: prompt_bool(prompt, default=False)
+
+    Prompts the user for input, if ``default`` is provided then that is used instead. A boolean value is 
+    returned based on selection of input ('y', 'yes', 'n', 'no' etc).
+
+    :param prompt: formatted prompt text
+    :param default: default if no input entered
+
 .. class:: Shell
 
     Command to start a Python shell.
