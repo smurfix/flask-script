@@ -119,14 +119,14 @@ class TestManager(unittest.TestCase):
         
         manager = Manager(self.app)
         manager.add_command("simple", SimpleCommand())
-        manager.run_command("manage.py", "simple")
+        manager.handle("manage.py", "simple")
         assert 'OK' in sys.stdout.getvalue()
 
     def test_run_non_existant_command(self):
 
         manager = Manager(self.app)
         self.assertRaises(InvalidCommand, 
-                           manager.run_command,
+                           manager.handle,
                            "manage.py", "simple")
     
     def test_run_existing(self):

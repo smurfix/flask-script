@@ -211,7 +211,7 @@ class Manager(object):
         
         print self.get_usage()
 
-    def run_command(self, prog, name, *args):
+    def handle(self, prog, name, *args):
 
         try:
             command = self._commands[name]
@@ -219,14 +219,14 @@ class Manager(object):
             raise InvalidCommand, "Command %s not found" % name
 
         command.handle(self.app_factory(), prog, name, args)
-
     
     def run(self):
         
         try:
-            self.run_command(sys.argv[0],
-                             sys.argv[1],
-                             *sys.argv[2:])
+            self.handle(sys.argv[0],
+                        sys.argv[1],
+                        *sys.argv[2:])
+            
             sys.exit(0)
 
         except IndexError:
