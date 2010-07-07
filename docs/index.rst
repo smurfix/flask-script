@@ -170,7 +170,7 @@ The ``Command`` class comes with a set of helper methods, useful if you need to 
 
         def run(self, app):
             if self.prompt_bool(
-                "Are you sure you want to lose all your data ?"):
+                "Are you sure you want to lose all your data"):
                 db.drop_all()
 
     manager.add_command("dropdb", DropDatabase())
@@ -196,7 +196,7 @@ The ``Server`` command runs the **Flask** development server. It takes an option
     if __name__ == "__main__":
         manager.run()
 
-and then run as so:
+and then run the command::
 
     python manage.py runserver
 
