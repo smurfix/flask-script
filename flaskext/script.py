@@ -222,7 +222,10 @@ class Manager(object):
 
         command.handle(self.app_factory(), prog, name, args)
     
-    def run(self):
+    def run(self, commands=None):
+
+        if commands:
+            self._commands.update(commands)
         
         try:
             self.handle(sys.argv[0],

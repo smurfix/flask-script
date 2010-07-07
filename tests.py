@@ -140,6 +140,16 @@ class TestManager(unittest.TestCase):
             assert e.code == 0
         assert 'OK' in sys.stdout.getvalue()
 
+    def test_run_existing_bind_later(self):
+
+        manager = Manager(self.app)
+        sys.argv = ["manage.py", "simple"]
+        try:
+            manager.run({'simple':SimpleCommand()})
+        except SystemExit, e:
+            assert e.code == 0
+        assert 'OK' in sys.stdout.getvalue()
+
     def test_run_not_existing(self):
 
         manager = Manager(self.app)

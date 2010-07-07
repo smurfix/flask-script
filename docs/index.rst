@@ -99,6 +99,10 @@ This of course needs to be called before ``manager.run``. Now in our command lin
     python manage.py print
     > hello world
 
+You can also pass the ``Command`` instance in a dict to ``manager.run()``::
+
+    manager.run({'print' : Print()})
+
 The first argument to your ``run`` command, other than ``self``, is always ``app``: this is the Flask
 application instance provided by the ``app`` passed to the ``Manager``. Additional arguments
 are configured through the ``option_list`` (see below).
@@ -240,9 +244,11 @@ API
 
         :param app: **Flask** application instance or callable that returns a **Flask** application.
 
-    .. method:: run()
+    .. method:: run(commands=None)
 
-    Run a command based on command-line inputs. Typically you would call this inside a ``if __name__ == "__main__"`` block.
+        Run a command based on command-line inputs. Typically you would call this inside a ``if __name__ == "__main__"`` block.
+
+        :param commands: optional dict of ``Command`` instances.
 
 .. class:: Command
 
