@@ -12,14 +12,14 @@ manager = Manager(create_app)
 
 class DumpConfig(Command):
 
-    help = "Dumps config"
+    description = "Dumps config"
 
     def run(self, app):
         pprint.pprint(app.config)
 
 class PrintSomething(Command):
 
-    help = "print something"
+    decription = "print something"
 
     option_list = (
         Option("-n", "--name", dest="name"),
@@ -28,8 +28,14 @@ class PrintSomething(Command):
     def run(self, app, name=''):
         print name
 
+class PrintInput(Command):
+
+    def run(self, app):
+        print self.prompt("print something...")
+
 manager.add_command("dumpconfig", DumpConfig())
 manager.add_command("print", PrintSomething())
+manager.add_command("printi", PrintInput())
 manager.add_command("shell", Shell())
 manager.add_command("runserver", Server())
 
