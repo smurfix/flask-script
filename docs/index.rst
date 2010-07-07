@@ -25,8 +25,8 @@ You define and add commands that can be called from the command line to a ``Mana
 
 Then run the script like this::
 
-    >>> python manage.py print
-    ... "hello"
+    python manage.py print
+    > hello
     
 Source code and issue tracking at `Bitbucket`_.
 
@@ -96,8 +96,8 @@ Now the command needs to be added to our ``Manager`` instance, created above::
 
 This of course needs to be called before ``manager.run``. Now in our command line::
 
-    >>> python manage.py print
-    ... "hello world"
+    python manage.py print
+    > hello world
 
 The first argument to your ``run`` command, other than ``self``, is always ``app``: this is the Flask
 application instance provided by the ``app`` passed to the ``Manager``. Additional arguments
@@ -105,11 +105,11 @@ are configured through the ``option_list`` (see below).
 
 To get a list of available commands and their descriptions, just run with no command::
 
-    >>> python manage.py
+    python manage.py
 
 To get help text for a particular command::
 
-    >>> python manage.py runserver -h
+    python manage.py runserver -h
 
 This will print usage plus the ``description`` of the ``Command``.
 
@@ -121,12 +121,12 @@ Most commands take a number of named or positional arguments that you pass in th
 Taking the above example, rather than just print "hello world" we would like to be able to print some
 arbitrary name, like this::
 
-    >>> python manage.py print --name=Joe
-    ... "hello Joe"
+    python manage.py print --name=Joe
+    hello Joe
 
 or alternatively:
 
-    >>> python manage.py print -n Joe
+    python manage.py print -n Joe
 
 To facilitate this you use the ``option_list`` attribute of the ``Command`` class::
 
@@ -141,7 +141,7 @@ To facilitate this you use the ``option_list`` attribute of the ``Command`` clas
         def run(self, app, name):
             print "hello %s" % name
 
-Options are provided as ``Option`` instances. The ``Option`` takes exactly the same arguments as `argparse.ArgumentParser.add_argument <http://argparse.googlecode.com/svn/trunk/doc/add_argument.html>`_.
+Positional and optional arguments are stored as ``Option`` instances - see the API below for details.
 
 Alternatively, you can define a ``get_options`` method for your ``Command`` class. This is useful if you want to be able
 to return options at runtime based on for example per-instance attributes::
@@ -158,6 +158,27 @@ to return options at runtime based on for example per-instance attributes::
 
         def run(self, app, name):
             print "hello %s" % name
+
+Getting user input
+------------------
+
+The ``Command`` class comes with a set of helper methods, useful if you need to grab user input from the command line. For example::
+    
+    from myapp.models import db
+
+    class DropDatabase(Command):
+
+        def run(self, app):
+            if self.prompt_bool(
+                "Are you sure you want to lose all your data ?"):
+                db.drop_all()
+
+    manager.add_command("dropdb", DropDatabase())
+
+It then runs like this::
+
+    python manage.py dropdb
+    > Are you sure you want to lose all your data ? [N]
 
 Default commands
 ----------------
@@ -177,7 +198,7 @@ The ``Server`` command runs the **Flask** development server. It takes an option
 
 and then run as so:
 
-    >>> python manage.py runserver
+    python manage.py runserver
 
 The ``Server`` command has a number of command-line arguments - run ``python manage.py runserver -h`` for details on these.
 
