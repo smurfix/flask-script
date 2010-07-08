@@ -12,17 +12,30 @@ __all__ = ["Command", "Shell", "Server", "Manager", "Option"]
 
 class Option(object):
 
+    """
+    Stores positional and optional arguments for ArgumentParser.
+    """
+    
     def __init__(self, *args, **kwargs):
         self.args = args
         self.kwargs = kwargs
 
 
 class Command(object):
+    
+    """
+    Base class for creating commands.
+    """
 
     option_list = []
     description = None
 
     def create_parser(self, prog, name):
+
+        """
+        Creates an ArgumentParser instance from options returned 
+        by get_options()
+        """
 
         parser = argparse.ArgumentParser(prog=prog, 
                                          description=self.description)
@@ -31,9 +44,15 @@ class Command(object):
         return parser
 
     def add_option(self, option):
+        
+        """
+        Adds option to option list.
+        """
+        
         self.option_list.append(option)
 
     def get_options(self):
+
         """
         By default, returns self.option_list.Override if you
         need to do instance-specific configuration.
@@ -42,6 +61,14 @@ class Command(object):
         return self.option_list
 
     def prompt(self, name, default=None):
+        
+        """
+        Grab user input from command line.
+
+        :param name: prompt text
+        :param default: default value if no input provided.
+        """
+
         prompt = name + (default and ' [%s]' % default or '')
         prompt += name.endswith('?') and ' ' or ': '
         while True:
@@ -52,6 +79,14 @@ class Command(object):
                 return default
 
     def prompt_pass(self, name, default=None):
+
+        """
+        Grabs hidden (password) input from command line.
+
+        :param name: prompt text
+        :param default: default value if no input provided.
+        """
+
         prompt = name + (default and ' [%s]' % default or '')
         prompt += name.endswith('?') and ' ' or ': '
         while True:
@@ -62,6 +97,15 @@ class Command(object):
                 return default
 
     def prompt_bool(self, name, default=False):
+        
+        """
+        Grabs user input from command line and converts to boolean
+        value.
+
+        :param name: prompt text
+        :param default: default value if no input provided.
+        """
+        
         while True:
             rv = self.prompt(name + '?', default and 'Y' or 'N')
             if not rv:
@@ -72,6 +116,15 @@ class Command(object):
                 return False
 
     def prompt_choices(self, name, choices, default=None):
+        
+        """
+        Grabs user input from command line from set of provided choices.
+
+        :param name: prompt text
+        :param choices: list or tuple of available choices
+        :param default: default value if no input provided.
+        """
+
         if default is None:
             default = choices[0]
         while True:
@@ -94,10 +147,21 @@ class Command(object):
             self.run(app, **ns.__dict__)
 
     def run(self, app):
+
+        """
+        Runs a command. This must be implemented by the subclass. The first
+        argument is always the app (Flask instance) followed by arguments
+        as configured by the Command options.
+        """
+
         raise NotImplementedError
 
 
 class Shell(Command):
+
+    """
+    Runs a Python shell inside Flask application context.
+    """
 
     banner = ''
     description = 'Runs a Flask shell'
@@ -121,9 +185,20 @@ class Shell(Command):
                        default=not(self.use_ipython)),)
 
     def get_context(self, app):
+        
+        """
+        Returns a dict of context variables added to the shell namespace.
+        """
+
         return self.make_context(app)
 
     def run(self, app, no_ipython):
+
+        """
+        Runs the shell. Unless no_ipython is True or use_python is False
+        then runs IPython shell if that is installed.
+        """
+
         context = self.get_context(app)
         if not no_ipython:
             try:
@@ -138,6 +213,10 @@ class Shell(Command):
 
 
 class Server(Command):
+
+    """
+    Runs the Flask development server i.e. app.run()
+    """
 
     description = "Runs Flask development server"
 
@@ -184,6 +263,10 @@ class InvalidCommand(Exception):
 
 class Manager(object):
 
+    """
+    Controller class for handling a set of commands.
+    """
+
     def __init__(self, app):
 
         if isinstance(app, Flask):
@@ -193,10 +276,22 @@ class Manager(object):
         self._commands = dict()
 
     def add_command(self, name, command):
+
+        """
+        Adds command to registry.
+
+        :param command: Command instance
+        """
+
         self._commands[name] = command
 
     def get_usage(self):
         
+        """
+        Returns string consisting of all commands and their
+        descriptions.
+        """
+
         rv = []
 
         for name, command in self._commands.iteritems():
@@ -209,6 +304,10 @@ class Manager(object):
     
     def print_usage(self):
         
+        """
+        Prints result of get_usage()
+        """
+
         print self.get_usage()
 
     def handle(self, prog, name, args=None):
@@ -223,6 +322,14 @@ class Manager(object):
         command.handle(self.app_factory(), prog, name, args)
     
     def run(self, commands=None):
+        
+        """
+        Prepares manager to receive command line input. Usually run
+        inside "if __name__ == "__main__" block in a Python script.
+
+        :param commands: optional dict of commands. Appended to any
+        commands added using add_command().
+        """
 
         if commands:
             self._commands.update(commands)
