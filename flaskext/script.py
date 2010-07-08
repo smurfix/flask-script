@@ -168,6 +168,17 @@ class Shell(Command):
     
     def __init__(self, banner=None, make_context=None, use_ipython=True):
 
+        """
+        :param banner: banner appearing at top of shell when started
+        :param make_context: a callable returning a dict of variables 
+        used in the shell namespace. The callable takes a single argument,
+        "app", the Flask instance. By default returns a dict consisting
+        of just the app.
+        :param use_ipython: use IPython shell if available, ignore if not.
+        The IPython shell can be turned off in command line by passing the
+        --no-ipython flag.
+        """
+
         self.banner = banner or self.banner
         self.use_ipython = use_ipython
 
@@ -223,6 +234,15 @@ class Server(Command):
     def __init__(self, host='127.0.0.1', port=5000, use_debugger=True,
         use_reloader=True):
 
+        """
+        :param host: server host
+        :param port: server port
+        :param use_debugger: if False, will no longer use Werkzeug debugger.
+        This can be overriden in the command line by passing the -d flag.
+        :param use_reloader: if Flase, will no loner use auto-reloader.
+        This can be overriden in the command line by passing the -r flag.
+        """
+
         self.port = port
         self.host = host
         self.use_debugger = use_debugger
@@ -268,6 +288,10 @@ class Manager(object):
     """
 
     def __init__(self, app):
+
+        """
+        :param app: Flask instance or callable returning a Flask instance.
+        """
 
         if isinstance(app, Flask):
             self.app_factory = lambda: app
