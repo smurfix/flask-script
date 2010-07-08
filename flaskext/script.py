@@ -285,6 +285,27 @@ class Manager(object):
 
     """
     Controller class for handling a set of commands.
+
+    Typical usage::
+        
+        class Print(Command):
+
+            def run(self, app):
+                print "hello"
+
+        app = Flask(__name__)
+        
+        manager = Manager(app)
+        manager.add_command("print", Print())
+        
+        if __name__ == "__main__":
+            manager.run()
+
+    On command line::
+
+        python manage.py print
+        > hello
+
     """
 
     def __init__(self, app):
