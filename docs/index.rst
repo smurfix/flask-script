@@ -9,7 +9,7 @@ You define and add commands that can be called from the command line to a ``Mana
 
     # manage.py
     
-    from flaskext.script import Manager
+    from flaskext.script import Manager, Command
 
     from myapp import create_app
 
@@ -344,5 +344,5 @@ API
         :param dest: The name of the attribute to be added to the object returned by parse_args().
 
 .. _Flask: http://flask.pocoo.org
-.. _Bitbucket: http://bitbucket.org/danjac/Flask-Script
+.. _Bitbucket: http://bitbucket.org/danjac/flask-script
 .. _argparse: http://pypi.python.org/pypi/argparse
