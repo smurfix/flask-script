@@ -108,6 +108,20 @@ class TestManager(unittest.TestCase):
         
         assert isinstance(manager._commands['simple'], SimpleCommand)
 
+    def test_simple_command_decorator(self):
+
+        manager = Manager(self.app)
+        
+        @manager.command()
+        def hello(app):
+            print "hello"
+        
+
+        assert 'hello' in manager._commands
+
+        manager.handle("manage.py", "hello")
+        assert 'hello' in sys.stdout.getvalue()
+
     def test_get_usage(self):
 
         manager = Manager(self.app)
