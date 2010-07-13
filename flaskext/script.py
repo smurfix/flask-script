@@ -21,6 +21,84 @@ class Option(object):
         self.kwargs = kwargs
 
 
+def prompt(name, default=None):
+    
+    """
+    Grab user input from command line.
+
+    :param name: prompt text
+    :param default: default value if no input provided.
+    """
+
+    prompt = name + (default and ' [%s]' % default or '')
+    prompt += name.endswith('?') and ' ' or ': '
+    while True:
+        rv = raw_input(prompt)
+        if rv:
+            return rv
+        if default is not None:
+            return default
+
+def prompt_pass(name, default=None):
+
+    """
+    Grabs hidden (password) input from command line.
+
+    :param name: prompt text
+    :param default: default value if no input provided.
+    """
+
+    prompt = name + (default and ' [%s]' % default or '')
+    prompt += name.endswith('?') and ' ' or ': '
+    while True:
+        rv = getpass.getpass(prompt)
+        if rv:
+            return rv
+        if default is not None:
+            return default
+
+def prompt_bool(name, default=False):
+    
+    """
+    Grabs user input from command line and converts to boolean
+    value.
+
+    :param name: prompt text
+    :param default: default value if no input provided.
+    """
+    
+    while True:
+        rv = self.prompt(name + '?', default and 'Y' or 'N')
+        if not rv:
+            return default
+        if rv.lower() in ('y', 'yes', '1', 'on', 'true', 't'):
+            return True
+        elif rv.lower() in ('n', 'no', '0', 'off', 'false', 'f'):
+            return False
+
+def prompt_choices(name, choices, default=None):
+    
+    """
+    Grabs user input from command line from set of provided choices.
+
+    :param name: prompt text
+    :param choices: list or tuple of available choices
+    :param default: default value if no input provided.
+    """
+
+    if default is None:
+        default = choices[0]
+    while True:
+        rv = self.prompt(name + '? - (%s)' % ', '.join(choices), default)
+        rv = rv.lower()
+        if not rv:
+            return default
+        if rv in choices:
+            if rv == 'none':
+                return None
+            else:
+                return rv
+
 class Command(object):
     
     """
@@ -59,84 +137,6 @@ class Command(object):
         """
 
         return self.option_list
-
-    def prompt(self, name, default=None):
-        
-        """
-        Grab user input from command line.
-
-        :param name: prompt text
-        :param default: default value if no input provided.
-        """
-
-        prompt = name + (default and ' [%s]' % default or '')
-        prompt += name.endswith('?') and ' ' or ': '
-        while True:
-            rv = raw_input(prompt)
-            if rv:
-                return rv
-            if default is not None:
-                return default
-
-    def prompt_pass(self, name, default=None):
-
-        """
-        Grabs hidden (password) input from command line.
-
-        :param name: prompt text
-        :param default: default value if no input provided.
-        """
-
-        prompt = name + (default and ' [%s]' % default or '')
-        prompt += name.endswith('?') and ' ' or ': '
-        while True:
-            rv = getpass.getpass(prompt)
-            if rv:
-                return rv
-            if default is not None:
-                return default
-
-    def prompt_bool(self, name, default=False):
-        
-        """
-        Grabs user input from command line and converts to boolean
-        value.
-
-        :param name: prompt text
-        :param default: default value if no input provided.
-        """
-        
-        while True:
-            rv = self.prompt(name + '?', default and 'Y' or 'N')
-            if not rv:
-                return default
-            if rv.lower() in ('y', 'yes', '1', 'on', 'true', 't'):
-                return True
-            elif rv.lower() in ('n', 'no', '0', 'off', 'false', 'f'):
-                return False
-
-    def prompt_choices(self, name, choices, default=None):
-        
-        """
-        Grabs user input from command line from set of provided choices.
-
-        :param name: prompt text
-        :param choices: list or tuple of available choices
-        :param default: default value if no input provided.
-        """
-
-        if default is None:
-            default = choices[0]
-        while True:
-            rv = self.prompt(name + '? - (%s)' % ', '.join(choices), default)
-            rv = rv.lower()
-            if not rv:
-                return default
-            if rv in choices:
-                if rv == 'none':
-                    return None
-                else:
-                    return rv
 
     def handle(self, app, prog, name, args):
 
