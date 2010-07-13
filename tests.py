@@ -122,6 +122,32 @@ class TestManager(unittest.TestCase):
         manager.handle("manage.py", "hello")
         assert 'hello' in sys.stdout.getvalue()
 
+    def test_simple_command_decorator_with_name(self):
+
+        manager = Manager(self.app)
+        
+        @manager.command('sayhello')
+        def hello(app):
+            print "hello"
+
+        assert 'sayhello' in manager._commands
+
+        manager.handle("manage.py", "sayhello")
+        assert 'hello' in sys.stdout.getvalue()
+
+    def test_command_decorator_with_options(self):
+
+        manager = Manager(self.app)
+        
+        @manager.command(options=[Option('-n',  '--name', dest='name')])
+        def hello(app, name):
+            print "hello", name
+
+        assert 'hello' in manager._commands
+
+        manager.handle("manage.py", "hello", ["--name=joe"])
+        assert 'hello joe' in sys.stdout.getvalue()
+
     def test_get_usage(self):
 
         manager = Manager(self.app)

@@ -333,7 +333,7 @@ class Manager(object):
         :param options: list of Option arguments.
         """
 
-        command_name = name
+        _name = name
 
         def decorator(func):
             class _Command(Command):
@@ -344,8 +344,7 @@ class Manager(object):
                 def run(self, app, *args, **kwargs):
                     func(app, *args, **kwargs)
 
-            name = command_name or func.__name__
-            self.add_command(name, _Command())
+            self.add_command(_name or func.__name__, _Command())
             
             return func
 
