@@ -407,7 +407,8 @@ class Manager(object):
         Adds a command function to the registry.
         
         :param func: command function. Should take at least one argument, the 
-        Flask application. Additional arguments depend on the options.
+                     Flask application. Additional arguments depend on the 
+                     options.
         
         """
             
@@ -568,8 +569,8 @@ class Manager(object):
         Prepares manager to receive command line input. Usually run
         inside "if __name__ == "__main__" block in a Python script.
 
-        :param commands: optional dict of commands. Appended to any
-        commands added using add_command().
+        :param commands: optional dict of commands. Appended to any commands 
+                         added using add_command().
         """
 
         if commands:

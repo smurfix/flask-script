@@ -350,6 +350,9 @@ This is handy if you want to include a bunch of defaults in your shell to save t
 
 The ``Shell`` command will use `IPython <http://ipython.scipy.org/moin/>`_ if it is installed, otherwise it defaults to the standard Python shell. You can disable this behaviour in two ways: by passing the ``use_ipython`` argument to the ``Shell`` constructor, or passing the flag ``--no-ipython`` in the command line. 
 
+The default commands **shell** and **runserver** are included by default, with the default options for these commands. If you wish to 
+replace them with different commands simply override with ``add_command()`` or the decorators.
+
 Accessing local proxies
 -----------------------
 
@@ -361,8 +364,10 @@ API
 .. module:: flaskext.script
 
 .. autoclass:: Manager
+   :members:
     
 .. autoclass:: Command
+   :members:
 
 .. autoclass:: Shell
 
