@@ -1,11 +1,18 @@
 import pprint
 
-from flask import Flask
+from flask import Flask, Response
 from flaskext.script import Manager, Command, Option, Shell, Server
 
 def create_app():
     app = Flask(__name__)
+    app.debug = False
     app.config.from_envvar('APP_CONFIG', silent=True)
+
+    @app.route("/")
+    def index():
+        # deliberate error, test debug working
+        assert False, "oops"
+
     return app
 
 manager = Manager(create_app)
@@ -32,7 +39,7 @@ def optional(app, name, url):
     print name, url
 
 manager.add_command("shell", Shell())
-manager.add_command("runserver", Server())
+manager.add_command("runserver", Server(use_debugger=False))
 
 if __name__ == "__main__":
     manager.run()
