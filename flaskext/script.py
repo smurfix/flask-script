@@ -273,6 +273,7 @@ class Server(Command):
     def run(self, app, host, port, use_debugger, use_reloader):
         app.run(host=host,
                 port=port,
+                debug=use_debugger,
                 use_debugger=use_debugger,
                 use_reloader=use_reloader)
 
@@ -319,36 +320,6 @@ class Manager(object):
         else:
             self.app_factory = app
         self._commands = dict()
-
-    def command(self, name=None, options=None):
-        """
-        Adds a command function to the registry.
-        
-        :param func: command function. Should take at least one argument, the 
-        Flask application. Additional arguments depend on the options.
-        
-        :param name: command line name of command. By default same as function
-        name.
-
-        :param options: list of Option arguments.
-        """
-
-        _name = name
-
-        def decorator(func):
-            class _Command(Command):
-                
-                def get_options(self):
-                    return options or []
-
-                def run(self, app, *args, **kwargs):
-                    func(app, *args, **kwargs)
-
-            self.add_command(_name or func.__name__, _Command())
-            
-            return func
-
-        return decorator
 
     def add_command(self, name, command):
 
