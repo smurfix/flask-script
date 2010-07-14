@@ -4,6 +4,7 @@ import sys
 import code
 import getpass
 import inspect
+import functools
 
 import argparse
 
@@ -375,7 +376,21 @@ class Manager(object):
         option = Option(*args, **kwargs)
 
         def decorate(func):
-            self._commands[func.__name__].options.append(option)
+            name = func.__name__
+            
+            if name not in self._commands:
+
+                class _Command(Command):
+                    func.__doc__
+
+                    def run(self, app, *args, **kwargs):
+                        func(app, *args, **kwargs)
+            
+                command = _Command()
+                command.option_list = []
+                self._commands[name] = command
+
+            self._commands[name].option_list.append(option)
             return func
         return decorate
 
