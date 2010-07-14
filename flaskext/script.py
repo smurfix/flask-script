@@ -326,10 +326,13 @@ class Manager(object):
 
     """
 
-    def __init__(self, app):
+    def __init__(self, app, with_default_commands=True):
 
         """
         :param app: Flask instance or callable returning a Flask instance.
+        :param with_default_commands: load commands **runserver** and **shell**
+                                      by default.
+
         """
 
         self.app = app
@@ -337,7 +340,8 @@ class Manager(object):
         self._commands = dict()
         self._options = list()
         
-        self.add_default_commands()
+        if with_default_commands:
+            self.add_default_commands()
 
     def add_default_commands(self):
         """

@@ -74,6 +74,20 @@ class TestManager(unittest.TestCase):
         self.app = Flask(__name__)
         self.app.config.from_object(self)
 
+    def test_with_default_commands(self):
+
+        manager = Manager(self.app)
+
+        assert 'runserver' in manager._commands
+        assert 'shell' in manager._commands
+
+    def test_without_default_commands(self):
+
+        manager = Manager(self.app, with_default_commands=False)
+
+        assert 'runserver' not in manager._commands
+        assert 'shell' not in manager._commands
+
     def test_add_command(self):
 
         manager = Manager(self.app)
@@ -217,7 +231,7 @@ class TestManager(unittest.TestCase):
         manager = Manager(self.app)
         manager.add_command("simple", SimpleCommand())
 
-        assert manager.get_usage() == "simple: simple command"
+        assert "simple: simple command" in manager.get_usage()
 
     def test_run_existing_command(self):
         
