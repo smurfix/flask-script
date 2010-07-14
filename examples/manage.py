@@ -34,7 +34,5 @@ def optional(app, name, url):
 manager.add_command("shell", Shell())
 manager.add_command("runserver", Server())
 
-print manager._commands
-
 if __name__ == "__main__":
     manager.run()

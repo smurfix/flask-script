@@ -4,7 +4,7 @@ import sys
 import code
 import getpass
 import inspect
-import functools
+import warnings
 
 import argparse
 
@@ -162,12 +162,33 @@ class Command(object):
 
         raise NotImplementedError
 
+    def prompt(self, name, default=None):
+        warnings.warn_explicit(
+            "Command.prompt is deprecated, use prompt() function instead")
+
+        prompt(name, default)
+
+    def prompt_pass(self, name, default=None):
+        warnings.warn_explicit(
+            "Command.prompt_pass is deprecated, use prompt_pass() function instead")
+
+        prompt_pass(name, default)
+
+    def prompt_bool(self, name, default=False):
+        warnings.warn_explicit(
+            "Command.prompt_bool is deprecated, use prompt_bool() function instead")
+
+        prompt_bool(name, default)
+
+    def prompt_choices(self, name, choices, default=None):
+        warnings.warn_explicit(
+            "Command.choices is deprecated, use prompt_choices() function instead")
+
+        prompt_choices(name, choices, default)
 
 class Shell(Command):
 
-    """
-    Runs a Python shell inside Flask application context.
-    """
+    "Runs a Python shell inside Flask application context."
 
     banner = ''
     
@@ -230,9 +251,7 @@ class Shell(Command):
 
 class Server(Command):
 
-    """
-    Runs the Flask development server i.e. app.run()
-    """
+    "Runs the Flask development server i.e. app.run()"
 
     def __init__(self, host='127.0.0.1', port=5000, use_debugger=True,
         use_reloader=True):
@@ -416,7 +435,11 @@ class Manager(object):
 
         for name, command in self._commands.iteritems():
             usage = name
-            if command.__doc__:
+            if hasattr(command, 'description'):
+                warnings.warn_explicit(
+                    "description is deprecated, use docstrings instead")
+                usage += ": " + command.description
+            elif command.__doc__:
                 usage += ": " + command.__doc__
             rv.append(usage)
 
