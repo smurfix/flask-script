@@ -137,6 +137,15 @@ class Command(object):
         return self.option_list
 
 
+    def create_parser(self, prog):
+        parser = argparse.ArgumentParser(prog=prog,
+                                         description=self.description)
+
+        for option in self.get_options():
+            parser.add_argument(*option.args, **option.kwargs)   
+        
+        return parser
+
     def run(self, app):
 
         """
@@ -334,7 +343,7 @@ class Manager(object):
 
         return self.app(**kwargs)
 
-    def create_parsers(self, prog, name, command):
+    def create_parser(self, prog):
 
         """
         Creates an ArgumentParser instance from options returned 
@@ -345,15 +354,7 @@ class Manager(object):
         for option in self.get_options():
             parser.add_argument(*option.args, **option.kwargs)
         
-        # create a subparser for the command
-
-        subparsers = parser.add_subparsers()
-        subparser = subparsers.add_parser(name, help=command.description)
-
-        for option in command.get_options():
-            subparser.add_argument(*option.args, **option.kwargs)
-
-        return parser, subparser
+        return parser
 
     def get_options(self):
         return self._options
@@ -507,33 +508,24 @@ class Manager(object):
 
     def handle(self, prog, name, args=None):
 
-        args = args or []
+        args = list(args or [])
 
         try:
             command = self._commands[name]
         except KeyError:
             raise InvalidCommand, "Command %s not found" % name
 
-        parser, subparser = self.create_parsers(prog, name, command)
-        
-        args = list(args)
+        app_parser = self.create_parser(prog)
+        app_namespace, remaining_args = app_parser.parse_known_args(args)
 
-        command_options = subparser.parse_args(args).__dict__
-
-        args = [name] + [a for a in args if a not in command_options]
-
-        app_options = parser.parse_args(args).__dict__
-        cleaned_app_options = dict((k, v) for k, v in app_options.iteritems() \
-            if k in args)
+        command_parser = command.create_parser(prog)
+        command_namespace = command_parser.parse_args(remaining_args)
         
-        app = self.create_app(**cleaned_app_options)
-        
-        # we need to be able to grab all the args not used here
+        app = self.create_app(**app_namespace.__dict__)
 
         with app.test_request_context():
-            command.run(app, **command_options)
+            command.run(app, **command_namespace.__dict__)
         
-    
     def run(self, commands=None):
         
         """
