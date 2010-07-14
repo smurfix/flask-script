@@ -114,20 +114,10 @@ class Command(object):
 
     option_list = []
 
-    def create_parser(self, prog, name):
-
-        """
-        Creates an ArgumentParser instance from options returned 
-        by get_options()
-        """
-
+    @property
+    def description(self):
         description = self.__doc__ or ''
-
-        parser = argparse.ArgumentParser(prog=prog, 
-                                         description=description)
-        for option in self.get_options():
-            parser.add_argument(*option.args, **option.kwargs)
-        return parser
+        return description.strip()
 
     def add_option(self, option):
         
@@ -146,13 +136,6 @@ class Command(object):
 
         return self.option_list
 
-    def handle(self, app, prog, name, args):
-
-        parser = self.create_parser(prog, name)
-        ns = parser.parse_args(list(args))
-        
-        with app.test_request_context():
-            self.run(app, **ns.__dict__)
 
     def run(self, app):
 
@@ -339,11 +322,72 @@ class Manager(object):
         :param app: Flask instance or callable returning a Flask instance.
         """
 
-        if isinstance(app, Flask):
-            self.app_factory = lambda: app
-        else:
-            self.app_factory = app
+        self.app = app
+
         self._commands = dict()
+        self._options = list()
+        
+    def create_app(self, **kwargs):
+
+        if isinstance(self.app, Flask):
+            return self.app
+
+        return self.app(**kwargs)
+
+    def create_parsers(self, prog, name, command):
+
+        """
+        Creates an ArgumentParser instance from options returned 
+        by get_options(), and a subparser for the given command.
+        """
+
+        parser = argparse.ArgumentParser(prog=prog)
+        for option in self.get_options():
+            parser.add_argument(*option.args, **option.kwargs)
+        
+        # create a subparser for the command
+
+        subparsers = parser.add_subparsers()
+        subparser = subparsers.add_parser(name, help=command.description)
+
+        for option in command.get_options():
+            subparser.add_argument(*option.args, **option.kwargs)
+
+        return parser, subparser
+
+    def get_options(self):
+        return self._options
+
+    def add_option(self, *args, **kwargs):
+        """
+        Adds an application-wide option. This is useful if you want to set variables
+        applying to the application setup, rather than individual commands.
+
+        For this to work, the manager must be initialized with a factory
+        function rather than an instance. Otherwise any options you set will
+        be ignored.
+
+        The arguments are then passed to your function, e.g.::
+
+            def create_app(config=None):
+                app = Flask(__name__)
+                if config:
+                    app.config.from_pyfile(config)
+
+                return app
+
+            manager = Manager(create_app)
+            manager.add_option("-c", "--config", dest="config", required=False)
+            
+            > python manage.py -c dev.cfg mycommand
+
+        Any manager options passed in the command line will not be passed to 
+        the command.
+
+        Arguments for this function are the same as for the Option class.
+        """
+        
+        self._options.append(Option(*args, **kwargs))
 
     def command(self, func):
         """
@@ -446,12 +490,9 @@ class Manager(object):
 
         for name, command in self._commands.iteritems():
             usage = name
-            if hasattr(command, 'description'):
-                warnings.warn_explicit(
-                    "description is deprecated, use docstrings instead")
-                usage += ": " + command.description
-            elif command.__doc__:
-                usage += ": " + command.__doc__
+            description = command.description
+            if description:
+                usage += ": " + description
             rv.append(usage)
 
         return "\n".join(rv)
@@ -473,7 +514,25 @@ class Manager(object):
         except KeyError:
             raise InvalidCommand, "Command %s not found" % name
 
-        command.handle(self.app_factory(), prog, name, args)
+        parser, subparser = self.create_parsers(prog, name, command)
+        
+        args = list(args)
+
+        command_options = subparser.parse_args(args).__dict__
+
+        args = [name] + [a for a in args if a not in command_options]
+
+        app_options = parser.parse_args(args).__dict__
+        cleaned_app_options = dict((k, v) for k, v in app_options.iteritems() \
+            if k in args)
+        
+        app = self.create_app(**cleaned_app_options)
+        
+        # we need to be able to grab all the args not used here
+
+        with app.test_request_context():
+            command.run(app, **command_options)
+        
     
     def run(self, commands=None):
         

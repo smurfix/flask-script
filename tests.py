@@ -65,33 +65,6 @@ class TestCommands(unittest.TestCase):
         self.app = Flask(__name__)
         self.app.config.from_object(self)
 
-    def test_create_with_args_parser(self):
-
-        command = CommandWithArgs()
-
-        parser = command.create_parser("manage.py", "simple")
-
-        ns = parser.parse_args(["Joe"])
-        assert ns.name == "Joe"
-
-    def test_create_with_options_parser(self):
-
-        command = CommandWithOptions()
-
-        parser = command.create_parser("manage.py", "simple")
-
-        ns = parser.parse_args(["--name=Joe"])
-        assert ns.name == "Joe"
-    
-    def test_create_with_dynamic_options_parser(self):
-
-        command = CommandWithDynamicOptions("Fred")
-
-        parser = command.create_parser("manage.py", "simple")
-
-        ns = parser.parse_args([])
-        assert ns.name == "Fred"
-
 class TestManager(unittest.TestCase):
     
     TESTING = True
@@ -335,10 +308,10 @@ class TestManager(unittest.TestCase):
     def test_init_with_flask_instance(self):
         
         manager = Manager(self.app)
-        assert callable(manager.app_factory)
+        assert callable(manager.app)
 
     def test_init_with_callable(self):
 
         manager = Manager(lambda: app)
-        assert callable(manager.app_factory)
+        assert callable(manager.app)
 

@@ -3,9 +3,11 @@ import pprint
 from flask import Flask, Response
 from flaskext.script import Manager, Command, Option, Shell, Server
 
-def create_app():
+def create_app(config=None):
     app = Flask(__name__)
     app.debug = False
+    print "CONFIG", config
+
     app.config.from_envvar('APP_CONFIG', silent=True)
 
     @app.route("/")
@@ -40,6 +42,11 @@ def optional(app, name, url):
 
 manager.add_command("shell", Shell())
 manager.add_command("runserver", Server(use_debugger=False))
+
+manager.add_option("-c", "--config", 
+                   dest="config", 
+                   help="config file", 
+                   required=False)
 
 if __name__ == "__main__":
     manager.run()
