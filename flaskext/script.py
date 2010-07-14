@@ -5,6 +5,7 @@ import code
 import getpass
 import inspect
 import warnings
+import functools
 
 import argparse
 
@@ -407,7 +408,7 @@ class Manager(object):
 
         args = args[1:]
         defaults = defaults or []
-        kwargs = dict(zip(reversed(args), reversed(defaults)))
+        kwargs = dict(zip(*[reversed(l) for l in (args, defaults)]))
 
         for arg in args:
             if arg in kwargs:
@@ -445,7 +446,25 @@ class Manager(object):
         self.add_command(func.__name__, command)
 
         return func
+    
+    def shell(self, func):
+        """
+        Decorator that wraps function in shell command. This is equivalent to::
+            
+            def _make_context(app):
+                return dict(app=app)
 
+            manager.add_command("shell", Shell(make_context=_make_context))
+
+        The decorated function should take a single "app" argument, and return 
+        a dict.
+
+        For more sophisticated usage use the Shell class.
+        """
+
+        self.add_command('shell', Shell(make_context=func))
+
+        return func
 
     def option(self, *args, **kwargs):
         
