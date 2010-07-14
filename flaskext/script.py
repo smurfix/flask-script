@@ -3,6 +3,7 @@
 import sys
 import code
 import getpass
+import inspect
 
 import argparse
 
@@ -320,35 +321,63 @@ class Manager(object):
             self.app_factory = app
         self._commands = dict()
 
-    def command(self, name=None, options=None):
+    def command(self, func):
         """
         Adds a command function to the registry.
         
         :param func: command function. Should take at least one argument, the 
         Flask application. Additional arguments depend on the options.
         
-        :param name: command line name of command. By default same as function
-        name.
-
-        :param options: list of Option arguments.
         """
-
-        _name = name
-
-        def decorator(func):
-            class _Command(Command):
-                
-                def get_options(self):
-                    return options or []
-
-                def run(self, app, *args, **kwargs):
-                    func(app, *args, **kwargs)
-
-            self.add_command(_name or func.__name__, _Command())
             
-            return func
+        args, varargs, keywords, defaults = inspect.getargspec(func)
+        print args, varargs, keywords, defaults
 
-        return decorator
+        options = []
+
+        # first arg is always "app" : ignore
+
+        args = args[1:]
+        defaults = defaults or []
+
+        # add positional options
+
+        for counter, arg in enumerate(args):
+            if defaults:
+                print arg, defaults[counter]
+                options.append(Option('-%s' % arg[0],
+                                      '--%s' % arg,
+                                      dest=arg,
+                                      required=False,
+                                      default=defaults[counter]))
+                               
+            else:
+                options.append(Option(arg))
+
+        # add optional options
+
+        class _Command(Command):
+            func.__doc__
+
+            def run(self, app, *args, **kwargs):
+                func(app, *args, **kwargs)
+
+        command = _Command()
+        command.option_list = options
+
+        self.add_command(func.__name__, command)
+
+        return func
+
+
+    def option(self, *args, **kwargs):
+        
+        option = Option(*args, **kwargs)
+
+        def decorate(func):
+            self._commands[func.__name__].options.append(option)
+            return func
+        return decorate
 
     def add_command(self, name, command):
 

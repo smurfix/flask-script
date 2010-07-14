@@ -10,34 +10,20 @@ def create_app():
 
 manager = Manager(create_app)
 
-class DumpConfig(Command):
+@manager.command
+def dumpconfig(app):
+    "Dumps config"
+    pprint.pprint(app.config)
 
-    description = "Dumps config"
+@manager.command
+def output(app, name):
+    "print something"
+    print name
 
-    def run(self, app):
-        pprint.pprint(app.config)
-
-class PrintSomething(Command):
-
-    decription = "print something"
-
-    option_list = (
-        Option("-n", "--name", dest="name"),
-    )
-
-    def run(self, app, name=''):
-        print name
-
-class PrintInput(Command):
-
-    def run(self, app):
-        print self.prompt("print something...")
-
-manager.add_command("dumpconfig", DumpConfig())
-manager.add_command("print", PrintSomething())
-manager.add_command("printi", PrintInput())
 manager.add_command("shell", Shell())
 manager.add_command("runserver", Server())
+
+print manager._commands
 
 if __name__ == "__main__":
     manager.run()
