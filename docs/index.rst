@@ -284,6 +284,45 @@ or like this::
     > python manage.py hello --name=Joe --url=reddit.com
     hello Joe from reddit.com
 
+Adding options to the manager
+-----------------------------
+
+Options can also be passed to the ``Manager`` instance. This is allows you to set up options that are passed to the application rather
+than a single command. For example, you might want to have a flag to set the configuration file for your application::
+
+    def create_app(config=None):
+        
+        app = Flask(__name__)
+        if config is not None:
+            app.config.from_pyfile(config)
+        # configure your app...
+        return app
+
+In order to pass that ``config`` argument, use the ``add_option()`` method of your ``Manager`` instance. It takes the same arguments
+as ``Option``::
+
+    manager.add_option('-c', '--config', dest='config', required=False)
+
+Suppose you have this command::
+    
+    @manager.command
+    def hello(app, name):
+        uppercase = app.config.get('USE_UPPERCASE', False)
+        if uppercase:
+            name = name.upper()
+        print hello, name
+
+You can now run the following::
+
+    > python manage.py hello joe -c dev.cfg
+    hello JOE
+
+Assuming the ``USE_UPPERCASE`` setting is **True** in your dev.cfg file.
+
+Notice also that the "config" option is **not** passed to the command.
+
+In order for manager options to work it is assumed that you are passing a factory function, rather than a Flask instance, to your 
+``Manager`` constructor.
 
 Getting user input
 ------------------
@@ -351,7 +390,11 @@ This is handy if you want to include a bunch of defaults in your shell to save t
 The ``Shell`` command will use `IPython <http://ipython.scipy.org/moin/>`_ if it is installed, otherwise it defaults to the standard Python shell. You can disable this behaviour in two ways: by passing the ``use_ipython`` argument to the ``Shell`` constructor, or passing the flag ``--no-ipython`` in the command line. 
 
 The default commands **shell** and **runserver** are included by default, with the default options for these commands. If you wish to 
-replace them with different commands simply override with ``add_command()`` or the decorators.
+replace them with different commands simply override with ``add_command()`` or the decorators. If you pass ``with_default_commands=False``
+to the ``Manager`` constructor these commands will not be loaded::
+
+    manager = Manager(app, with_default_commands=False)
+
 
 Accessing local proxies
 -----------------------
