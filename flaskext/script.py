@@ -407,11 +407,13 @@ class Manager(object):
 
         args = args[1:]
         defaults = defaults or []
-        args.reverse()
+        kwargs = dict(zip(reversed(args), reversed(defaults)))
 
-        for counter, arg in enumerate(args):
-            try:
-                default=defaults[counter]
+        for arg in args:
+            if arg in kwargs:
+                
+                default=kwargs[arg]
+
                 if isinstance(default, bool):
                     options.append(Option('-%s' % arg[0],
                                           '--%s' % arg,
@@ -426,7 +428,7 @@ class Manager(object):
                                           required=False,
                                           default=default))
         
-            except IndexError:
+            else:
                 options.append(Option(arg))
         
         options.reverse()
