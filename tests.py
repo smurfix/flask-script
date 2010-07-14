@@ -145,6 +145,12 @@ class TestManager(unittest.TestCase):
             pass
         assert 'Prints your name' in sys.stdout.getvalue()
 
+        try:
+            manager.handle("manage.py", "hello", ["--help"])
+        except SystemExit:
+            pass
+        assert 'Prints your name' in sys.stdout.getvalue()
+
     def test_command_decorator_with_boolean_options(self):
 
         manager = Manager(self.app)
