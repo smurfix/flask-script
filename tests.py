@@ -7,14 +7,14 @@ from flask import Flask
 from flaskext.script import Command, Manager, InvalidCommand, Option
 
 class SimpleCommand(Command):
-    description = "simple command"
+    "simple command"
 
     def run(self, app):
         print "OK"
 
 
 class CommandWithArgs(Command):
-    description = "command with args"
+    "command with args"
 
     option_list = (
         Option("name"),
@@ -25,7 +25,7 @@ class CommandWithArgs(Command):
 
 
 class CommandWithOptions(Command):
-    description = "command with options"
+    "command with options"
 
     option_list = (
         Option("-n", "--name", 
@@ -38,7 +38,7 @@ class CommandWithOptions(Command):
 
 
 class CommandWithDynamicOptions(Command):
-    description = "command with options"
+    "command with options"
 
     def __init__(self, default_name='Joe'):
         self.default_name = default_name

@@ -20,6 +20,17 @@ def output(app, name):
     "print something"
     print name
 
+@manager.command
+def outputplus(app, name, url=None):
+    "print name and url"
+    print name, url
+
+@manager.option('-n', '--name', dest='name', help="your name")
+@manager.option('-u', '--url', dest='url', help="your url")
+def optional(app, name, url):
+    "print name and url"
+    print name, url
+
 manager.add_command("shell", Shell())
 manager.add_command("runserver", Server())
 

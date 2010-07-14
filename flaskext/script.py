@@ -113,7 +113,6 @@ class Command(object):
     """
 
     option_list = []
-    description = None
 
     def create_parser(self, prog, name):
 
@@ -123,7 +122,7 @@ class Command(object):
         """
 
         parser = argparse.ArgumentParser(prog=prog, 
-                                         description=self.description)
+                                         description=self.__doc__)
         for option in self.get_options():
             parser.add_argument(*option.args, **option.kwargs)
         return parser
@@ -171,7 +170,6 @@ class Shell(Command):
     """
 
     banner = ''
-    description = 'Runs a Flask shell'
     
     def __init__(self, banner=None, make_context=None, use_ipython=True):
 
@@ -235,8 +233,6 @@ class Server(Command):
     """
     Runs the Flask development server i.e. app.run()
     """
-
-    description = "Runs Flask development server"
 
     def __init__(self, host='127.0.0.1', port=5000, use_debugger=True,
         use_reloader=True):
@@ -349,7 +345,6 @@ class Manager(object):
         for counter, arg in enumerate(args):
             try:
                 default=defaults[counter]
-
                 options.append(Option('-%s' % arg[0],
                                       '--%s' % arg,
                                       dest=arg,
@@ -364,12 +359,12 @@ class Manager(object):
         # add optional options
 
         class _Command(Command):
-            description = func.__doc__
 
             def run(self, app, *args, **kwargs):
                 func(app, *args, **kwargs)
 
         command = _Command()
+        command.__doc__ = func.__doc__
         command.option_list = options
 
         self.add_command(func.__name__, command)
@@ -387,12 +382,12 @@ class Manager(object):
             if name not in self._commands:
 
                 class _Command(Command):
-                    description = func.__doc__
 
                     def run(self, app, *args, **kwargs):
                         func(app, *args, **kwargs)
             
                 command = _Command()
+                command.__doc__ = func.__doc__
                 command.option_list = []
                 self.add_command(name, command)
 
@@ -421,8 +416,8 @@ class Manager(object):
 
         for name, command in self._commands.iteritems():
             usage = name
-            if command.description:
-                usage += ": " + command.description
+            if command.__doc__:
+                usage += ": " + command.__doc__
             rv.append(usage)
 
         return "\n".join(rv)
