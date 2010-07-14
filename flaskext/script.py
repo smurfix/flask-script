@@ -447,14 +447,9 @@ class Manager(object):
             else:
                 options.append(Option(arg))
 
-        # add optional options
 
-        class _Command(Command):
-
-            def run(self, app, *args, **kwargs):
-                func(app, *args, **kwargs)
-
-        command = _Command()
+        command = Command()
+        command.run = func
         command.__doc__ = func.__doc__
         command.option_list = options
 
@@ -489,15 +484,12 @@ class Manager(object):
             name = func.__name__
             
             if name not in self._commands:
-
-                class _Command(Command):
-
-                    def run(self, app, *args, **kwargs):
-                        func(app, *args, **kwargs)
             
-                command = _Command()
+                command = Command()
+                command.run = func
                 command.__doc__ = func.__doc__
                 command.option_list = []
+
                 self.add_command(name, command)
 
             self._commands[name].option_list.append(option)
