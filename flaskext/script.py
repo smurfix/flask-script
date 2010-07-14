@@ -430,8 +430,6 @@ class Manager(object):
         
             else:
                 options.append(Option(arg))
-        
-        options.reverse()
 
         # add optional options
 
