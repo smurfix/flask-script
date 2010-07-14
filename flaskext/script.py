@@ -515,8 +515,14 @@ class Manager(object):
         except KeyError:
             raise InvalidCommand, "Command %s not found" % name
 
+        # remove -h from args if present, and add to remaining args
+        app_args = [a for a in args if a != '-h']
+
         app_parser = self.create_parser(prog)
-        app_namespace, remaining_args = app_parser.parse_known_args(args)
+        app_namespace, remaining_args = app_parser.parse_known_args(app_args)
+
+        if '-h' in args:
+            remaining_args.append('-h')
 
         command_parser = command.create_parser(prog)
         command_namespace = command_parser.parse_args(remaining_args)
