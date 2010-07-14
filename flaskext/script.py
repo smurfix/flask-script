@@ -10,18 +10,8 @@ import argparse
 
 from flask import Flask
 
-__all__ = ["Command", "Shell", "Server", "Manager", "Option"]
-
-class Option(object):
-
-    """
-    Stores positional and optional arguments for ArgumentParser.
-    """
-    
-    def __init__(self, *args, **kwargs):
-        self.args = args
-        self.kwargs = kwargs
-
+__all__ = ["Command", "Shell", "Server", "Manager", "Option",
+           "prompt", "prompt_pass", "prompt_bool", "prompt_choices"]
 
 def prompt(name, default=None):
     
@@ -41,6 +31,7 @@ def prompt(name, default=None):
         if default is not None:
             return default
 
+
 def prompt_pass(name, default=None):
 
     """
@@ -58,6 +49,7 @@ def prompt_pass(name, default=None):
             return rv
         if default is not None:
             return default
+
 
 def prompt_bool(name, default=False):
     
@@ -77,6 +69,7 @@ def prompt_bool(name, default=False):
             return True
         elif rv.lower() in ('n', 'no', '0', 'off', 'false', 'f'):
             return False
+
 
 def prompt_choices(name, choices, default=None):
     
@@ -100,6 +93,18 @@ def prompt_choices(name, choices, default=None):
                 return None
             else:
                 return rv
+
+
+class Option(object):
+
+    """
+    Stores positional and optional arguments for ArgumentParser.
+    """
+    
+    def __init__(self, *args, **kwargs):
+        self.args = args
+        self.kwargs = kwargs
+
 
 class Command(object):
     
@@ -332,33 +337,34 @@ class Manager(object):
         """
             
         args, varargs, keywords, defaults = inspect.getargspec(func)
-        print args, varargs, keywords, defaults
-
+        
         options = []
 
         # first arg is always "app" : ignore
 
         args = args[1:]
         defaults = defaults or []
-
-        # add positional options
+        args.reverse()
 
         for counter, arg in enumerate(args):
-            if defaults:
-                print arg, defaults[counter]
+            try:
+                default=defaults[counter]
+
                 options.append(Option('-%s' % arg[0],
                                       '--%s' % arg,
                                       dest=arg,
                                       required=False,
                                       default=defaults[counter]))
-                               
-            else:
+        
+            except IndexError:
                 options.append(Option(arg))
+        
+        options.reverse()
 
         # add optional options
 
         class _Command(Command):
-            func.__doc__
+            description = func.__doc__
 
             def run(self, app, *args, **kwargs):
                 func(app, *args, **kwargs)
@@ -381,14 +387,14 @@ class Manager(object):
             if name not in self._commands:
 
                 class _Command(Command):
-                    func.__doc__
+                    description = func.__doc__
 
                     def run(self, app, *args, **kwargs):
                         func(app, *args, **kwargs)
             
                 command = _Command()
                 command.option_list = []
-                self._commands[name] = command
+                self.add_command(name, command)
 
             self._commands[name].option_list.append(option)
             return func

@@ -141,12 +141,41 @@ class TestManager(unittest.TestCase):
         
         @manager.command
         def hello(app, name='fred'):
+            "Prints your name"
             print "hello", name
 
         assert 'hello' in manager._commands
 
         manager.handle("manage.py", "hello", ["--name=joe"])
         assert 'hello joe' in sys.stdout.getvalue()
+
+        manager.handle("manage.py", "hello", ["-n joe"])
+        assert 'hello joe' in sys.stdout.getvalue()
+
+        try:
+            manager.handle("manage.py", "hello", ["-h"])
+        except SystemExit:
+            pass
+        assert 'Prints your name' in sys.stdout.getvalue()
+
+    def test_simple_command_decorator_with_pos_arg_and_options(self):
+
+        manager = Manager(self.app)
+        
+        @manager.command
+        def hello(app, name, url=None):
+            if url:
+                print "hello", name, "from", url
+            else:
+                print "hello", name
+        
+        assert 'hello' in manager._commands
+
+        manager.handle("manage.py", "hello", ["joe"])
+        assert 'hello joe' in sys.stdout.getvalue()
+
+        manager.handle("manage.py", "hello", ["joe", '--url=reddit.com'])
+        assert 'hello joe from reddit.com' in sys.stdout.getvalue()
 
     def test_command_decorator_with_additional_options(self):
 
@@ -160,6 +189,29 @@ class TestManager(unittest.TestCase):
 
         manager.handle("manage.py", "hello", ["--name=joe"])
         assert 'hello joe' in sys.stdout.getvalue()
+
+        try:
+            manager.handle("manage.py", "hello", ["-h"])
+        except SystemExit:
+            pass
+        assert "Your name" in sys.stdout.getvalue()
+
+        @manager.option('-n', '--name', dest='name', help='Your name')
+        @manager.option('-u', '--url', dest='url', help='Your URL')
+        def hello_again(app, name, url=None):
+            if url:
+                print "hello", name, "from", url
+            else:
+                print "hello", name
+
+        assert 'hello_again' in manager._commands
+
+        manager.handle("manage.py", "hello_again", ["--name=joe"])
+        assert 'hello joe' in sys.stdout.getvalue()
+
+        manager.handle("manage.py", "hello_again", 
+            ["--name=joe", "--url=reddit.com"])
+        assert 'hello joe from reddit.com' in sys.stdout.getvalue()
 
     def test_get_usage(self):
 
