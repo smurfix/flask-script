@@ -553,7 +553,7 @@ class Manager(object):
             if arg in args:
                 remaining_args.append(arg)
 
-        command_parser = command.create_parser(prog)
+        command_parser = command.create_parser(prog + " " + name)
         command_namespace = command_parser.parse_args(remaining_args)
         
         app = self.create_app(**app_namespace.__dict__)
