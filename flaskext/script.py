@@ -337,6 +337,17 @@ class Manager(object):
         self._commands = dict()
         self._options = list()
         
+        self.add_default_commands()
+
+    def add_default_commands(self):
+        """
+        Adds the shell and runserver default commands. To override these 
+        simply add your own equivalents using add_command or decorators.
+        """
+
+        self.add_command("shell", Shell())
+        self.add_command("runserver", Server())
+
     def create_app(self, **kwargs):
 
         if isinstance(self.app, Flask):

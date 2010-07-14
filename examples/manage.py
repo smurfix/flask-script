@@ -40,14 +40,6 @@ def optional(app, name, url):
     "print name and url"
     print name, url
 
-#manager.add_command("shell", Shell())
-
-@manager.shell
-def make_context(app):
-    return {"app" : app, "foo" : "bar"}
-
-manager.add_command("runserver", Server(use_debugger=False))
-
 manager.add_option("-c", "--config", 
                    dest="config", 
                    help="config file", 
