@@ -121,8 +121,10 @@ class Command(object):
         by get_options()
         """
 
+        description = self.__doc__ or ''
+
         parser = argparse.ArgumentParser(prog=prog, 
-                                         description=self.__doc__)
+                                         description=description)
         for option in self.get_options():
             parser.add_argument(*option.args, **option.kwargs)
         return parser
@@ -364,11 +366,19 @@ class Manager(object):
         for counter, arg in enumerate(args):
             try:
                 default=defaults[counter]
-                options.append(Option('-%s' % arg[0],
-                                      '--%s' % arg,
-                                      dest=arg,
-                                      required=False,
-                                      default=defaults[counter]))
+                if isinstance(default, bool):
+                    options.append(Option('-%s' % arg[0],
+                                          '--%s' % arg,
+                                          action="store_true",
+                                          dest=arg,
+                                          required=False,
+                                          default=default))
+                else:
+                    options.append(Option('-%s' % arg[0],
+                                          '--%s' % arg,
+                                          dest=arg,
+                                          required=False,
+                                          default=default))
         
             except IndexError:
                 options.append(Option(arg))

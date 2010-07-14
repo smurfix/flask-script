@@ -158,6 +158,32 @@ class TestManager(unittest.TestCase):
             pass
         assert 'Prints your name' in sys.stdout.getvalue()
 
+    def test_command_decorator_with_boolean_options(self):
+
+        manager = Manager(self.app)
+        
+        @manager.command
+        def verify(app, verified=False):
+            "Checks if verified"
+            print "VERIFIED ?", "YES" if verified else "NO"
+
+        assert 'verify' in manager._commands
+
+        manager.handle("manage.py", "verify", ["--verified"])
+        assert 'YES' in sys.stdout.getvalue()
+
+        manager.handle("manage.py", "verify", ["-v"])
+        assert 'YES' in sys.stdout.getvalue()
+
+        manager.handle("manage.py", "verify", [])
+        assert 'NO' in sys.stdout.getvalue()
+
+        try:
+            manager.handle("manage.py", "verify", ["-h"])
+        except SystemExit:
+            pass
+        assert 'Checks if verified' in sys.stdout.getvalue()
+
     def test_simple_command_decorator_with_pos_arg_and_options(self):
 
         manager = Manager(self.app)

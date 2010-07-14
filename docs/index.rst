@@ -9,23 +9,22 @@ You define and add commands that can be called from the command line to a ``Mana
 
     # manage.py
     
-    from flaskext.script import Manager, Command
+    from flaskext.script import Manager
 
-    from myapp import create_app
+    from myapp import app
 
-    class Print(Command):
-        def run(self):
-            print "hello"
-
-    manager = Manager(create_app)
-    manager.add_command("print", Print())
+    manager = Manager(app)
+    
+    @manager.command
+    def hello(app):
+        print "hello"
 
     if __name__ == "__main__":
         manager.run()
 
 Then run the script like this::
 
-    python manage.py print
+    python manage.py hello
     > hello
     
 Source code and issue tracking at `Bitbucket`_.
@@ -75,8 +74,11 @@ Calling ``manager.run()`` prepares your ``Manager`` instance to receive input fr
 The ``Manager`` requires a single argument, a **Flask** instance. This may also be a function or callable
 that returns a **Flask** instance instead, if you want to use a factory pattern.
 
-The next step is to create and add your commands. First you need to subclass the ``Command`` class.
-You then need, at the very least, to define a ``run`` method for this class.
+The next step is to create and add your commands. There are three methods for creating commands:
+
+    * subclassing the ``Command`` class
+    * using the ``@command`` decorator
+    * using the ``@option`` decorator
 
 To take a very simple example, we want to create a ``Print`` command that just prints out "hello world". It 
 doesn't take any arguments so is very straightforward::
@@ -115,28 +117,60 @@ To get help text for a particular command::
 
     python manage.py runserver -h
 
-This will print usage plus the ``description`` of the ``Command``.
+This will print usage plus the docstring of the ``Command``.
+
+The next method is using the ``@command`` decorator, which belongs to the ``Manager`` instance. 
+
+This is probably the easiest to use, when you have a simple command::
+
+    @manager.command
+    def hello(app):
+        "Just say hello"
+        print "hello"
+
+Commands created this way are run in exactly the same way as those created with the ``Command`` class::
+
+    python manage.py hello
+    > hello
+
+As with the ``Command`` class, the docstring you use for the function will appear when you run with the **-h** option::
+
+    python manage.py -h
+    > Just say hello
+
+Finally, the ``@option`` decorator, again belonging to ``Manager`` can be used when you want more sophisticated 
+control over your commands::
+
+    @manager.option('-n', '--name', help='Your name')
+    def hello(app, name):
+        print "hello", name
+
+The ``@option`` command takes the exact same arguments as the ``Option`` instance - see the section on adding arguments
+to commands below.
+
+Note that with ``@command`` and ``@option`` decorators, the function must take the Flask application instance as the first
+argument, just as with ``Command.run``.
 
 Adding arguments to commands
 ----------------------------
 
 Most commands take a number of named or positional arguments that you pass in the command line.
 
-Taking the above example, rather than just print "hello world" we would like to be able to print some
+Taking the above examples, rather than just print "hello world" we would like to be able to print some
 arbitrary name, like this::
 
-    python manage.py print --name=Joe
+    python manage.py hello --name=Joe
     hello Joe
 
-or alternatively:
+or alternatively::
 
-    python manage.py print -n Joe
+    python manage.py hello -n Joe
 
 To facilitate this you use the ``option_list`` attribute of the ``Command`` class::
 
     from flaskext.script import Command, Manager, Option
 
-    class Print(Command):
+    class Hello(Command):
 
         option_list = (
             Option('--name', '-n', dest='name'),
@@ -150,34 +184,124 @@ Positional and optional arguments are stored as ``Option`` instances - see the A
 Alternatively, you can define a ``get_options`` method for your ``Command`` class. This is useful if you want to be able
 to return options at runtime based on for example per-instance attributes::
 
-    class Print(Command):
+    class Hello(Command):
 
         def __init__(self, default_name='Joe'):
             self.default_name=default_name
 
         def get_options(self):
             return [
-                Option('--name', '-n', dest='name', default=self.default_name),
+                Option('-n', '--name', dest='name', default=self.default_name),
             ]
 
         def run(self, app, name):
-            print "hello %s" % name
+            print "hello",  name
+
+If you are using the ``@command`` decorator, it's much easier - the options are extracted automatically from your function arguments::
+
+    @manager.command
+    def hello(app, name):
+        print "hello", name
+
+
+Then do::
+
+    > python manage.py hello Joe
+    hello joe
+
+Or you can do optional arguments::
+
+    @manager.command
+    def hello(app, name="Fred")
+        print hello, name
+
+These can be called like this::
+
+    > python manage.py hello --name=Joe
+    hello Joe
+
+alternatively::
+    
+    > python manage.py hello -n Joe
+    hello Joe
+
+
+and if you don't pass in any argument::
+
+    > python manage.py hello 
+    hello Fred
+
+There are a couple of important points to note here.
+
+The short-form **-n** is formed from the first letter of the argument, so "name" > "-n". Therefore it's a good idea that your
+optional argument variable names begin with different letters ("app" is ignored, so don't worry about "a" being taken).
+
+The second issue is that the **-h** switch always runs the help text for that command, so avoid arguments starting with the letter "h".
+
+Note also that if your optional argument is a boolean, for example::
+
+    @manage.command
+    def verify(app, verified=False):
+        """
+        Checks if verified
+        """
+        print "VERIFIED?", "YES" if verified else "NO"
+
+You can just call it like this::
+
+    > python manage.py verify
+    VERIFIED? NO
+
+    > python manage.py verify -v
+    VERIFIED? YES
+
+    > python manage.py verify --verified
+    VERIFIED? YES
+
+For more complex options it's better to use the ``@option`` decorator::
+
+    @manager.option('-n', '--name', dest='name', default='joe')
+    def hello(app, name):
+        print "hello", name
+
+You can add as many options as you want::
+
+    @manager.option('-n', '--name', dest='name', default='joe')
+    @manager.option('-u', '--url', dest='url', default=None)
+    def hello(app, name, url):
+        if url is None:
+            print "hello", name
+        else:
+            print "hello", name, "from", url
+
+This can be called like so::
+
+    > python manage.py hello -n Joe -u reddit.com
+    hello Joe from reddit.com
+
+or like this::
+    
+    > python manage.py hello --name=Joe --url=reddit.com
+    hello Joe from reddit.com
+
 
 Getting user input
 ------------------
 
-The ``Command`` class comes with a set of helper methods, useful if you need to grab user input from the command line. For example::
+**Flask-Script** comes with a set of helper functions for grabbing user input from the command line. For example::
     
+    from flaskext.script import Manager, prompt_bool
+    
+    from myapp import app
     from myapp.models import db
 
-    class DropDatabase(Command):
-
-        def run(self, app):
-            if self.prompt_bool(
-                "Are you sure you want to lose all your data"):
-                db.drop_all()
-
-    manager.add_command("dropdb", DropDatabase())
+    manager = Manager(app)
+        
+    @manager.command
+    def dropdb(app):
+        if prompt_bool(
+            "Are you sure you want to lose all your data"):
+            db.drop_all()
 
 It then runs like this::
 
@@ -250,6 +374,16 @@ API
 
         :param commands: optional dict of ``Command`` instances.
 
+    .. method:: command(func)
+
+        Decorator to add a function as a command. The function must take at least one argument, the Flask instance. Additional 
+        positional or optional arguments are added to the command line options.
+
+    .. method:: option(func, `*args`, `**kwargs`)
+        
+        Decorator to add option to a function. Use this instead of ``command``. You can use this decorator multiple times to 
+        add as many options as you need.
+        
 .. class:: Command
 
     Base class for creating new commands.
@@ -257,6 +391,7 @@ API
     .. attribute:: description
 
     Description added to help text.
+    **This is deprecated:** use docstring instead. 
 
     .. attribute:: option_list
 
@@ -276,6 +411,7 @@ API
     .. method:: prompt(prompt, default=None)
 
     Prompts the user for input, if ``default`` is provided then that is used instead.
+    **This is deprecated** : use prompt() function instead.
 
     :param prompt: formatted prompt text
     :param default: default if no input entered
@@ -283,6 +419,7 @@ API
     .. method:: prompt_pass(prompt, default=None)
 
     Prompts the user for hidden (password) input, if ``default`` is provided then that is used instead.
+    **This is deprecated** : use prompt_pass() function instead.
 
     :param prompt: formatted prompt text
     :param default: default if no input entered
@@ -291,6 +428,7 @@ API
     .. method:: prompt_choices(prompt, choices, default=None)
 
     Prompts the user for input from available choices, if ``default`` is provided then that is used instead.
+    **This is deprecated** : use prompt_choices() function instead.
 
     :param prompt: formatted prompt text
     :param choices: list of available choices
@@ -301,6 +439,7 @@ API
 
     Prompts the user for input, if ``default`` is provided then that is used instead. A boolean value is 
     returned based on selection of input ('y', 'yes', 'n', 'no' etc).
+    **This is deprecated** : use prompt_bool() function instead.
 
     :param prompt: formatted prompt text
     :param default: default if no input entered
