@@ -5,7 +5,6 @@ import code
 import getpass
 import inspect
 import warnings
-import functools
 
 import argparse
 
