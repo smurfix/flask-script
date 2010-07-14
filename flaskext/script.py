@@ -297,6 +297,7 @@ class Server(Command):
     def run(self, app, host, port, use_debugger, use_reloader):
         app.run(host=host,
                 port=port,
+                debug=use_debugger,
                 use_debugger=use_debugger,
                 use_reloader=use_reloader)
 
