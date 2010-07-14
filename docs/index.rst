@@ -360,109 +360,13 @@ API
 
 .. module:: flaskext.script
 
-.. class:: Manager
+.. autoclass:: Manager
     
-    Manages a set of commands.
+.. autoclass:: Command
 
-    .. method:: __init__(app)
+.. autoclass:: Shell
 
-        :param app: **Flask** application instance or callable that returns a **Flask** application.
-
-    .. method:: run(commands=None)
-
-        Run a command based on command-line inputs. Typically you would call this inside a ``if __name__ == "__main__"`` block.
-
-        :param commands: optional dict of ``Command`` instances.
-
-    .. method:: command(func)
-
-        Decorator to add a function as a command. The function must take at least one argument, the Flask instance. Additional 
-        positional or optional arguments are added to the command line options.
-
-    .. method:: option(func, `*args`, `**kwargs`)
-        
-        Decorator to add option to a function. Use this instead of ``command``. You can use this decorator multiple times to 
-        add as many options as you need.
-        
-.. class:: Command
-
-    Base class for creating new commands.
-
-    .. attribute:: description
-
-    Description added to help text.
-    **This is deprecated:** use docstring instead. 
-
-    .. attribute:: option_list
-
-    List of options passed to argument parser. Each item must be an ``Option`` instance.
-
-    .. method:: get_options()
-
-    Returns list of ``Option`` instances. By default just returns ``option_list``. This is useful if you need to do per-instance configuration. 
-
-    .. method:: run(app)
-
-    Runs the command. This must be defined or ``NotImplementedError`` is raised. Takes at least one argument, ``app``, plus any specific positional or optional arguments required by the command.
-
-    
-    :param app: Flask application instance
-
-    .. method:: prompt(prompt, default=None)
-
-    Prompts the user for input, if ``default`` is provided then that is used instead.
-    **This is deprecated** : use prompt() function instead.
-
-    :param prompt: formatted prompt text
-    :param default: default if no input entered
-
-    .. method:: prompt_pass(prompt, default=None)
-
-    Prompts the user for hidden (password) input, if ``default`` is provided then that is used instead.
-    **This is deprecated** : use prompt_pass() function instead.
-
-    :param prompt: formatted prompt text
-    :param default: default if no input entered
-
-
-    .. method:: prompt_choices(prompt, choices, default=None)
-
-    Prompts the user for input from available choices, if ``default`` is provided then that is used instead.
-    **This is deprecated** : use prompt_choices() function instead.
-
-    :param prompt: formatted prompt text
-    :param choices: list of available choices
-    :param default: default if no input entered
-
-
-    .. method:: prompt_bool(prompt, default=False)
-
-    Prompts the user for input, if ``default`` is provided then that is used instead. A boolean value is 
-    returned based on selection of input ('y', 'yes', 'n', 'no' etc).
-    **This is deprecated** : use prompt_bool() function instead.
-
-    :param prompt: formatted prompt text
-    :param default: default if no input entered
-
-.. class:: Shell
-
-    Command to start a Python shell.
-
-    .. method:: __init__(banner='', make_context=None)
-
-        :param banner: banner appearing in shell when started.
-        :param make_context: a function that must return a ``dict``. If you wish to add any context variables to your shell namespace, then add them here. The ``make_context`` function takes one argument, ``app``. By default the ``app`` instance is passed to the shell.
-
-.. class:: Server
-
-    Command to start the Flask development server.
-
-    .. method:: __init__(host='127.0.0.1', port=5000, use_debugger=True, use_reloader=True)
-
-        :param host: hostname. Can be overriden with **--host** command-line option.
-        :param port: port. Can be overriden with **--port** command-line option.
-        :param use_debugger: whether to use the Flask debugger. If ``False`` can be overriden by **--debug** command-line option.
-        :param use_reloader: whether to use the Flask auto-reloader. If ``False`` can be overriden by **--reload** command-line option.
+.. autoclass:: Server
 
 .. class:: Option
 
@@ -481,6 +385,14 @@ API
         :param help: A brief description of what the argument does.
         :param metavar: A name for the argument in usage messages.
         :param dest: The name of the attribute to be added to the object returned by parse_args().
+
+.. autofunction:: prompt
+
+.. autofunction:: prompt_bool
+
+.. autofunction:: prompt_pass
+
+.. autofunction:: prompt_choices
 
 .. _Flask: http://flask.pocoo.org
 .. _Bitbucket: http://bitbucket.org/danjac/flask-script
