@@ -1,43 +1,49 @@
 import pprint
 
-from flask import Flask
+from flask import Flask, Response
 from flaskext.script import Manager, Command, Option, Shell, Server
 
-def create_app():
+def create_app(config=None):
     app = Flask(__name__)
+    app.debug = False
+    print "CONFIG", config
+
     app.config.from_envvar('APP_CONFIG', silent=True)
+
+    @app.route("/")
+    def index():
+        # deliberate error, test debug working
+        assert False, "oops"
+
     return app
 
 manager = Manager(create_app)
 
-class DumpConfig(Command):
+@manager.command
+def dumpconfig(app):
+    "Dumps config"
+    pprint.pprint(app.config)
 
-    description = "Dumps config"
+@manager.command
+def output(app, name):
+    "print something"
+    print name
 
-    def run(self, app):
-        pprint.pprint(app.config)
+@manager.command
+def outputplus(app, name, url=None):
+    "print name and url"
+    print name, url
 
-class PrintSomething(Command):
+@manager.option('-n', '--name', dest='name', help="your name")
+@manager.option('-u', '--url', dest='url', help="your url")
+def optional(app, name, url):
+    "print name and url"
+    print name, url
 
-    decription = "print something"
-
-    option_list = (
-        Option("-n", "--name", dest="name"),
-    )
-
-    def run(self, app, name=''):
-        print name
-
-class PrintInput(Command):
-
-    def run(self, app):
-        print self.prompt("print something...")
-
-manager.add_command("dumpconfig", DumpConfig())
-manager.add_command("print", PrintSomething())
-manager.add_command("printi", PrintInput())
-manager.add_command("shell", Shell())
-manager.add_command("runserver", Server())
+manager.add_option("-c", "--config", 
+                   dest="config", 
+                   help="config file", 
+                   required=False)
 
 if __name__ == "__main__":
     manager.run()
