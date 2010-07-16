@@ -3,9 +3,9 @@ Flask-Script
 
 .. module:: Flask-Script
 
-The **Flask-Script** extension provides support for writing external scripts in Flask. It uses `argparse`_ to parse command line arguments.
+The **Flask-Script** extension provides support for writing external scripts in Flask. This includes running a development server, a customized Python shell, scripts to set up your database, cronjobs, and other command-line tasks that belong outside the web application itself. 
 
-You define and add commands that can be called from the command line to a ``Manager`` instance::
+**Flask-Script** works in a similar way to Flask itself. You define and add commands that can be called from the command line to a ``Manager`` instance::
 
     # manage.py
     
@@ -22,7 +22,7 @@ You define and add commands that can be called from the command line to a ``Mana
     if __name__ == "__main__":
         manager.run()
 
-Then run the script like this::
+Once you define your script commands, you can then run them on the command line::
 
     python manage.py hello
     > hello
@@ -71,43 +71,43 @@ keeps track of all the commands and handles how they are called from the command
 
 Calling ``manager.run()`` prepares your ``Manager`` instance to receive input from the command line.
 
-The ``Manager`` requires a single argument, a **Flask** instance. This may also be a function or callable
-that returns a **Flask** instance instead, if you want to use a factory pattern.
+The ``Manager`` requires a single argument, a **Flask** instance. This may also be a function or other callable
+that returns a **Flask** instance instead, if you want to use a factory pattern. 
 
 The next step is to create and add your commands. There are three methods for creating commands:
 
-    * subclassing the ``Command`` class
+    * subclassing the ``Command`` class 
     * using the ``@command`` decorator
     * using the ``@option`` decorator
 
-To take a very simple example, we want to create a ``Print`` command that just prints out "hello world". It 
+To take a very simple example, we want to create a **Hello** command that just prints out "hello world". It 
 doesn't take any arguments so is very straightforward::
 
     from flaskext.script import Command
 
-    class Print(Command):
-
-        description = "prints hello world"
+    class Hello(Command):
+        "prints hello world"
 
         def run(self, app):
             print "hello world"
 
-Now the command needs to be added to our ``Manager`` instance, created above::
+Now the command needs to be added to our ``Manager`` instance, like the one created above::
 
-    manager.add_command('print', Print())
+    manager.add_command('hello', Hello())
 
 This of course needs to be called before ``manager.run``. Now in our command line::
 
-    python manage.py print
+    python manage.py hello
     > hello world
 
 You can also pass the ``Command`` instance in a dict to ``manager.run()``::
 
-    manager.run({'print' : Print()})
+    manager.run({'hello' : Hello()})
 
-The first argument to your ``run`` command, other than ``self``, is always ``app``: this is the Flask
-application instance provided by the ``app`` passed to the ``Manager``. Additional arguments
-are configured through the ``option_list`` (see below).
+The ``Command`` class must define a ``run`` method. The first argument to your ``run`` , other than ``self``, 
+is always ``app``: this is the Flask application instance that is passed directly to the ``Manager``; if you 
+pass an app factory, the ``Manager`` will call this and pass the result to your ``Command``. Additional arguments
+depend on the command-line arguments you pass to the ``Command`` (see below).
 
 To get a list of available commands and their descriptions, just run with no command::
 
@@ -119,9 +119,8 @@ To get help text for a particular command::
 
 This will print usage plus the docstring of the ``Command``.
 
-The next method is using the ``@command`` decorator, which belongs to the ``Manager`` instance. 
-
-This is probably the easiest to use, when you have a simple command::
+This first method is probably the most flexible, but it's also the most verbose. For simpler commands you can use 
+the ``@command`` decorator, which belongs to the ``Manager`` instance:: 
 
     @manager.command
     def hello(app):
@@ -145,8 +144,7 @@ control over your commands::
     def hello(app, name):
         print "hello", name
 
-The ``@option`` command takes the exact same arguments as the ``Option`` instance - see the section on adding arguments
-to commands below.
+The ``@option`` decorator is explained in more detail below.
 
 Note that with ``@command`` and ``@option`` decorators, the function must take the Flask application instance as the first
 argument, just as with ``Command.run``.
@@ -197,14 +195,13 @@ to return options at runtime based on for example per-instance attributes::
         def run(self, app, name):
             print "hello",  name
 
-If you are using the ``@command`` decorator, it's much easier - the options are extracted automatically from your function arguments::
+If you are using the ``@command`` decorator, it's much easier - the options are extracted automatically from your function arguments. This is an example of a positional argument::
 
     @manager.command
     def hello(app, name):
         print "hello", name
 
-
-Then do::
+You then invoke this on the command line like so::
 
     > python manage.py hello Joe
     hello joe
@@ -215,7 +212,7 @@ Or you can do optional arguments::
     def hello(app, name="Fred")
         print hello, name
 
-These can be called like this::
+These can be called like so::
 
     > python manage.py hello --name=Joe
     hello Joe
@@ -225,16 +222,11 @@ alternatively::
     > python manage.py hello -n Joe
     hello Joe
 
-
-and if you don't pass in any argument::
-
-    > python manage.py hello 
-    hello Fred
-
 There are a couple of important points to note here.
 
 The short-form **-n** is formed from the first letter of the argument, so "name" > "-n". Therefore it's a good idea that your
-optional argument variable names begin with different letters ("app" is ignored, so don't worry about "a" being taken).
+optional argument variable names begin with different letters (The first argument, "app", is ignored, 
+so don't worry about "a" being taken).
 
 The second issue is that the **-h** switch always runs the help text for that command, so avoid arguments starting with the letter "h".
 
@@ -258,7 +250,7 @@ You can just call it like this::
     > python manage.py verify --verified
     VERIFIED? YES
 
-For more complex options it's better to use the ``@option`` decorator::
+The ``@command`` decorator is fine for simple operations, but often you need the flexibility. For more sophisticated options it's better to use the ``@option`` decorator::
 
     @manager.option('-n', '--name', dest='name', default='joe')
     def hello(app, name):
@@ -279,7 +271,7 @@ This can be called like so::
     > python manage.py hello -n Joe -u reddit.com
     hello Joe from reddit.com
 
-or like this::
+or alternatively::
     
     > python manage.py hello --name=Joe --url=reddit.com
     hello Joe from reddit.com
@@ -288,7 +280,8 @@ Adding options to the manager
 -----------------------------
 
 Options can also be passed to the ``Manager`` instance. This is allows you to set up options that are passed to the application rather
-than a single command. For example, you might want to have a flag to set the configuration file for your application::
+than a single command. For example, you might want to have a flag to set the configuration file for your application. Suppose you create 
+your application with a factory function::
 
     def create_app(config=None):
         
@@ -298,10 +291,15 @@ than a single command. For example, you might want to have a flag to set the con
         # configure your app...
         return app
 
+You want to be able to define the ``config`` argument on the command line - for example, if you have a command to set up your database, you
+most certainly want to use different configuration files for production and development.
+
 In order to pass that ``config`` argument, use the ``add_option()`` method of your ``Manager`` instance. It takes the same arguments
 as ``Option``::
 
     manager.add_option('-c', '--config', dest='config', required=False)
+
+As with any other **Flask-Script** configuration you can call this anywhere in your script module, but it must be called before your ``manager.run()`` call.
 
 Suppose you have this command::
     
@@ -319,9 +317,9 @@ You can now run the following::
 
 Assuming the ``USE_UPPERCASE`` setting is **True** in your dev.cfg file.
 
-Notice also that the "config" option is **not** passed to the command.
+Notice also that the "config" option is **not** passed to the command. As the ``app`` is always the first argument to your command, you can access any application-specific configuration from that.
 
-In order for manager options to work it is assumed that you are passing a factory function, rather than a Flask instance, to your 
+In order for manager options to work you must pass a factory function, rather than a Flask instance, to your 
 ``Manager`` constructor.
 
 Getting user input
@@ -347,6 +345,8 @@ It then runs like this::
     python manage.py dropdb
     > Are you sure you want to lose all your data ? [N]
 
+See the API below for details on the various commands.
+
 Default commands
 ----------------
 
@@ -367,11 +367,13 @@ and then run the command::
 
     python manage.py runserver
 
-The ``Server`` command has a number of command-line arguments - run ``python manage.py runserver -h`` for details on these.
+The ``Server`` command has a number of command-line arguments - run ``python manage.py runserver -h`` for details on these. You can redfine the defaults in the constructor::
+
+    server = Server(host="0.0.0.0", port=9000)
 
 Needless to say the development server is not intended for production use.
 
-The ``Shell`` command starts a Python shell. You can pass in a ``make_context`` argument, which must be a ``callable`` returning a ``dict``. By default, this is just a dict returning the ``app`` instance::
+The ``Shell`` command starts a Python shell. You can pass in a ``make_context`` argument, which must be a ``callable`` returning a ``dict``. As with commands, it always takes the ``app`` as the first argument. By default, this is just a dict returning the ``app`` instance::
 
     from flaskext.script import Shell, Manager
     
@@ -387,7 +389,19 @@ The ``Shell`` command starts a Python shell. You can pass in a ``make_context`` 
     
 This is handy if you want to include a bunch of defaults in your shell to save typing lots of ``import`` statements.
 
-The ``Shell`` command will use `IPython <http://ipython.scipy.org/moin/>`_ if it is installed, otherwise it defaults to the standard Python shell. You can disable this behaviour in two ways: by passing the ``use_ipython`` argument to the ``Shell`` constructor, or passing the flag ``--no-ipython`` in the command line. 
+The ``Shell`` command will use `IPython <http://ipython.scipy.org/moin/>`_ if it is installed, otherwise it defaults to the standard Python shell. You can disable this behaviour in two ways: by passing the ``use_ipython`` argument to the ``Shell`` constructor, or passing the flag ``--no-ipython`` in the command line::
+
+    shell = Shell(use_ipython=False)
+
+There is also a ``@shell`` decorator which you can use with a context function::
+
+    @shell
+    def make_shell_context(app):
+        return dict(app=app, db=db, models=models)
+
+This enables a **shell** command with the defaults enabled::
+
+    > python manage.py shell
 
 The default commands **shell** and **runserver** are included by default, with the default options for these commands. If you wish to 
 replace them with different commands simply override with ``add_command()`` or the decorators. If you pass ``with_default_commands=False``
@@ -407,32 +421,16 @@ API
 .. module:: flaskext.script
 
 .. autoclass:: Manager
-   :members:
+   :members: run, add_option, add_command, command, option, shell, get_usage, print_usage
     
 .. autoclass:: Command
-   :members:
+   :members: run, get_options
 
 .. autoclass:: Shell
 
 .. autoclass:: Server
 
-.. class:: Option
-
-    Stores option parameters for `argparse.ArgumentParser.add_argument <http://pypi.python.org/pypi/argparse>`_. Use with ``Command.option_list`` or ``Command.get_options()``. 
-
-    .. method:: __init__(name_or_flags, action, nargs, const, default, type, choices, required, help, metavar, dest)
-
-        :param name_or_flags: Either a name or a list of option strings, e.g. foo or -f, --foo
-        :param action: The basic type of action to be taken when this argument is encountered at the command-line.
-        :param nargs: The number of command-line arguments that should be consumed.
-        :param const: A constant value required by some action and nargs selections.
-        :param default: The value produced if the argument is absent from the command-line.
-        :param type: The type to which the command-line arg should be converted.
-        :param choices: A container of the allowable values for the argument.
-        :param required: Whether or not the command-line option may be omitted (optionals only).
-        :param help: A brief description of what the argument does.
-        :param metavar: A name for the argument in usage messages.
-        :param dest: The name of the attribute to be added to the object returned by parse_args().
+.. autoclass:: Option
 
 .. autofunction:: prompt
 

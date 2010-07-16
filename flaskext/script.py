@@ -98,7 +98,25 @@ def prompt_choices(name, choices, default=None):
 class Option(object):
 
     """
-    Stores positional and optional arguments for ArgumentParser.
+    Stores positional and optional arguments for `ArgumentParser.add_argument 
+    <http://argparse.googlecode.com/svn/trunk/doc/add_argument.html>`_.
+
+    :param name_or_flags: Either a name or a list of option strings, 
+                          e.g. foo or -f, --foo
+    :param action: The basic type of action to be taken when this argument 
+                   is encountered at the command-line.
+    :param nargs: The number of command-line arguments that should be consumed.
+    :param const: A constant value required by some action and nargs selections.
+    :param default: The value produced if the argument is absent from 
+                    the command-line.
+    :param type: The type to which the command-line arg should be converted.
+    :param choices: A container of the allowable values for the argument.
+    :param required: Whether or not the command-line option may be omitted 
+                     (optionals only).
+    :param help: A brief description of what the argument does.
+    :param metavar: A name for the argument in usage messages.
+    :param dest: The name of the attribute to be added to the object 
+                 returned by parse_args().
     """
     
     def __init__(self, *args, **kwargs):
@@ -122,7 +140,7 @@ class Command(object):
     def add_option(self, option):
         
         """
-        Adds option to option list.
+        Adds Option to option list.
         """
         
         self.option_list.append(option)
@@ -182,22 +200,23 @@ class Command(object):
 
 class Shell(Command):
 
-    "Runs a Python shell inside Flask application context."
+    """
+    Runs a Python shell inside Flask application context.
+
+    :param banner: banner appearing at top of shell when started
+    :param make_context: a callable returning a dict of variables 
+    used in the shell namespace. The callable takes a single argument,
+    "app", the Flask instance. By default returns a dict consisting
+    of just the app.
+    :param use_ipython: use IPython shell if available, ignore if not.
+    The IPython shell can be turned off in command line by passing the
+    --no-ipython flag.
+    """
 
     banner = ''
     
     def __init__(self, banner=None, make_context=None, use_ipython=True):
 
-        """
-        :param banner: banner appearing at top of shell when started
-        :param make_context: a callable returning a dict of variables 
-        used in the shell namespace. The callable takes a single argument,
-        "app", the Flask instance. By default returns a dict consisting
-        of just the app.
-        :param use_ipython: use IPython shell if available, ignore if not.
-        The IPython shell can be turned off in command line by passing the
-        --no-ipython flag.
-        """
 
         self.banner = banner or self.banner
         self.use_ipython = use_ipython
@@ -245,19 +264,20 @@ class Shell(Command):
 
 class Server(Command):
 
-    "Runs the Flask development server i.e. app.run()"
+    """
+    Runs the Flask development server i.e. app.run()
+
+    :param host: server host
+    :param port: server port
+    :param use_debugger: if False, will no longer use Werkzeug debugger.
+    This can be overriden in the command line by passing the -d flag.
+    :param use_reloader: if Flase, will no loner use auto-reloader.
+    This can be overriden in the command line by passing the -r flag.
+    """
 
     def __init__(self, host='127.0.0.1', port=5000, use_debugger=True,
         use_reloader=True):
 
-        """
-        :param host: server host
-        :param port: server port
-        :param use_debugger: if False, will no longer use Werkzeug debugger.
-        This can be overriden in the command line by passing the -d flag.
-        :param use_reloader: if Flase, will no loner use auto-reloader.
-        This can be overriden in the command line by passing the -r flag.
-        """
 
         self.port = port
         self.host = host
@@ -323,16 +343,12 @@ class Manager(object):
         python manage.py print
         > hello
 
+    :param app: Flask instance or callable returning a Flask instance.
+    :param with_default_commands: load commands **runserver** and **shell**
+                                  by default.
     """
 
     def __init__(self, app, with_default_commands=True):
-
-        """
-        :param app: Flask instance or callable returning a Flask instance.
-        :param with_default_commands: load commands **runserver** and **shell**
-                                      by default.
-
-        """
 
         self.app = app
 
@@ -478,6 +494,19 @@ class Manager(object):
 
     def option(self, *args, **kwargs):
         
+        """
+        Decorator to add an option to a function. Automatically registers the 
+        function - do not use together with ``@command``. You can add as many
+        ``@option`` calls as you like, for example::
+
+            @option('-n', '--name', dest='name')
+            @option('-u', '--url', dest='url')
+            def hello(app, name, url):
+                print "hello", name, url
+
+        Takes the same arguments as the ``Option`` constructor.
+        """
+
         option = Option(*args, **kwargs)
 
         def decorate(func):
