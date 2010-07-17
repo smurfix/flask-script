@@ -220,6 +220,8 @@ class Shell(Command):
     """
 
     banner = ''
+
+    description = 'Runs a Python shell inside Flask application context.'
     
     def __init__(self, banner=None, make_context=None, use_ipython=True):
 
@@ -231,7 +233,7 @@ class Shell(Command):
             make_context = lambda app: dict(app=app)
 
         self.make_context = make_context
-
+    
     def get_options(self):
 
         return (
@@ -283,6 +285,8 @@ class Server(Command):
                          passing the **-r** flag.
                          
     """
+
+    description = 'Runs the Flask development server i.e. app.run()'
 
     def __init__(self, host='127.0.0.1', port=5000, use_debugger=True,
         use_reloader=True):
