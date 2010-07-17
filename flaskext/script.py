@@ -51,7 +51,7 @@ def prompt_pass(name, default=None):
             return default
 
 
-def prompt_bool(name, default=False):
+def prompt_bool(name, default=False, yes_choices=None, no_choices=None):
     
     """
     Grabs user input from command line and converts to boolean
@@ -59,15 +59,20 @@ def prompt_bool(name, default=False):
 
     :param name: prompt text
     :param default: default value if no input provided.
+    :param yes_choices: default 'y', 'yes', '1', 'on', 'true', 't'
+    :param no_choices: default 'n', 'no', '0', 'off', 'false', 'f'
     """
+
+    yes_choices = yes_choices or ('y', 'yes', '1', 'on', 'true', 't')
+    no_choices = no_choices or ('n', 'no', '0', 'off', 'false', 'f')
     
     while True:
         rv = prompt(name + '?', default and 'Y' or 'N')
         if not rv:
             return default
-        if rv.lower() in ('y', 'yes', '1', 'on', 'true', 't'):
+        if rv.lower() in yes_choices:
             return True
-        elif rv.lower() in ('n', 'no', '0', 'off', 'false', 'f'):
+        elif rv.lower() in no_choices:
             return False
 
 
@@ -205,12 +210,13 @@ class Shell(Command):
 
     :param banner: banner appearing at top of shell when started
     :param make_context: a callable returning a dict of variables 
-    used in the shell namespace. The callable takes a single argument,
-    "app", the Flask instance. By default returns a dict consisting
-    of just the app.
-    :param use_ipython: use IPython shell if available, ignore if not.
-    The IPython shell can be turned off in command line by passing the
-    --no-ipython flag.
+                         used in the shell namespace. The callable 
+                         takes a single argument, "app", the Flask 
+                         instance. By default returns a dict consisting
+                         of just the app.
+    :param use_ipython: use IPython shell if available, ignore if not. 
+                        The IPython shell can be turned off in command 
+                        line by passing the **--no-ipython** flag.
     """
 
     banner = ''
@@ -270,9 +276,12 @@ class Server(Command):
     :param host: server host
     :param port: server port
     :param use_debugger: if False, will no longer use Werkzeug debugger.
-    This can be overriden in the command line by passing the -d flag.
-    :param use_reloader: if Flase, will no loner use auto-reloader.
-    This can be overriden in the command line by passing the -r flag.
+                         This can be overriden in the command line 
+                         by passing the **-d** flag.
+    :param use_reloader: if False, will no longer use auto-reloader.
+                         This can be overriden in the command line by 
+                         passing the **-r** flag.
+                         
     """
 
     def __init__(self, host='127.0.0.1', port=5000, use_debugger=True,

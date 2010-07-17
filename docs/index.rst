@@ -177,7 +177,7 @@ To facilitate this you use the ``option_list`` attribute of the ``Command`` clas
         def run(self, app, name):
             print "hello %s" % name
 
-Positional and optional arguments are stored as ``Option`` instances - see the API below for details.
+Positional and optional arguments are stored as ``Option`` instances - see the :ref:`api` below for details.
 
 Alternatively, you can define a ``get_options`` method for your ``Command`` class. This is useful if you want to be able
 to return options at runtime based on for example per-instance attributes::
@@ -345,7 +345,7 @@ It then runs like this::
     python manage.py dropdb
     > Are you sure you want to lose all your data ? [N]
 
-See the API below for details on the various commands.
+See the :ref:`api` below for details on the various prompt functions.
 
 Default commands
 ----------------
@@ -415,13 +415,15 @@ Accessing local proxies
 
 The ``Manager`` runs the command inside a `Flask test context <http://flask.pocoo.org/docs/testing/#other-testing-tricks>`_. This means thathat you can access request-local proxies where appropriate, such as ``current_app``, which may be used by extensions.
 
+.. _api:
+
 API
 ---
 
 .. module:: flaskext.script
 
 .. autoclass:: Manager
-   :members: run, add_option, add_command, command, option, shell, get_usage, print_usage
+   :members: run, add_option, add_command, command, option, shell, get_usage, print_usage, option
     
 .. autoclass:: Command
    :members: run, get_options
