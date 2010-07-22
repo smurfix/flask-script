@@ -8,7 +8,7 @@ import warnings
 
 import argparse
 
-from flask import Flask
+from flask import Flask, _request_ctx_stack
 
 __all__ = ["Command", "Shell", "Server", "Manager", "Option",
            "prompt", "prompt_pass", "prompt_bool", "prompt_choices"]
@@ -169,7 +169,7 @@ class Command(object):
         
         return parser
 
-    def run(self, app):
+    def run(self):
 
         """
         Runs a command. This must be implemented by the subclass. The first
@@ -230,7 +230,7 @@ class Shell(Command):
         self.use_ipython = use_ipython
 
         if make_context is None:
-            make_context = lambda app: dict(app=app)
+            make_context = lambda: dict(app=_request_ctx_stack.top.app)
 
         self.make_context = make_context
     
@@ -242,22 +242,22 @@ class Shell(Command):
                        dest='no_ipython',
                        default=not(self.use_ipython)),)
 
-    def get_context(self, app):
+    def get_context(self):
         
         """
         Returns a dict of context variables added to the shell namespace.
         """
 
-        return self.make_context(app)
+        return self.make_context()
 
-    def run(self, app, no_ipython):
+    def run(self, no_ipython):
 
         """
         Runs the shell. Unless no_ipython is True or use_python is False
         then runs IPython shell if that is installed.
         """
 
-        context = self.get_context(app)
+        context = self.get_context()
         if not no_ipython:
             try:
                 import IPython
@@ -319,7 +319,8 @@ class Server(Command):
                        dest='use_reloader',
                        default=self.use_reloader))
 
-    def run(self, app, host, port, use_debugger, use_reloader):
+    def run(self, host, port, use_debugger, use_reloader):
+        app = _request_ctx_stack.top.app
         app.run(host=host,
                 port=port,
                 debug=use_debugger,
@@ -450,7 +451,6 @@ class Manager(object):
 
         # first arg is always "app" : ignore
 
-        args = args[1:]
         defaults = defaults or []
         kwargs = dict(zip(*[reversed(l) for l in (args, defaults)]))
 
@@ -601,8 +601,8 @@ class Manager(object):
         app = self.create_app(**app_namespace.__dict__)
 
         with app.test_request_context():
-            command.run(app, **command_namespace.__dict__)
-        
+            command.run(**command_namespace.__dict__)
+
     def run(self, commands=None):
         
         """

@@ -1,7 +1,7 @@
 import pprint
 
-from flask import Flask, Response
-from flaskext.script import Manager, Command, Option, Shell, Server
+from flask import Flask, current_app
+from flaskext.script import Manager
 
 def create_app(config=None):
     app = Flask(__name__)
@@ -20,23 +20,23 @@ def create_app(config=None):
 manager = Manager(create_app)
 
 @manager.command
-def dumpconfig(app):
+def dumpconfig():
     "Dumps config"
-    pprint.pprint(app.config)
+    pprint.pprint(current_app.config)
 
 @manager.command
-def output(app, name):
+def output(name):
     "print something"
     print name
 
 @manager.command
-def outputplus(app, name, url=None):
+def outputplus(name, url=None):
     "print name and url"
     print name, url
 
 @manager.option('-n', '--name', dest='name', help="your name")
 @manager.option('-u', '--url', dest='url', help="your url")
-def optional(app, name, url):
+def optional(name, url):
     "print name and url"
     print name, url
 
