@@ -1,7 +1,7 @@
 import pprint
 
 from flask import Flask, current_app
-from flaskext.script import Manager
+from flaskext.script import Manager, prompt_choices
 
 def create_app(config=None):
     app = Flask(__name__)
@@ -33,6 +33,26 @@ def output(name):
 def outputplus(name, url=None):
     "print name and url"
     print name, url
+
+@manager.command
+def getrolesimple():
+
+    choices = ("member", "moderator", "admin")
+
+    role = prompt_choices("role", choices=choices, default="member")
+    print "ROLE:", role
+
+@manager.command
+def getrole():
+
+    choices = (
+        (1, "member"),
+        (2, "moderator"),
+        (3, "admin"),
+    )
+
+    role = prompt_choices("role", choices=choices, resolve=int, default=1)
+    print "ROLE:", role
 
 @manager.option('-n', '--name', dest='name', help="your name")
 @manager.option('-u', '--url', dest='url', help="your url")

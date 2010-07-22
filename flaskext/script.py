@@ -2,6 +2,7 @@
 
 import sys
 import code
+import string
 import getpass
 import inspect
 import warnings
@@ -67,7 +68,7 @@ def prompt_bool(name, default=False, yes_choices=None, no_choices=None):
     no_choices = no_choices or ('n', 'no', '0', 'off', 'false', 'f')
     
     while True:
-        rv = prompt(name + '?', default and 'Y' or 'N')
+        rv = prompt(name + '?', default and yes_choices[0] or no_choices[0])
         if not rv:
             return default
         if rv.lower() in yes_choices:
@@ -76,28 +77,39 @@ def prompt_bool(name, default=False, yes_choices=None, no_choices=None):
             return False
 
 
-def prompt_choices(name, choices, default=None):
+def prompt_choices(name, choices, default=None, 
+    resolve=string.lower, no_choice=('none',)):
     
     """
     Grabs user input from command line from set of provided choices.
 
     :param name: prompt text
-    :param choices: list or tuple of available choices
+    :param choices: list or tuple of available choices. Choices may be 
+                    single strings or (key, value) tuples.
     :param default: default value if no input provided.
+    :param no_choice: acceptable list of strings for "null choice"
     """
+    
+    _choices = []
+    options = []
+    
+    for choice in choices:
+        if isinstance(choice, basestring):
+            options.append(choice)
+        else:
+            options.append("%s [%s]" % (choice[1], choice[0]))
+            choice = choice[0]
+        _choices.append(choice)
 
-    if default is None:
-        default = choices[0]
     while True:
-        rv = prompt(name + '? - (%s)' % ', '.join(choices), default)
-        rv = rv.lower()
+        rv = prompt(name + '? - (%s)' % ', '.join(options), default)
         if not rv:
             return default
-        if rv in choices:
-            if rv == 'none':
-                return None
-            else:
-                return rv
+        rv = resolve(rv)
+        if rv in no_choice:
+            return None
+        if rv in _choices:
+            return rv
 
 
 class Option(object):
