@@ -16,7 +16,7 @@ The **Flask-Script** extension provides support for writing external scripts in 
     manager = Manager(app)
     
     @manager.command
-    def hello(app):
+    def hello():
         print "hello"
 
     if __name__ == "__main__":
@@ -88,7 +88,7 @@ doesn't take any arguments so is very straightforward::
     class Hello(Command):
         "prints hello world"
 
-        def run(self, app):
+        def run(self):
             print "hello world"
 
 Now the command needs to be added to our ``Manager`` instance, like the one created above::
@@ -104,9 +104,7 @@ You can also pass the ``Command`` instance in a dict to ``manager.run()``::
 
     manager.run({'hello' : Hello()})
 
-The ``Command`` class must define a ``run`` method. The first argument to your ``run`` , other than ``self``, 
-is always ``app``: this is the Flask application instance that is passed directly to the ``Manager``; if you 
-pass an app factory, the ``Manager`` will call this and pass the result to your ``Command``. Additional arguments
+The ``Command`` class must define a ``run`` method. The positional and optional arguments
 depend on the command-line arguments you pass to the ``Command`` (see below).
 
 To get a list of available commands and their descriptions, just run with no command::
@@ -123,7 +121,7 @@ This first method is probably the most flexible, but it's also the most verbose.
 the ``@command`` decorator, which belongs to the ``Manager`` instance:: 
 
     @manager.command
-    def hello(app):
+    def hello():
         "Just say hello"
         print "hello"
 
@@ -146,8 +144,6 @@ control over your commands::
 
 The ``@option`` decorator is explained in more detail below.
 
-Note that with ``@command`` and ``@option`` decorators, the function must take the Flask application instance as the first
-argument, just as with ``Command.run``.
 
 Adding arguments to commands
 ----------------------------
@@ -174,7 +170,7 @@ To facilitate this you use the ``option_list`` attribute of the ``Command`` clas
             Option('--name', '-n', dest='name'),
         )
 
-        def run(self, app, name):
+        def run(self, name):
             print "hello %s" % name
 
 Positional and optional arguments are stored as ``Option`` instances - see the :ref:`api` below for details.
@@ -192,13 +188,13 @@ to return options at runtime based on for example per-instance attributes::
                 Option('-n', '--name', dest='name', default=self.default_name),
             ]
 
-        def run(self, app, name):
+        def run(self, name):
             print "hello",  name
 
 If you are using the ``@command`` decorator, it's much easier - the options are extracted automatically from your function arguments. This is an example of a positional argument::
 
     @manager.command
-    def hello(app, name):
+    def hello(name):
         print "hello", name
 
 You then invoke this on the command line like so::
@@ -209,7 +205,7 @@ You then invoke this on the command line like so::
 Or you can do optional arguments::
 
     @manager.command
-    def hello(app, name="Fred")
+    def hello(name="Fred")
         print hello, name
 
 These can be called like so::
@@ -225,15 +221,14 @@ alternatively::
 There are a couple of important points to note here.
 
 The short-form **-n** is formed from the first letter of the argument, so "name" > "-n". Therefore it's a good idea that your
-optional argument variable names begin with different letters (The first argument, "app", is ignored, 
-so don't worry about "a" being taken).
+optional argument variable names begin with different letters.
 
 The second issue is that the **-h** switch always runs the help text for that command, so avoid arguments starting with the letter "h".
 
 Note also that if your optional argument is a boolean, for example::
 
     @manage.command
-    def verify(app, verified=False):
+    def verify(verified=False):
         """
         Checks if verified
         """
@@ -253,14 +248,14 @@ You can just call it like this::
 The ``@command`` decorator is fine for simple operations, but often you need the flexibility. For more sophisticated options it's better to use the ``@option`` decorator::
 
     @manager.option('-n', '--name', dest='name', default='joe')
-    def hello(app, name):
+    def hello(name):
         print "hello", name
 
 You can add as many options as you want::
 
     @manager.option('-n', '--name', dest='name', default='joe')
     @manager.option('-u', '--url', dest='url', default=None)
-    def hello(app, name, url):
+    def hello(name, url):
         if url is None:
             print "hello", name
         else:
@@ -304,7 +299,7 @@ As with any other **Flask-Script** configuration you can call this anywhere in y
 Suppose you have this command::
     
     @manager.command
-    def hello(app, name):
+    def hello(name):
         uppercase = app.config.get('USE_UPPERCASE', False)
         if uppercase:
             name = name.upper()
@@ -335,7 +330,7 @@ Getting user input
     manager = Manager(app)
         
     @manager.command
-    def dropdb(app):
+    def dropdb():
         if prompt_bool(
             "Are you sure you want to lose all your data"):
             db.drop_all()
@@ -373,7 +368,9 @@ The ``Server`` command has a number of command-line arguments - run ``python man
 
 Needless to say the development server is not intended for production use.
 
-The ``Shell`` command starts a Python shell. You can pass in a ``make_context`` argument, which must be a ``callable`` returning a ``dict``. As with commands, it always takes the ``app`` as the first argument. By default, this is just a dict returning the ``app`` instance::
+The ``Shell`` command starts a Python shell. You can pass in a ``make_context`` argument, which must be a ``callable`` returning a ``dict``. By default, this is just a dict returning the your Flask application instance::
+
+    from flask import app
 
     from flaskext.script import Shell, Manager
     
@@ -381,8 +378,8 @@ The ``Shell`` command starts a Python shell. You can pass in a ``make_context`` 
     from myapp import models
     from myapp.models import db
 
-    def _make_context(app):
-        return dict(app=app, db=db, models=models)
+    def _make_context():
+        return dict(app=app, app, db=db, models=models)
 
     manager = Manager(create_app)
     manager.add_command("shell", Shell(make_context=_make_context))
@@ -393,10 +390,10 @@ The ``Shell`` command will use `IPython <http://ipython.scipy.org/moin/>`_ if it
 
     shell = Shell(use_ipython=False)
 
-There is also a ``@shell`` decorator which you can use with a context function::
+There is also a ``shell`` decorator which you can use with a context function::
 
-    @shell
-    def make_shell_context(app):
+    @manager.shell
+    def make_shell_context():
         return dict(app=app, db=db, models=models)
 
 This enables a **shell** command with the defaults enabled::
