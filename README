@@ -1,3 +1,10 @@
-flask-script
+Flask-Script
 
-Description goes here
+A set of utilities for use with the Flask framework, which provide 
+decorators, classes and helpers for writing your own script commands.
+
+Useful for creating command-line scripts, cronjobs etc outside your
+web application.
+
+
+
