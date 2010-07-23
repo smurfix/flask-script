@@ -27,11 +27,15 @@ setup(
     long_description=__doc__,
     packages=['flaskext'],
     namespace_packages=['flaskext'],
+    test_suite='nose.collector',
     zip_safe=False,
     platforms='any',
     install_requires=[
         'Flask',
         'argparse',
+    ],
+    tests_require=[
+        'nose',
     ],
     classifiers=[
         'Development Status :: 4 - Beta',
