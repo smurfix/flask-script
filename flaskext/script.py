@@ -1,8 +1,5 @@
 # -*- coding: utf-8 -*-
-<<<<<<< local
-=======
 from __future__ import absolute_import
->>>>>>> other
 from __future__ import with_statement
 
 import sys
