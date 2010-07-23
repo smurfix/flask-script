@@ -9,7 +9,7 @@ from flaskext.script import Command, Manager, InvalidCommand, Option
 class SimpleCommand(Command):
     "simple command"
 
-    def run(self, app):
+    def run(self):
         print "OK"
 
 
@@ -20,7 +20,7 @@ class CommandWithArgs(Command):
         Option("name"),
     )
 
-    def run(self, app, name):
+    def run(self, name):
         print name
 
 
@@ -33,7 +33,7 @@ class CommandWithOptions(Command):
                dest="name"),
     )
 
-    def run(self, app, name):
+    def run(self, name):
         print name
 
 
@@ -52,7 +52,7 @@ class CommandWithDynamicOptions(Command):
                    default=self.default_name),
             )
 
-    def run(self, app, name):
+    def run(self, name):
         print name
 
 
@@ -100,7 +100,7 @@ class TestManager(unittest.TestCase):
         manager = Manager(self.app)
         
         @manager.command
-        def hello(app):
+        def hello():
             print "hello"
 
         assert 'hello' in manager._commands
@@ -113,7 +113,7 @@ class TestManager(unittest.TestCase):
         manager = Manager(self.app)
         
         @manager.command
-        def hello(app, name):
+        def hello(name):
             print "hello", name
         
 
@@ -127,7 +127,7 @@ class TestManager(unittest.TestCase):
         manager = Manager(self.app)
         
         @manager.command
-        def hello(app, name='fred'):
+        def hello(name='fred'):
             "Prints your name"
             print "hello", name
 
@@ -156,7 +156,7 @@ class TestManager(unittest.TestCase):
         manager = Manager(self.app)
         
         @manager.command
-        def verify(app, verified=False):
+        def verify(verified=False):
             "Checks if verified"
             print "VERIFIED ?", "YES" if verified else "NO"
 
@@ -182,7 +182,7 @@ class TestManager(unittest.TestCase):
         manager = Manager(self.app)
         
         @manager.command
-        def hello(app, name, url=None):
+        def hello(name, url=None):
             if url:
                 print "hello", name, "from", url
             else:
@@ -201,7 +201,7 @@ class TestManager(unittest.TestCase):
         manager = Manager(self.app)
         
         @manager.option('-n', '--name', dest='name', help='Your name')
-        def hello(app, name):
+        def hello(name):
             print "hello", name
 
         assert 'hello' in manager._commands
@@ -217,7 +217,7 @@ class TestManager(unittest.TestCase):
 
         @manager.option('-n', '--name', dest='name', help='Your name')
         @manager.option('-u', '--url', dest='url', help='Your URL')
-        def hello_again(app, name, url=None):
+        def hello_again(name, url=None):
             if url:
                 print "hello", name, "from", url
             else:

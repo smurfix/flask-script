@@ -9,7 +9,7 @@ Links
 
 * `documentation <http://packages.python.org/Flask-Script>`_
 * `development version
-  <http://bitbucket.org/danjac/flask-Script/get/tip.gz#egg=flask-script>`_
+  <http://bitbucket.org/danjac/flask-Script/get/tip.gz#egg=Flask-Script-dev>`_
 
 
 """
@@ -18,7 +18,7 @@ from setuptools import setup
 
 setup(
     name='Flask-Script',
-    version='0.2',
+    version='0.3',
     url='http://bitbucket.org/danjac/flask-script',
     license='BSD',
     author='Dan Jacob',
@@ -27,11 +27,15 @@ setup(
     long_description=__doc__,
     packages=['flaskext'],
     namespace_packages=['flaskext'],
+    test_suite='nose.collector',
     zip_safe=False,
     platforms='any',
     install_requires=[
         'Flask',
         'argparse',
+    ],
+    tests_require=[
+        'nose',
     ],
     classifiers=[
         'Development Status :: 4 - Beta',
