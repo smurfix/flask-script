@@ -139,7 +139,7 @@ Finally, the ``@option`` decorator, again belonging to ``Manager`` can be used w
 control over your commands::
 
     @manager.option('-n', '--name', help='Your name')
-    def hello(app, name):
+    def hello(name):
         print "hello", name
 
 The ``@option`` decorator is explained in more detail below.
@@ -312,7 +312,7 @@ You can now run the following::
 
 Assuming the ``USE_UPPERCASE`` setting is **True** in your dev.cfg file.
 
-Notice also that the "config" option is **not** passed to the command. As the ``app`` is always the first argument to your command, you can access any application-specific configuration from that.
+Notice also that the "config" option is **not** passed to the command. 
 
 In order for manager options to work you must pass a factory function, rather than a Flask instance, to your 
 ``Manager`` constructor.
