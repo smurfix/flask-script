@@ -355,7 +355,7 @@ class Manager(object):
         
         class Print(Command):
 
-            def run(self, app):
+            def run(self):
                 print "hello"
 
         app = Flask(__name__)
@@ -438,7 +438,9 @@ class Manager(object):
 
             manager = Manager(create_app)
             manager.add_option("-c", "--config", dest="config", required=False)
-            
+           
+        and are evoked like this::
+
             > python manage.py -c dev.cfg mycommand
 
         Any manager options passed in the command line will not be passed to 
