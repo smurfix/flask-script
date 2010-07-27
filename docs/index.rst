@@ -200,7 +200,7 @@ If you are using the ``@command`` decorator, it's much easier - the options are 
 You then invoke this on the command line like so::
 
     > python manage.py hello Joe
-    hello joe
+    hello Joe
 
 Or you can do optional arguments::
 
@@ -362,7 +362,7 @@ and then run the command::
 
     python manage.py runserver
 
-The ``Server`` command has a number of command-line arguments - run ``python manage.py runserver -h`` for details on these. You can redfine the defaults in the constructor::
+The ``Server`` command has a number of command-line arguments - run ``python manage.py runserver -h`` for details on these. You can redefine the defaults in the constructor::
 
     server = Server(host="0.0.0.0", port=9000)
 
@@ -386,7 +386,7 @@ The ``Shell`` command starts a Python shell. You can pass in a ``make_context`` 
     
 This is handy if you want to include a bunch of defaults in your shell to save typing lots of ``import`` statements.
 
-The ``Shell`` command will use `IPython <http://ipython.scipy.org/moin/>`_ if it is installed, otherwise it defaults to the standard Python shell. You can disable this behaviour in two ways: by passing the ``use_ipython`` argument to the ``Shell`` constructor, or passing the flag ``--no-ipython`` in the command line::
+The ``Shell`` command will use `IPython <http://ipython.scipy.org/moin/>`_ if it is installed, otherwise it defaults to the standard Python shell. You can disable this behavior in two ways: by passing the ``use_ipython`` argument to the ``Shell`` constructor, or passing the flag ``--no-ipython`` in the command line::
 
     shell = Shell(use_ipython=False)
 
@@ -410,7 +410,7 @@ to the ``Manager`` constructor these commands will not be loaded::
 Accessing local proxies
 -----------------------
 
-The ``Manager`` runs the command inside a `Flask test context <http://flask.pocoo.org/docs/testing/#other-testing-tricks>`_. This means thathat you can access request-local proxies where appropriate, such as ``current_app``, which may be used by extensions.
+The ``Manager`` runs the command inside a `Flask test context <http://flask.pocoo.org/docs/testing/#other-testing-tricks>`_. This means that you can access request-local proxies where appropriate, such as ``current_app``, which may be used by extensions.
 
 .. _api:
 

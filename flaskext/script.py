@@ -355,7 +355,7 @@ class Manager(object):
         
         class Print(Command):
 
-            def run(self, app):
+            def run(self):
                 print "hello"
 
         app = Flask(__name__)
