@@ -3,7 +3,7 @@ Flask-Script
 
 .. module:: Flask-Script
 
-The **Flask-Script** extension provides support for writing external scripts in Flask. This includes running a development server, a customized Python shell, scripts to set up your database, cronjobs, and other command-line tasks that belong outside the web application itself. 
+The **Flask-Script** extension provides support for writing external scripts in Flask. This includes running a development server, a customised Python shell, scripts to set up your database, cronjobs, and other command-line tasks that belong outside the web application itself. 
 
 **Flask-Script** works in a similar way to Flask itself. You define and add commands that can be called from the command line to a ``Manager`` instance::
 
@@ -345,7 +345,7 @@ See the :ref:`api` below for details on the various prompt functions.
 Default commands
 ----------------
 
-**Flask-Script** has a couple of ready commands you can add and customize: ``Server`` and ``Shell``.
+**Flask-Script** has a couple of ready commands you can add and customise: ``Server`` and ``Shell``.
 
 The ``Server`` command runs the **Flask** development server. It takes an optional ``port`` argument (default **5000**)::
 
@@ -386,7 +386,7 @@ The ``Shell`` command starts a Python shell. You can pass in a ``make_context`` 
     
 This is handy if you want to include a bunch of defaults in your shell to save typing lots of ``import`` statements.
 
-The ``Shell`` command will use `IPython <http://ipython.scipy.org/moin/>`_ if it is installed, otherwise it defaults to the standard Python shell. You can disable this behavior in two ways: by passing the ``use_ipython`` argument to the ``Shell`` constructor, or passing the flag ``--no-ipython`` in the command line::
+The ``Shell`` command will use `IPython <http://ipython.scipy.org/moin/>`_ if it is installed, otherwise it defaults to the standard Python shell. You can disable this behaviour in two ways: by passing the ``use_ipython`` argument to the ``Shell`` constructor, or passing the flag ``--no-ipython`` in the command line::
 
     shell = Shell(use_ipython=False)
 
