@@ -184,8 +184,10 @@ class TestManager(unittest.TestCase):
         @manager.command
         def hello(name, url=None):
             if url:
+                assert type(url) is unicode
                 print "hello", name, "from", url
             else:
+                assert type(name) is unicode
                 print "hello", name
         
         assert 'hello' in manager._commands

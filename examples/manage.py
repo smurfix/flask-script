@@ -28,6 +28,7 @@ def dumpconfig():
 def output(name):
     "print something"
     print name
+    print type(name)
 
 @manager.command
 def outputplus(name, url=None):

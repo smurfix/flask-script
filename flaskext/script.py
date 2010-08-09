@@ -486,11 +486,12 @@ class Manager(object):
                     options.append(Option('-%s' % arg[0],
                                           '--%s' % arg,
                                           dest=arg,
+                                          type=unicode,
                                           required=False,
                                           default=default))
         
             else:
-                options.append(Option(arg))
+                options.append(Option(arg, type=unicode))
 
 
         command = Command()
