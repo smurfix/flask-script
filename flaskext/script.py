@@ -571,6 +571,8 @@ class Manager(object):
         Returns string consisting of all commands and their
         descriptions.
         """
+        pad = max(map(len, self._commands.iterkeys())) + 2
+        format = '  %%- %ds%%s' % pad
 
         rv = []
 
@@ -579,6 +581,7 @@ class Manager(object):
             description = command.description
             if description:
                 usage += ": " + description
+            usage = format % (name, command.description)
             rv.append(usage)
 
         return "\n".join(rv)

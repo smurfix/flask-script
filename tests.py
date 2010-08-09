@@ -239,7 +239,7 @@ class TestManager(unittest.TestCase):
         manager = Manager(self.app)
         manager.add_command("simple", SimpleCommand())
 
-        assert "simple: simple command" in manager.get_usage()
+        assert "simple     simple command" in manager.get_usage()
 
     def test_run_existing_command(self):
         
