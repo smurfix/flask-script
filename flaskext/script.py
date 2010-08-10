@@ -578,10 +578,8 @@ class Manager(object):
 
         for name, command in self._commands.iteritems():
             usage = name
-            description = command.description
-            if description:
-                usage += ": " + description
-            usage = format % (name, command.description)
+            description = command.description or ''
+            usage = format % (name, description)
             rv.append(usage)
 
         return "\n".join(rv)
