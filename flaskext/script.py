@@ -186,9 +186,8 @@ class Command(object):
     def run(self):
 
         """
-        Runs a command. This must be implemented by the subclass. The first
-        argument is always the app (Flask instance) followed by arguments
-        as configured by the Command options.
+        Runs a command. This must be implemented by the subclass. Should take
+        arguments as configured by the Command options.
         """
 
         raise NotImplementedError
@@ -224,10 +223,8 @@ class Shell(Command):
 
     :param banner: banner appearing at top of shell when started
     :param make_context: a callable returning a dict of variables 
-                         used in the shell namespace. The callable 
-                         takes a single argument, "app", the Flask 
-                         instance. By default returns a dict consisting
-                         of just the app.
+                         used in the shell namespace. By default 
+                         returns a dict consisting of just the app.
     :param use_ipython: use IPython shell if available, ignore if not. 
                         The IPython shell can be turned off in command 
                         line by passing the **--no-ipython** flag.
@@ -455,8 +452,7 @@ class Manager(object):
         """
         Adds a command function to the registry.
         
-        :param func: command function. Should take at least one argument, the 
-                     Flask application. Additional arguments depend on the 
+        :param func: command function.Arguments depend on the 
                      options.
         
         """
