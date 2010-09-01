@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# flask-testing documentation build configuration file, created by
+# flask-script documentation build configuration file, created by
 # sphinx-quickstart on Wed Jun 23 08:26:41 2010.
 #
 # This file is execfile()d with the current directory set to its containing dir.
