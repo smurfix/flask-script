@@ -8,7 +8,6 @@ import string
 import getpass
 import inspect
 import warnings
-import unittest
 
 import argparse
 
