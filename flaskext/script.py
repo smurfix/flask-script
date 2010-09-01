@@ -527,7 +527,7 @@ class Manager(object):
 
             @option('-n', '--name', dest='name')
             @option('-u', '--url', dest='url')
-            def hello(app, name, url):
+            def hello(name, url):
                 print "hello", name, url
 
         Takes the same arguments as the ``Option`` constructor.
