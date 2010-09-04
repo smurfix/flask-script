@@ -310,8 +310,6 @@ class Server(Command):
     
     def get_options(self):
 
-        # TBD : if use_debugger or use_reloader is true 
-
         options = (
 
                 Option('-t', '--host',
