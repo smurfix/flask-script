@@ -56,6 +56,18 @@ class CommandWithDynamicOptions(Command):
         print name
 
 
+class CommandWithCatchAll(Command):
+    "command with catch all args"
+
+    capture_all_args = True
+
+    def get_options(self):
+        return (Option('--foo', dest='foo',
+                       action='store_true'),)
+    def run(self, remaining_args, foo):
+        print remaining_args
+
+
 class TestCommands(unittest.TestCase):
 
     TESTING = True
@@ -316,6 +328,16 @@ class TestManager(unittest.TestCase):
         except SystemExit, e:
             assert e.code == 0
         assert "Fred" in sys.stdout.getvalue()
+
+    def test_run_catch_all(self):
+        manager = Manager(self.app)
+        manager.add_command("catch", CommandWithCatchAll())
+        sys.argv = ["manage.py", "catch", "pos1", "--foo", "pos2", "--bar"]
+        try:
+            manager.run()
+        except SystemExit, e:
+            assert e.code == 0
+        assert "['pos1', 'pos2', '--bar']" in sys.stdout.getvalue()
 
     def test_run_bad_options(self):
 

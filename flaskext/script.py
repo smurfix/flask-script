@@ -631,12 +631,18 @@ class Manager(object):
                 remaining_args.append(arg)
 
         command_parser = command.create_parser(prog + " " + name)
-        command_namespace = command_parser.parse_args(remaining_args)
+        if getattr(command, 'capture_all_args', False):
+            command_namespace, unparsed_args = \
+                command_parser.parse_known_args(remaining_args)
+            positional_args = [unparsed_args]
+        else:
+            command_namespace = command_parser.parse_args(remaining_args)
+            positional_args = []
         
         app = self.create_app(**app_namespace.__dict__)
 
         with app.test_request_context():
-            command.run(**command_namespace.__dict__)
+            command.run(*positional_args, **command_namespace.__dict__)
 
     def run(self, commands=None):
         
