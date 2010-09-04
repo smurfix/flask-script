@@ -310,7 +310,10 @@ class Server(Command):
     
     def get_options(self):
 
-        return (
+        # TBD : if use_debugger or use_reloader is true 
+
+        options = (
+
                 Option('-t', '--host',
                        dest='host',
                        default=self.host),
@@ -320,15 +323,33 @@ class Server(Command):
                        type=int,
                        default=self.port),
 
-                Option('-d', '--debug',
-                       action='store_true',
-                       dest='use_debugger',
-                       default=self.use_debugger),
-        
-                Option('-r', '--reload',
-                       action='store_true',
-                       dest='use_reloader',
-                       default=self.use_reloader))
+        ) 
+
+        if self.use_debugger:
+            options += (Option('-d', '--no-debug',
+                               action='store_false',
+                               dest='use_debugger',
+                               default=self.use_debugger),)
+
+        else:
+            options += (Option('-d', '--debug',
+                               action='store_true',
+                               dest='use_debugger',
+                               default=self.use_debugger),)
+
+        if self.use_reloader:
+            options += (Option('-r', '--no-reload',
+                               action='store_false',
+                               dest='use_reloader',
+                               default=self.use_reloader),)
+
+        else:
+            options += (Option('-r', '--reload',
+                               action='store_true',
+                               dest='use_debugger',
+                               default=self.use_debugger),)
+
+        return options
 
     def run(self, host, port, use_debugger, use_reloader):
         app = _request_ctx_stack.top.app
