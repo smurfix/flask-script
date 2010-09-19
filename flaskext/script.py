@@ -295,18 +295,20 @@ class Server(Command):
                          This can be overriden in the command line by 
                          passing the **-r** flag.
                          
+    :param options: :func:`werkzeug.run_simple` options.
     """
 
     description = 'Runs the Flask development server i.e. app.run()'
 
     def __init__(self, host='127.0.0.1', port=5000, use_debugger=True,
-        use_reloader=True):
+        use_reloader=True, **options):
 
 
         self.port = port
         self.host = host
         self.use_debugger = use_debugger
         self.use_reloader = use_reloader
+        self.server_options = options
     
     def get_options(self):
 
@@ -355,7 +357,8 @@ class Server(Command):
                 port=port,
                 debug=use_debugger,
                 use_debugger=use_debugger,
-                use_reloader=use_reloader)
+                use_reloader=use_reloader,
+                **self.server_options)
 
 
 class InvalidCommand(Exception):
