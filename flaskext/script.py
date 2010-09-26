@@ -653,6 +653,9 @@ class Manager(object):
 
         :param commands: optional dict of commands. Appended to any commands 
                          added using add_command().
+
+        :param default_command: name of default command to run if no 
+                                arguments passed.
         """
 
         if commands:
@@ -663,6 +666,9 @@ class Manager(object):
                 command = default_command
             else:
                 command = sys.argv[1]
+
+            if command is None:
+                raise InvalidCommand, "Please provide a command"
 
             self.handle(sys.argv[0],
                         command,
