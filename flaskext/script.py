@@ -645,7 +645,7 @@ class Manager(object):
         with app.test_request_context():
             command.run(*positional_args, **command_namespace.__dict__)
 
-    def run(self, commands=None):
+    def run(self, commands=None, default_command=None):
         
         """
         Prepares manager to receive command line input. Usually run
@@ -658,9 +658,15 @@ class Manager(object):
         if commands:
             self._commands.update(commands)
         
+        
+
         try:
+            if len(sys.argv) == 1 and default_command is not None:
+                command = default_command
+            else:
+                command = sys.argv[1]
             self.handle(sys.argv[0],
-                        sys.argv[1],
+                        command,
                         sys.argv[2:])
             
             sys.exit(0)

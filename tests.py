@@ -359,3 +359,12 @@ class TestManager(unittest.TestCase):
         manager = Manager(lambda: app)
         assert callable(manager.app)
 
+    def test_run_with_default_command(self):
+        manager = Manager(self.app)
+        manager.add_command('simple', SimpleCommand())
+        try:
+            manager.run(default_command='simple')
+        except SystemExit, e:
+            assert e.code==0
+        assert 'OK' in sys.stdout.getvalue()
+
