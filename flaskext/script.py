@@ -657,14 +657,13 @@ class Manager(object):
 
         if commands:
             self._commands.update(commands)
-        
-        
 
         try:
             if len(sys.argv) == 1 and default_command is not None:
                 command = default_command
             else:
                 command = sys.argv[1]
+
             self.handle(sys.argv[0],
                         command,
                         sys.argv[2:])
