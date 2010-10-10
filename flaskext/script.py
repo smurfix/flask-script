@@ -183,6 +183,14 @@ class Command(object):
         
         return parser
 
+    def handle(self, app, *args, **kwargs):
+        """
+        Handles the command with given app. Default behaviour is to call within
+        a test request context.
+        """
+        with app.test_request_context():
+            self.run(*args, **kwargs)
+
     def run(self):
 
         """
@@ -351,8 +359,11 @@ class Server(Command):
 
         return options
 
-    def run(self, host, port, use_debugger, use_reloader):
-        app = _request_ctx_stack.top.app
+    def handle(self, app, *args, **kwargs):
+        # we don't need to run this in a test request context
+        self.run(app, *args, **kwargs)
+
+    def run(self, app, host, port, use_debugger, use_reloader):
         app.run(host=host,
                 port=port,
                 debug=use_debugger,
@@ -642,8 +653,7 @@ class Manager(object):
         
         app = self.create_app(**app_namespace.__dict__)
 
-        with app.test_request_context():
-            command.run(*positional_args, **command_namespace.__dict__)
+        command.handle(app, *positional_args, **command_namespace.__dict__)
 
     def run(self, commands=None, default_command=None):
         
