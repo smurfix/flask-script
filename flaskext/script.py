@@ -359,11 +359,10 @@ class Server(Command):
 
         return options
 
-    def handle(self, app, *args, **kwargs):
-        # we don't need to run this in a test request context
-        self.run(app, *args, **kwargs)
+    def handle(self, app, host, port, use_debugger, use_reloader):
+        # we don't need to run the server in request context
+        # so just run it directly
 
-    def run(self, app, host, port, use_debugger, use_reloader):
         app.run(host=host,
                 port=port,
                 debug=use_debugger,
