@@ -1,7 +1,7 @@
 import pprint
 
 from flask import Flask, current_app
-from flaskext.script import Manager, prompt_choices
+from flaskext.script import Manager, prompt_choices, Server
 
 def create_app(config=None):
     app = Flask(__name__)
@@ -65,6 +65,8 @@ manager.add_option("-c", "--config",
                    dest="config", 
                    help="config file", 
                    required=False)
+
+manager.add_command("runservernoreload", Server(use_reloader=False))
 
 if __name__ == "__main__":
     manager.run()

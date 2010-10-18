@@ -354,8 +354,8 @@ class Server(Command):
         else:
             options += (Option('-r', '--reload',
                                action='store_true',
-                               dest='use_debugger',
-                               default=self.use_debugger),)
+                               dest='use_reloader',
+                               default=self.use_reloader),)
 
         return options
 
