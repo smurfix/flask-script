@@ -2,6 +2,7 @@
 from __future__ import absolute_import
 from __future__ import with_statement
 
+import os
 import sys
 import code
 import string
@@ -438,6 +439,7 @@ class Manager(object):
         by get_options(), and a subparser for the given command.
         """
 
+        prog = os.path.basename(prog)
         parser = argparse.ArgumentParser(prog=prog)
         for option in self.get_options():
             parser.add_argument(*option.args, **option.kwargs)
