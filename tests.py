@@ -253,6 +253,15 @@ class TestManager(unittest.TestCase):
 
         assert "simple     simple command" in manager.get_usage()
 
+    def test_get_usage_with_specified_usage(self):
+
+        manager = Manager(self.app, usage="hello")
+        manager.add_command("simple", SimpleCommand())
+
+        usage = manager.get_usage()
+        assert "simple     simple command" in usage
+        assert "hello" in usage
+
     def test_run_existing_command(self):
         
         manager = Manager(self.app)

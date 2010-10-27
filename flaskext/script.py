@@ -406,7 +406,7 @@ class Manager(object):
                                   by default.
     """
 
-    def __init__(self, app, with_default_commands=True):
+    def __init__(self, app, with_default_commands=True, usage=None):
 
         self.app = app
 
@@ -415,6 +415,8 @@ class Manager(object):
         
         if with_default_commands:
             self.add_default_commands()
+
+        self.usage = usage
 
     def add_default_commands(self):
         """
@@ -605,6 +607,9 @@ class Manager(object):
         format = '  %%- %ds%%s' % pad
 
         rv = []
+
+        if self.usage:
+            rv.append(self.usage)
 
         for name, command in self._commands.iteritems():
             usage = name
