@@ -678,10 +678,11 @@ class Manager(object):
             self._commands.update(commands)
 
         try:
-            if len(sys.argv) == 1 and default_command is not None:
-                command = default_command
-            else:
+
+            try:
                 command = sys.argv[1]
+            except IndexError:
+                command = default_command
 
             if command is None:
                 raise InvalidCommand, "Please provide a command"
@@ -691,11 +692,7 @@ class Manager(object):
                         sys.argv[2:])
             
             sys.exit(0)
-
-        except IndexError:
-            self.print_usage()
-            sys.exit(0)
-        
+       
         except InvalidCommand, e:
             print e
             self.print_usage()

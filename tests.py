@@ -314,7 +314,7 @@ class TestManager(unittest.TestCase):
         try:
             manager.run()
         except SystemExit, e:
-            assert e.code == 0
+            assert e.code == 1
 
     def test_run_good_options(self):
 
