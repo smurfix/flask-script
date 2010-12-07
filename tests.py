@@ -368,6 +368,20 @@ class TestManager(unittest.TestCase):
         manager = Manager(lambda: app)
         assert callable(manager.app)
 
+    def test_raise_index_error(self):
+
+        manager = Manager(self.app)
+        
+        @manager.command
+        def do_error():
+            raise IndexError()
+
+        try:
+            self.assertRaises(IndexError, manager.run, default_command="error")
+        except SystemExit, e:
+            assert e.code == 1  
+
+
     def test_run_with_default_command(self):
         manager = Manager(self.app)
         manager.add_command('simple', SimpleCommand())
