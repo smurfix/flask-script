@@ -373,7 +373,7 @@ class TestManager(unittest.TestCase):
         manager = Manager(self.app)
         
         @manager.command
-        def do_error():
+        def error():
             raise IndexError()
 
         try:
