@@ -687,9 +687,7 @@ class Manager(object):
             if command is None:
                 raise InvalidCommand, "Please provide a command"
 
-            self.handle(sys.argv[0],
-                        command,
-                        sys.argv[2:])
+            self.handle(sys.argv[0], command, sys.argv[2:])
             
             sys.exit(0)
        
