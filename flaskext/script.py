@@ -281,7 +281,10 @@ class Shell(Command):
         if not no_ipython:
             try:
                 import IPython
-                sh = IPython.Shell.IPShellEmbed(banner=self.banner)
+                try:
+                    sh = IPython.Shell.IPShellEmbed(banner=self.banner)
+                except AttributeError:
+                    sh = IPython.frontend.terminal.embed.InteractiveShellEmbed(banner1=self.banner)
                 sh(global_ns=dict(), local_ns=context)
                 return
             except ImportError:
