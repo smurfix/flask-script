@@ -26,8 +26,8 @@ Once you define your script commands, you can then run them on the command line:
 
     python manage.py hello
     > hello
-    
-Source code and issue tracking at `Bitbucket`_.
+
+Source code and issue tracking at `GitHub`_.
 
 Installing Flask-Script
 ------------------------
@@ -36,12 +36,10 @@ Install with **pip** and **easy_install**::
 
     pip install Flask-Script
 
-or download the latest version from Bitbucket::
+or download the latest version from version control::
 
-    hg clone http://bitbucket.org/danjac/flask-script
-
+    git clone https://github.com/rduplain/flask-script.git
     cd flask-script
-
     python setup.py develop
 
 If you are using **virtualenv**, it is assumed that you are installing **Flask-Script**
@@ -440,5 +438,5 @@ API
 .. autofunction:: prompt_choices
 
 .. _Flask: http://flask.pocoo.org
-.. _Bitbucket: http://bitbucket.org/danjac/flask-script
+.. _GitHub: http://github.com/rduplain/flask-script
 .. _argparse: http://pypi.python.org/pypi/argparse
