@@ -8,8 +8,6 @@ Links
 `````
 
 * `documentation <http://packages.python.org/Flask-Script>`_
-* `development version
-  <http://bitbucket.org/danjac/flask-Script/get/tip.gz#egg=Flask-Script-dev>`_
 
 
 """
@@ -19,7 +17,7 @@ from setuptools import setup
 setup(
     name='Flask-Script',
     version='0.3.2',
-    url='http://bitbucket.org/danjac/flask-script',
+    url='http://github.com/rduplain/flask-script',
     license='BSD',
     author='Dan Jacob',
     author_email='danjac354@gmail.com',
