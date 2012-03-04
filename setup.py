@@ -23,6 +23,8 @@ setup(
     license='BSD',
     author='Dan Jacob',
     author_email='danjac354@gmail.com',
+    maintainer='Ron DuPlain',
+    maintainer_email='ron.duplain@gmail.com',
     description='Scripting support for Flask',
     long_description=__doc__,
     packages=['flaskext'],
