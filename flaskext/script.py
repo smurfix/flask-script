@@ -614,7 +614,7 @@ class Manager(object):
         if self.usage:
             rv.append(self.usage)
 
-        for name, command in self._commands.iteritems():
+        for name, command in sorted(self._commands.iteritems()):
             usage = name
             description = command.description or ''
             usage = format % (name, description)
