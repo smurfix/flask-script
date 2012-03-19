@@ -378,7 +378,7 @@ class Server(Command):
         return options
 
     def handle(self, app, host, port, use_debugger, use_reloader,
-            threaded, processes):
+        threaded, processes):
         # we don't need to run the server in request context
         # so just run it directly
 
