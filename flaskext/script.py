@@ -342,12 +342,12 @@ class Server(Command):
                 Option('--threaded',
                        dest='threaded',
                        action='store_true',
-                       default=False),
+                       default=self.threaded),
 
-                Option('--processes', 
-                       dest='processes', 
+                Option('--processes',
+                       dest='processes',
                        type=int,
-                       default=1),
+                       default=self.processes),
 
         ) 
 
