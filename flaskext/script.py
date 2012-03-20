@@ -306,14 +306,16 @@ class Server(Command):
     :param use_reloader: if False, will no longer use auto-reloader.
                          This can be overriden in the command line by 
                          passing the **-r** flag.
-                         
+    :param threaded: should the process handle each request in a separate
+                     thread?
+    :param processes: number of processes to spawn
     :param options: :func:`werkzeug.run_simple` options.
     """
 
     description = 'Runs the Flask development server i.e. app.run()'
 
     def __init__(self, host='127.0.0.1', port=5000, use_debugger=True,
-        use_reloader=True, **options):
+        use_reloader=True, threaded=False, processes=1, **options):
 
 
         self.port = port
@@ -321,6 +323,8 @@ class Server(Command):
         self.use_debugger = use_debugger
         self.use_reloader = use_reloader
         self.server_options = options
+        self.threaded = threaded
+        self.processes = processes
     
     def get_options(self):
 
@@ -334,6 +338,16 @@ class Server(Command):
                        dest='port', 
                        type=int,
                        default=self.port),
+
+                Option('--threaded',
+                       dest='threaded',
+                       action='store_true',
+                       default=self.threaded),
+
+                Option('--processes',
+                       dest='processes',
+                       type=int,
+                       default=self.processes),
 
         ) 
 
@@ -363,7 +377,8 @@ class Server(Command):
 
         return options
 
-    def handle(self, app, host, port, use_debugger, use_reloader):
+    def handle(self, app, host, port, use_debugger, use_reloader,
+        threaded, processes):
         # we don't need to run the server in request context
         # so just run it directly
 
@@ -372,6 +387,8 @@ class Server(Command):
                 debug=use_debugger,
                 use_debugger=use_debugger,
                 use_reloader=use_reloader,
+                threaded=threaded,
+                processes=processes,
                 **self.server_options)
 
 
