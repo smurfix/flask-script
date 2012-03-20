@@ -28,7 +28,7 @@ class CommandWithOptions(Command):
     "command with options"
 
     option_list = (
-        Option("-n", "--name", 
+        Option("-n", "--name",
                help="name to pass in",
                dest="name"),
     )
@@ -45,8 +45,8 @@ class CommandWithDynamicOptions(Command):
 
     def get_options(self):
 
-        return ( 
-            Option("-n", "--name", 
+        return (
+            Option("-n", "--name",
                    help="name to pass in",
                    dest="name",
                    default=self.default_name),
@@ -78,11 +78,11 @@ class TestCommands(unittest.TestCase):
         self.app.config.from_object(self)
 
 class TestManager(unittest.TestCase):
-    
+
     TESTING = True
 
     def setUp(self):
-        
+
         self.app = Flask(__name__)
         self.app.config.from_object(self)
 
@@ -104,13 +104,13 @@ class TestManager(unittest.TestCase):
 
         manager = Manager(self.app)
         manager.add_command("simple", SimpleCommand())
-        
+
         assert isinstance(manager._commands['simple'], SimpleCommand)
 
     def test_simple_command_decorator(self):
 
         manager = Manager(self.app)
-        
+
         @manager.command
         def hello():
             print "hello"
@@ -123,11 +123,11 @@ class TestManager(unittest.TestCase):
     def test_simple_command_decorator_with_pos_arg(self):
 
         manager = Manager(self.app)
-        
+
         @manager.command
         def hello(name):
             print "hello", name
-        
+
 
         assert 'hello' in manager._commands
 
@@ -137,7 +137,7 @@ class TestManager(unittest.TestCase):
     def test_command_decorator_with_options(self):
 
         manager = Manager(self.app)
-        
+
         @manager.command
         def hello(name='fred'):
             "Prints your name"
@@ -166,7 +166,7 @@ class TestManager(unittest.TestCase):
     def test_command_decorator_with_boolean_options(self):
 
         manager = Manager(self.app)
-        
+
         @manager.command
         def verify(verified=False):
             "Checks if verified"
@@ -192,7 +192,7 @@ class TestManager(unittest.TestCase):
     def test_simple_command_decorator_with_pos_arg_and_options(self):
 
         manager = Manager(self.app)
-        
+
         @manager.command
         def hello(name, url=None):
             if url:
@@ -201,7 +201,7 @@ class TestManager(unittest.TestCase):
             else:
                 assert type(name) is unicode
                 print "hello", name
-        
+
         assert 'hello' in manager._commands
 
         manager.handle("manage.py", "hello", ["joe"])
@@ -213,7 +213,7 @@ class TestManager(unittest.TestCase):
     def test_command_decorator_with_additional_options(self):
 
         manager = Manager(self.app)
-        
+
         @manager.option('-n', '--name', dest='name', help='Your name')
         def hello(name):
             print "hello", name
@@ -242,7 +242,7 @@ class TestManager(unittest.TestCase):
         manager.handle("manage.py", "hello_again", ["--name=joe"])
         assert 'hello joe' in sys.stdout.getvalue()
 
-        manager.handle("manage.py", "hello_again", 
+        manager.handle("manage.py", "hello_again",
             ["--name=joe", "--url=reddit.com"])
         assert 'hello joe from reddit.com' in sys.stdout.getvalue()
 
@@ -263,7 +263,7 @@ class TestManager(unittest.TestCase):
         assert "hello" in usage
 
     def test_run_existing_command(self):
-        
+
         manager = Manager(self.app)
         manager.add_command("simple", SimpleCommand())
         manager.handle("manage.py", "simple")
@@ -272,10 +272,10 @@ class TestManager(unittest.TestCase):
     def test_run_non_existant_command(self):
 
         manager = Manager(self.app)
-        self.assertRaises(InvalidCommand, 
+        self.assertRaises(InvalidCommand,
                            manager.handle,
                            "manage.py", "simple")
-    
+
     def test_run_existing(self):
 
         manager = Manager(self.app)
@@ -359,7 +359,7 @@ class TestManager(unittest.TestCase):
             assert e.code == 2
 
     def test_init_with_flask_instance(self):
-        
+
         manager = Manager(self.app)
         assert callable(manager.app)
 
@@ -371,7 +371,7 @@ class TestManager(unittest.TestCase):
     def test_raise_index_error(self):
 
         manager = Manager(self.app)
-        
+
         @manager.command
         def error():
             raise IndexError()
@@ -379,7 +379,7 @@ class TestManager(unittest.TestCase):
         try:
             self.assertRaises(IndexError, manager.run, default_command="error")
         except SystemExit, e:
-            assert e.code == 1  
+            assert e.code == 1
 
 
     def test_run_with_default_command(self):

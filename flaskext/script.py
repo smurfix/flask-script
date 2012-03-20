@@ -18,7 +18,7 @@ __all__ = ["Command", "Shell", "Server", "Manager", "Option",
            "prompt", "prompt_pass", "prompt_bool", "prompt_choices"]
 
 def prompt(name, default=None):
-    
+
     """
     Grab user input from command line.
 
@@ -56,7 +56,7 @@ def prompt_pass(name, default=None):
 
 
 def prompt_bool(name, default=False, yes_choices=None, no_choices=None):
-    
+
     """
     Grabs user input from command line and converts to boolean
     value.
@@ -69,7 +69,7 @@ def prompt_bool(name, default=False, yes_choices=None, no_choices=None):
 
     yes_choices = yes_choices or ('y', 'yes', '1', 'on', 'true', 't')
     no_choices = no_choices or ('n', 'no', '0', 'off', 'false', 'f')
-    
+
     while True:
         rv = prompt(name + '?', default and yes_choices[0] or no_choices[0])
         if not rv:
@@ -80,22 +80,22 @@ def prompt_bool(name, default=False, yes_choices=None, no_choices=None):
             return False
 
 
-def prompt_choices(name, choices, default=None, 
+def prompt_choices(name, choices, default=None,
     resolve=string.lower, no_choice=('none',)):
-    
+
     """
     Grabs user input from command line from set of provided choices.
 
     :param name: prompt text
-    :param choices: list or tuple of available choices. Choices may be 
+    :param choices: list or tuple of available choices. Choices may be
                     single strings or (key, value) tuples.
     :param default: default value if no input provided.
     :param no_choice: acceptable list of strings for "null choice"
     """
-    
+
     _choices = []
     options = []
-    
+
     for choice in choices:
         if isinstance(choice, basestring):
             options.append(choice)
@@ -118,34 +118,34 @@ def prompt_choices(name, choices, default=None,
 class Option(object):
 
     """
-    Stores positional and optional arguments for `ArgumentParser.add_argument 
+    Stores positional and optional arguments for `ArgumentParser.add_argument
     <http://argparse.googlecode.com/svn/trunk/doc/add_argument.html>`_.
 
-    :param name_or_flags: Either a name or a list of option strings, 
+    :param name_or_flags: Either a name or a list of option strings,
                           e.g. foo or -f, --foo
-    :param action: The basic type of action to be taken when this argument 
+    :param action: The basic type of action to be taken when this argument
                    is encountered at the command-line.
     :param nargs: The number of command-line arguments that should be consumed.
     :param const: A constant value required by some action and nargs selections.
-    :param default: The value produced if the argument is absent from 
+    :param default: The value produced if the argument is absent from
                     the command-line.
     :param type: The type to which the command-line arg should be converted.
     :param choices: A container of the allowable values for the argument.
-    :param required: Whether or not the command-line option may be omitted 
+    :param required: Whether or not the command-line option may be omitted
                      (optionals only).
     :param help: A brief description of what the argument does.
     :param metavar: A name for the argument in usage messages.
-    :param dest: The name of the attribute to be added to the object 
+    :param dest: The name of the attribute to be added to the object
                  returned by parse_args().
     """
-    
+
     def __init__(self, *args, **kwargs):
         self.args = args
         self.kwargs = kwargs
 
 
 class Command(object):
-    
+
     """
     Base class for creating commands.
     """
@@ -158,11 +158,11 @@ class Command(object):
         return description.strip()
 
     def add_option(self, option):
-        
+
         """
         Adds Option to option list.
         """
-        
+
         self.option_list.append(option)
 
     def get_options(self):
@@ -180,8 +180,8 @@ class Command(object):
                                          description=self.description)
 
         for option in self.get_options():
-            parser.add_argument(*option.args, **option.kwargs)   
-        
+            parser.add_argument(*option.args, **option.kwargs)
+
         return parser
 
     def handle(self, app, *args, **kwargs):
@@ -231,18 +231,18 @@ class Shell(Command):
     Runs a Python shell inside Flask application context.
 
     :param banner: banner appearing at top of shell when started
-    :param make_context: a callable returning a dict of variables 
-                         used in the shell namespace. By default 
+    :param make_context: a callable returning a dict of variables
+                         used in the shell namespace. By default
                          returns a dict consisting of just the app.
-    :param use_ipython: use IPython shell if available, ignore if not. 
-                        The IPython shell can be turned off in command 
+    :param use_ipython: use IPython shell if available, ignore if not.
+                        The IPython shell can be turned off in command
                         line by passing the **--no-ipython** flag.
     """
 
     banner = ''
 
     description = 'Runs a Python shell inside Flask application context.'
-    
+
     def __init__(self, banner=None, make_context=None, use_ipython=True):
 
 
@@ -253,7 +253,7 @@ class Shell(Command):
             make_context = lambda: dict(app=_request_ctx_stack.top.app)
 
         self.make_context = make_context
-    
+
     def get_options(self):
 
         return (
@@ -263,7 +263,7 @@ class Shell(Command):
                        default=not(self.use_ipython)),)
 
     def get_context(self):
-        
+
         """
         Returns a dict of context variables added to the shell namespace.
         """
@@ -301,10 +301,10 @@ class Server(Command):
     :param host: server host
     :param port: server port
     :param use_debugger: if False, will no longer use Werkzeug debugger.
-                         This can be overriden in the command line 
+                         This can be overriden in the command line
                          by passing the **-d** flag.
     :param use_reloader: if False, will no longer use auto-reloader.
-                         This can be overriden in the command line by 
+                         This can be overriden in the command line by
                          passing the **-r** flag.
     :param threaded: should the process handle each request in a separate
                      thread?
@@ -325,7 +325,7 @@ class Server(Command):
         self.server_options = options
         self.threaded = threaded
         self.processes = processes
-    
+
     def get_options(self):
 
         options = (
@@ -334,8 +334,8 @@ class Server(Command):
                        dest='host',
                        default=self.host),
 
-                Option('-p', '--port', 
-                       dest='port', 
+                Option('-p', '--port',
+                       dest='port',
                        type=int,
                        default=self.port),
 
@@ -349,7 +349,7 @@ class Server(Command):
                        type=int,
                        default=self.processes),
 
-        ) 
+        )
 
         if self.use_debugger:
             options += (Option('-d', '--no-debug',
@@ -402,17 +402,17 @@ class Manager(object):
     Controller class for handling a set of commands.
 
     Typical usage::
-        
+
         class Print(Command):
 
             def run(self):
                 print "hello"
 
         app = Flask(__name__)
-        
+
         manager = Manager(app)
         manager.add_command("print", Print())
-        
+
         if __name__ == "__main__":
             manager.run()
 
@@ -432,7 +432,7 @@ class Manager(object):
 
         self._commands = dict()
         self._options = list()
-        
+
         if with_default_commands:
             self.add_default_commands()
 
@@ -440,7 +440,7 @@ class Manager(object):
 
     def add_default_commands(self):
         """
-        Adds the shell and runserver default commands. To override these 
+        Adds the shell and runserver default commands. To override these
         simply add your own equivalents using add_command or decorators.
         """
 
@@ -457,7 +457,7 @@ class Manager(object):
     def create_parser(self, prog):
 
         """
-        Creates an ArgumentParser instance from options returned 
+        Creates an ArgumentParser instance from options returned
         by get_options(), and a subparser for the given command.
         """
 
@@ -465,7 +465,7 @@ class Manager(object):
         parser = argparse.ArgumentParser(prog=prog)
         for option in self.get_options():
             parser.add_argument(*option.args, **option.kwargs)
-        
+
         return parser
 
     def get_options(self):
@@ -491,30 +491,30 @@ class Manager(object):
 
             manager = Manager(create_app)
             manager.add_option("-c", "--config", dest="config", required=False)
-           
+
         and are evoked like this::
 
             > python manage.py -c dev.cfg mycommand
 
-        Any manager options passed in the command line will not be passed to 
+        Any manager options passed in the command line will not be passed to
         the command.
 
         Arguments for this function are the same as for the Option class.
         """
-        
+
         self._options.append(Option(*args, **kwargs))
 
     def command(self, func):
         """
         Adds a command function to the registry.
-        
-        :param func: command function.Arguments depend on the 
+
+        :param func: command function.Arguments depend on the
                      options.
-        
+
         """
-            
+
         args, varargs, keywords, defaults = inspect.getargspec(func)
-        
+
         options = []
 
         # first arg is always "app" : ignore
@@ -524,7 +524,7 @@ class Manager(object):
 
         for arg in args:
             if arg in kwargs:
-                
+
                 default=kwargs[arg]
 
                 if isinstance(default, bool):
@@ -541,7 +541,7 @@ class Manager(object):
                                           type=unicode,
                                           required=False,
                                           default=default))
-        
+
             else:
                 options.append(Option(arg, type=unicode))
 
@@ -554,17 +554,17 @@ class Manager(object):
         self.add_command(func.__name__, command)
 
         return func
-    
+
     def shell(self, func):
         """
         Decorator that wraps function in shell command. This is equivalent to::
-            
+
             def _make_context(app):
                 return dict(app=app)
 
             manager.add_command("shell", Shell(make_context=_make_context))
 
-        The decorated function should take a single "app" argument, and return 
+        The decorated function should take a single "app" argument, and return
         a dict.
 
         For more sophisticated usage use the Shell class.
@@ -575,9 +575,9 @@ class Manager(object):
         return func
 
     def option(self, *args, **kwargs):
-        
+
         """
-        Decorator to add an option to a function. Automatically registers the 
+        Decorator to add an option to a function. Automatically registers the
         function - do not use together with ``@command``. You can add as many
         ``@option`` calls as you like, for example::
 
@@ -593,9 +593,9 @@ class Manager(object):
 
         def decorate(func):
             name = func.__name__
-            
+
             if name not in self._commands:
-            
+
                 command = Command()
                 command.run = func
                 command.__doc__ = func.__doc__
@@ -618,7 +618,7 @@ class Manager(object):
         self._commands[name] = command
 
     def get_usage(self):
-        
+
         """
         Returns string consisting of all commands and their
         descriptions.
@@ -638,9 +638,9 @@ class Manager(object):
             rv.append(usage)
 
         return "\n".join(rv)
-    
+
     def print_usage(self):
-        
+
         """
         Prints result of get_usage()
         """
@@ -676,21 +676,21 @@ class Manager(object):
         else:
             command_namespace = command_parser.parse_args(remaining_args)
             positional_args = []
-        
+
         app = self.create_app(**app_namespace.__dict__)
 
         command.handle(app, *positional_args, **command_namespace.__dict__)
 
     def run(self, commands=None, default_command=None):
-        
+
         """
         Prepares manager to receive command line input. Usually run
         inside "if __name__ == "__main__" block in a Python script.
 
-        :param commands: optional dict of commands. Appended to any commands 
+        :param commands: optional dict of commands. Appended to any commands
                          added using add_command().
 
-        :param default_command: name of default command to run if no 
+        :param default_command: name of default command to run if no
                                 arguments passed.
         """
 
@@ -708,9 +708,9 @@ class Manager(object):
                 raise InvalidCommand, "Please provide a command"
 
             self.handle(sys.argv[0], command, sys.argv[2:])
-            
+
             sys.exit(0)
-       
+
         except InvalidCommand, e:
             print e
             self.print_usage()
