@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import StringIO
 import sys
 import unittest
 
@@ -354,9 +355,13 @@ class TestManager(unittest.TestCase):
         manager.add_command("simple", CommandWithOptions())
         sys.argv = ["manage.py", "simple", "--foo=bar"]
         try:
+            sys_stderr_orig = sys.stderr
+            sys.stderr = StringIO.StringIO()
             manager.run()
         except SystemExit, e:
             assert e.code == 2
+        finally:
+            sys.stderr = sys_stderr_orig
 
     def test_init_with_flask_instance(self):
 
