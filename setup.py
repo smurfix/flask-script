@@ -16,7 +16,7 @@ from setuptools import setup
 
 setup(
     name='Flask-Script',
-    version='0.3.3',
+    version='0.3.4',
     url='http://github.com/rduplain/flask-script',
     license='BSD',
     author='Dan Jacob',
