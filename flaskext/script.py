@@ -663,6 +663,7 @@ class Manager(object):
 
         app_parser = self.create_parser(prog)
         app_namespace, remaining_args = app_parser.parse_known_args(app_args)
+        app = self.create_app(**app_namespace.__dict__)
 
         for arg in help_args:
             if arg in args:
@@ -676,8 +677,6 @@ class Manager(object):
         else:
             command_namespace = command_parser.parse_args(remaining_args)
             positional_args = []
-
-        app = self.create_app(**app_namespace.__dict__)
 
         command.handle(app, *positional_args, **command_namespace.__dict__)
 
