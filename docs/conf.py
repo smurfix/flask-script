@@ -95,7 +95,7 @@ html_theme = 'flask_small'
 
 html_theme_options = {
      'index_logo': 'flask-script.png',
-     'github_fork': None
+     'github_fork': 'rduplain/flask-script'
 }
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
