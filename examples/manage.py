@@ -1,7 +1,7 @@
 import pprint
 
 from flask import Flask, current_app
-from flaskext.script import Manager, prompt_choices, Server
+from flask.ext.script import Manager, prompt_choices, Server
 
 def create_app(config=None):
     app = Flask(__name__)

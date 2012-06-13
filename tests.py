@@ -5,7 +5,7 @@ import sys
 import unittest
 
 from flask import Flask
-from flaskext.script import Command, Manager, InvalidCommand, Option
+from flask.ext.script import Command, Manager, InvalidCommand, Option
 
 class SimpleCommand(Command):
     "simple command"
