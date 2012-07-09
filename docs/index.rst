@@ -9,7 +9,7 @@ The **Flask-Script** extension provides support for writing external scripts in 
 
     # manage.py
     
-    from flaskext.script import Manager
+    from flask.ext.script import Manager
 
     from myapp import app
 
@@ -57,7 +57,7 @@ with lots of commands you might want to split them into a number of files with r
 In your **manage.py** file you have to create a ``Manager`` instance. The ``Manager`` class
 keeps track of all the commands and handles how they are called from the command line::
 
-    from flaskext.script import Manager
+    from flask.ext.script import Manager
 
     app = Flask(__name__)
     # configure your app
@@ -81,7 +81,7 @@ The next step is to create and add your commands. There are three methods for cr
 To take a very simple example, we want to create a **Hello** command that just prints out "hello world". It 
 doesn't take any arguments so is very straightforward::
 
-    from flaskext.script import Command
+    from flask.ext.script import Command
 
     class Hello(Command):
         "prints hello world"
@@ -160,7 +160,7 @@ or alternatively::
 
 To facilitate this you use the ``option_list`` attribute of the ``Command`` class::
 
-    from flaskext.script import Command, Manager, Option
+    from flask.ext.script import Command, Manager, Option
 
     class Hello(Command):
 
@@ -320,7 +320,7 @@ Getting user input
 
 **Flask-Script** comes with a set of helper functions for grabbing user input from the command line. For example::
     
-    from flaskext.script import Manager, prompt_bool
+    from flask.ext.script import Manager, prompt_bool
     
     from myapp import app
     from myapp.models import db
@@ -347,7 +347,7 @@ Default commands
 
 The ``Server`` command runs the **Flask** development server. It takes an optional ``port`` argument (default **5000**)::
 
-    from flaskext.script import Server, Manager
+    from flask.ext.script import Server, Manager
     from myapp import create_app
 
     manager = Manager(create_app)
@@ -370,7 +370,7 @@ The ``Shell`` command starts a Python shell. You can pass in a ``make_context`` 
 
     from flask import app
 
-    from flaskext.script import Shell, Manager
+    from flask.ext.script import Shell, Manager
     
     from myapp import app
     from myapp import models
@@ -415,7 +415,7 @@ The ``Manager`` runs the command inside a `Flask test context <http://flask.poco
 API
 ---
 
-.. module:: flaskext.script
+.. module:: flask.ext.script
 
 .. autoclass:: Manager
    :members: run, add_option, add_command, command, option, shell, get_usage, print_usage, option

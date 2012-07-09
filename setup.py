@@ -16,7 +16,7 @@ from setuptools import setup
 
 setup(
     name='Flask-Script',
-    version='0.3.4',
+    version='0.4.0',
     url='http://github.com/rduplain/flask-script',
     license='BSD',
     author='Dan Jacob',
@@ -25,8 +25,9 @@ setup(
     maintainer_email='ron.duplain@gmail.com',
     description='Scripting support for Flask',
     long_description=__doc__,
-    packages=['flaskext'],
-    namespace_packages=['flaskext'],
+    py_modules=[
+        'flask_script'
+    ],
     test_suite='nose.collector',
     zip_safe=False,
     platforms='any',

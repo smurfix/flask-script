@@ -17,6 +17,7 @@ from flask import Flask, _request_ctx_stack
 __all__ = ["Command", "Shell", "Server", "Manager", "Option",
            "prompt", "prompt_pass", "prompt_bool", "prompt_choices"]
 
+
 def prompt(name, default=None):
 
     """
@@ -174,7 +175,6 @@ class Command(object):
 
         return self.option_list
 
-
     def create_parser(self, prog):
         parser = argparse.ArgumentParser(prog=prog,
                                          description=self.description)
@@ -209,21 +209,25 @@ class Command(object):
 
     def prompt_pass(self, name, default=None):
         warnings.warn_explicit(
-            "Command.prompt_pass is deprecated, use prompt_pass() function instead")
+            "Command.prompt_pass is deprecated, use prompt_pass() function \
+                instead")
 
         prompt_pass(name, default)
 
     def prompt_bool(self, name, default=False):
         warnings.warn_explicit(
-            "Command.prompt_bool is deprecated, use prompt_bool() function instead")
+            "Command.prompt_bool is deprecated, use prompt_bool() function \
+                instead")
 
         prompt_bool(name, default)
 
     def prompt_choices(self, name, choices, default=None):
         warnings.warn_explicit(
-            "Command.choices is deprecated, use prompt_choices() function instead")
+            "Command.choices is deprecated, use prompt_choices() function \
+                instead")
 
         prompt_choices(name, choices, default)
+
 
 class Shell(Command):
 
@@ -244,7 +248,6 @@ class Shell(Command):
     description = 'Runs a Python shell inside Flask application context.'
 
     def __init__(self, banner=None, make_context=None, use_ipython=True):
-
 
         self.banner = banner or self.banner
         self.use_ipython = use_ipython
@@ -316,7 +319,6 @@ class Server(Command):
 
     def __init__(self, host='127.0.0.1', port=5000, use_debugger=True,
         use_reloader=True, threaded=False, processes=1, **options):
-
 
         self.port = port
         self.host = host
@@ -473,8 +475,9 @@ class Manager(object):
 
     def add_option(self, *args, **kwargs):
         """
-        Adds an application-wide option. This is useful if you want to set variables
-        applying to the application setup, rather than individual commands.
+        Adds an application-wide option. This is useful if you want to set
+        variables applying to the application setup, rather than individual
+        commands.
 
         For this to work, the manager must be initialized with a factory
         function rather than an instance. Otherwise any options you set will
@@ -525,7 +528,7 @@ class Manager(object):
         for arg in args:
             if arg in kwargs:
 
-                default=kwargs[arg]
+                default = kwargs[arg]
 
                 if isinstance(default, bool):
                     options.append(Option('-%s' % arg[0],
@@ -544,7 +547,6 @@ class Manager(object):
 
             else:
                 options.append(Option(arg, type=unicode))
-
 
         command = Command()
         command.run = func
@@ -715,5 +717,3 @@ class Manager(object):
             self.print_usage()
 
         sys.exit(1)
-
-
