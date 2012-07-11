@@ -397,7 +397,6 @@ class InvalidCommand(Exception):
 
 
 class Manager(object):
-
     """
     Controller class for handling a set of commands.
 
@@ -426,17 +425,22 @@ class Manager(object):
                                   by default.
     """
 
-    def __init__(self, app, with_default_commands=True, usage=None):
+    def __init__(self, app=None, with_default_commands=None, usage=None):
 
         self.app = app
 
         self._commands = dict()
         self._options = list()
 
-        if with_default_commands:
+        # Primary/root Manager instance adds default commands by default,
+        # Sub-Managers do not
+        if with_default_commands or (app and with_default_commands is None):
             self.add_default_commands()
 
         self.usage = usage
+
+        self.parent = None
+
 
     def add_default_commands(self):
         """
@@ -446,30 +450,6 @@ class Manager(object):
 
         self.add_command("shell", Shell())
         self.add_command("runserver", Server())
-
-    def create_app(self, **kwargs):
-
-        if isinstance(self.app, Flask):
-            return self.app
-
-        return self.app(**kwargs)
-
-    def create_parser(self, prog):
-
-        """
-        Creates an ArgumentParser instance from options returned
-        by get_options(), and a subparser for the given command.
-        """
-
-        prog = os.path.basename(prog)
-        parser = argparse.ArgumentParser(prog=prog)
-        for option in self.get_options():
-            parser.add_argument(*option.args, **option.kwargs)
-
-        return parser
-
-    def get_options(self):
-        return self._options
 
     def add_option(self, *args, **kwargs):
         """
@@ -505,9 +485,52 @@ class Manager(object):
 
         self._options.append(Option(*args, **kwargs))
 
+    def create_app(self, **kwargs):
+        # Sub-manager, defer to parent Manager
+        if self.parent:
+            return self.parent.create_app(**kwargs)
+
+        if isinstance(self.app, Flask):
+            return self.app
+
+        return self.app(**kwargs)
+
+    def create_parser(self, prog):
+
+        """
+        Creates an ArgumentParser instance from options returned
+        by get_options(), and a subparser for the given command.
+        """
+
+        prog = os.path.basename(prog)
+        parser = argparse.ArgumentParser(prog=prog)
+        for option in self.get_options():
+            parser.add_argument(*option.args, **option.kwargs)
+
+        return parser
+
+    def get_options(self):
+        if self.parent:
+            return self.parent._options
+
+        return self._options
+
+    def add_command(self, name, command):
+
+        """
+        Adds command to registry.
+
+        :param command: Command instance
+        """
+
+        if isinstance(command, Manager):
+            command.parent = self
+
+        self._commands[name] = command
+
     def command(self, func):
         """
-        Adds a command function to the registry.
+        Decorator to add a command function to the registry.
 
         :param func: command function.Arguments depend on the
                      options.
@@ -555,25 +578,6 @@ class Manager(object):
 
         return func
 
-    def shell(self, func):
-        """
-        Decorator that wraps function in shell command. This is equivalent to::
-
-            def _make_context(app):
-                return dict(app=app)
-
-            manager.add_command("shell", Shell(make_context=_make_context))
-
-        The decorated function should take a single "app" argument, and return
-        a dict.
-
-        For more sophisticated usage use the Shell class.
-        """
-
-        self.add_command('shell', Shell(make_context=func))
-
-        return func
-
     def option(self, *args, **kwargs):
 
         """
@@ -607,15 +611,24 @@ class Manager(object):
             return func
         return decorate
 
-    def add_command(self, name, command):
-
+    def shell(self, func):
         """
-        Adds command to registry.
+        Decorator that wraps function in shell command. This is equivalent to::
 
-        :param command: Command instance
+            def _make_context(app):
+                return dict(app=app)
+
+            manager.add_command("shell", Shell(make_context=_make_context))
+
+        The decorated function should take a single "app" argument, and return
+        a dict.
+
+        For more sophisticated usage use the Shell class.
         """
 
-        self._commands[name] = command
+        self.add_command('shell', Shell(make_context=func))
+
+        return func
 
     def get_usage(self):
 
@@ -633,7 +646,12 @@ class Manager(object):
 
         for name, command in sorted(self._commands.iteritems()):
             usage = name
-            description = command.description or ''
+
+            if isinstance(command, Manager):
+                description = command.usage or ''
+            else:
+                description = command.description or ''
+
             usage = format % (name, description)
             rv.append(usage)
 
@@ -656,27 +674,32 @@ class Manager(object):
         except KeyError:
             raise InvalidCommand, "Command %s not found" % name
 
-        help_args = ('-h', '--help')
-
-        # remove -h from args if present, and add to remaining args
-        app_args = [a for a in args if a not in help_args]
-
-        app_parser = self.create_parser(prog)
-        app_namespace, remaining_args = app_parser.parse_known_args(app_args)
-        app = self.create_app(**app_namespace.__dict__)
-
-        for arg in help_args:
-            if arg in args:
-                remaining_args.append(arg)
-
-        command_parser = command.create_parser(prog + " " + name)
-        if getattr(command, 'capture_all_args', False):
-            command_namespace, unparsed_args = \
-                command_parser.parse_known_args(remaining_args)
-            positional_args = [unparsed_args]
+        if isinstance(command, Manager):
+            # Run sub-manager, stripping first argument
+            sys.argv = sys.argv[1:]
+            command.run()
         else:
-            command_namespace = command_parser.parse_args(remaining_args)
-            positional_args = []
+            help_args = ('-h', '--help')
+
+            # remove -h/--help from args if present, and add to remaining args
+            app_args = [a for a in args if a not in help_args]
+
+            app_parser = self.create_parser(prog)
+            app_namespace, remaining_args = app_parser.parse_known_args(app_args)
+            app = self.create_app(**app_namespace.__dict__)
+
+            for arg in help_args:
+                if arg in args:
+                    remaining_args.append(arg)
+
+            command_parser = command.create_parser(prog + " " + name)
+            if getattr(command, 'capture_all_args', False):
+                command_namespace, unparsed_args = \
+                    command_parser.parse_known_args(remaining_args)
+                positional_args = [unparsed_args]
+            else:
+                command_namespace = command_parser.parse_args(remaining_args)
+                positional_args = []
 
         return command.handle(app, *positional_args, **command_namespace.__dict__)
 
@@ -697,14 +720,13 @@ class Manager(object):
             self._commands.update(commands)
 
         try:
-
             try:
                 command = sys.argv[1]
             except IndexError:
                 command = default_command
 
             if command is None:
-                raise InvalidCommand, "Please provide a command"
+                raise InvalidCommand, "Please provide a command:"
 
             result = self.handle(sys.argv[0], command, sys.argv[2:])
 

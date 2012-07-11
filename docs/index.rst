@@ -404,6 +404,86 @@ to the ``Manager`` constructor these commands will not be loaded::
 
     manager = Manager(app, with_default_commands=False)
 
+Sub-Managers
+-----------
+A Sub-Manager is an instance of ``Manager`` added as a command to another Manager
+
+To create a submanager::
+
+    sub_manager = Manager()
+
+    manager = Manager(self.app)
+    manager.add_command("sub_manager", sub_manager)
+
+Restrictions
+    - A sub-manager does not provide an app instance/factory when created, it defers the calls to it's parent Manager's
+    - A sub-manager inhert's the parent Manager's app options (used for the app instance/factory)
+    - A sub-manager does not get default commands added to itself (by default)
+    - A sub-manager must be added the primary/root ``Manager`` instance via ``add_command(sub_manager)``
+    - A sub-manager can be added to another sub-manager as long as the parent sub-manager is added to the primary/root Manager
+
+*New in version 0.5.0.*
+
+Note to extension developers
+----------------------------
+Extension developers can easily create convenient sub-manager instance within their extensions to make it easy for a user to consume all the available commands of an extension.
+
+Here is an example how a database extension could provide (ex. database.py)::
+    manager = Manager("Perform database operations")
+
+    @manager.command
+    def drop():
+        "Drops database tables"
+        if prompt_bool("Are you sure you want to lose all your data"):
+            db.drop_all()
+
+
+    @manager.command
+    def create(default_data=True, sample_data=False):
+        "Creates database tables from sqlalchemy models"
+        db.create_all()
+        populate(default_data, sample_data)
+
+
+    @manager.command
+    def recreate(default_data=True, sample_data=False):
+        "Recreates database tables (same as issuing 'drop' and then 'create')"
+        drop()
+        create(default_data, sample_data)
+
+
+    @manager.command
+    def populate(default_data=False, sample_data=False):
+        "Populate database with default data"
+        from fixtures import dbfixture
+
+        if default_data:
+            from fixtures.default_data import all
+            default_data = dbfixture.data(*all)
+            default_data.setup()
+
+        if sample_data:
+            from fixtures.sample_data import all
+            sample_data = dbfixture.data(*all)
+            sample_data.setup()
+
+
+Then the user can register the sub-manager to their primary Manager (within manage.py)::
+    manager = Manager(app)
+
+    from flask.ext.database import manager as database_manager
+    manager.add_command("database", database_manager)
+
+The commands will then be available::
+    > python manage.py database
+
+     Please provide a command:
+
+     Perform database operations
+      create    Creates database tables from sqlalchemy models
+      drop      Drops database tables
+      populate  Populate database with default data
+      recreate  Recreates database tables (same as issuing 'drop' and then 'create')
 
 Accessing local proxies
 -----------------------
