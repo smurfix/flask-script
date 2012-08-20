@@ -190,7 +190,7 @@ class Command(object):
         a test request context.
         """
         with app.test_request_context():
-            self.run(*args, **kwargs)
+            return self.run(*args, **kwargs)
 
     def run(self):
 
@@ -679,7 +679,7 @@ class Manager(object):
             command_namespace = command_parser.parse_args(remaining_args)
             positional_args = []
 
-        command.handle(app, *positional_args, **command_namespace.__dict__)
+        return command.handle(app, *positional_args, **command_namespace.__dict__)
 
     def run(self, commands=None, default_command=None):
 
@@ -707,9 +707,9 @@ class Manager(object):
             if command is None:
                 raise InvalidCommand, "Please provide a command"
 
-            self.handle(sys.argv[0], command, sys.argv[2:])
+            result = self.handle(sys.argv[0], command, sys.argv[2:])
 
-            sys.exit(0)
+            sys.exit(result)
 
         except InvalidCommand, e:
             print e
