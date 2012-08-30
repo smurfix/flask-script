@@ -312,8 +312,8 @@ Assuming the ``USE_UPPERCASE`` setting is **True** in your dev.cfg file.
 
 Notice also that the "config" option is **not** passed to the command. 
 
-In order for manager options to work you must pass a factory function, rather than a Flask instance, to your 
-``Manager`` constructor.
+In order for manager options to work you must pass a factory function, rather than a Flask instance, to your
+``Manager`` constructor. A simple but complete example is available in `this gist <https://gist.github.com/3531881>`_.
 
 Getting user input
 ------------------
