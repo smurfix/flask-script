@@ -17,12 +17,12 @@ from setuptools import setup
 setup(
     name='Flask-Script',
     version='0.4.0',
-    url='http://github.com/rduplain/flask-script',
+    url='http://github.com/techniq/flask-script',
     license='BSD',
     author='Dan Jacob',
     author_email='danjac354@gmail.com',
-    maintainer='Ron DuPlain',
-    maintainer_email='ron.duplain@gmail.com',
+    maintainer='Sean Lynch',
+    maintainer_email='techniq35@gmail.com',
     description='Scripting support for Flask',
     long_description=__doc__,
     py_modules=[

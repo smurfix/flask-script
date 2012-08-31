@@ -38,7 +38,7 @@ Install with **pip** and **easy_install**::
 
 or download the latest version from version control::
 
-    git clone https://github.com/rduplain/flask-script.git
+    git clone https://github.com/techniq/flask-script.git
     cd flask-script
     python setup.py develop
 
@@ -438,5 +438,5 @@ API
 .. autofunction:: prompt_choices
 
 .. _Flask: http://flask.pocoo.org
-.. _GitHub: http://github.com/rduplain/flask-script
+.. _GitHub: http://github.com/techniq/flask-script
 .. _argparse: http://pypi.python.org/pypi/argparse
