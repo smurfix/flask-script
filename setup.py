@@ -13,6 +13,14 @@ Links
 """
 from setuptools import setup
 
+# Hack to prevent stupid TypeError: 'NoneType' object is not callable error on
+# exit of python setup.py test # in multiprocessing/util.py _exit_function when
+# running python setup.py test (see
+# https://github.com/pypa/virtualenv/pull/259)
+try:
+    import multiprocessing
+except ImportError:
+    pass
 
 setup(
     name='Flask-Script',
