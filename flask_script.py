@@ -81,8 +81,8 @@ def prompt_bool(name, default=False, yes_choices=None, no_choices=None):
             return False
 
 
-def prompt_choices(name, choices, default=None,
-    resolve=string.lower, no_choice=('none',)):
+def prompt_choices(name, choices, default=None, resolve=string.lower,
+                   no_choice=('none',)):
 
     """
     Grabs user input from command line from set of provided choices.
@@ -259,10 +259,11 @@ class Shell(Command):
     def get_options(self):
 
         return (
-                Option('--no-ipython',
-                       action="store_true",
-                       dest='no_ipython',
-                       default=not(self.use_ipython)),)
+            Option('--no-ipython',
+                action="store_true",
+                dest='no_ipython',
+                default=not(self.use_ipython)),
+        )
 
     def get_context(self):
 
@@ -317,7 +318,7 @@ class Server(Command):
     description = 'Runs the Flask development server i.e. app.run()'
 
     def __init__(self, host='127.0.0.1', port=5000, use_debugger=True,
-        use_reloader=True, threaded=False, processes=1, **options):
+                 use_reloader=True, threaded=False, processes=1, **options):
 
         self.port = port
         self.host = host
@@ -330,26 +331,24 @@ class Server(Command):
     def get_options(self):
 
         options = (
+            Option('-t', '--host',
+                   dest='host',
+                   default=self.host),
 
-                Option('-t', '--host',
-                       dest='host',
-                       default=self.host),
+            Option('-p', '--port',
+                   dest='port',
+                   type=int,
+                   default=self.port),
 
-                Option('-p', '--port',
-                       dest='port',
-                       type=int,
-                       default=self.port),
+            Option('--threaded',
+                   dest='threaded',
+                   action='store_true',
+                   default=self.threaded),
 
-                Option('--threaded',
-                       dest='threaded',
-                       action='store_true',
-                       default=self.threaded),
-
-                Option('--processes',
-                       dest='processes',
-                       type=int,
-                       default=self.processes),
-
+            Option('--processes',
+                   dest='processes',
+                   type=int,
+                   default=self.processes),
         )
 
         if self.use_debugger:
@@ -379,7 +378,7 @@ class Server(Command):
         return options
 
     def handle(self, app, host, port, use_debugger, use_reloader,
-        threaded, processes):
+               threaded, processes):
         # we don't need to run the server in request context
         # so just run it directly
 
@@ -709,7 +708,7 @@ class Manager(object):
 
             result = self.handle(sys.argv[0], command, sys.argv[2:])
 
-            sys.exit(result)
+            sys.exit(result or 0)
 
         except InvalidCommand, e:
             print e
