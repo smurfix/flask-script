@@ -7,6 +7,7 @@ import unittest
 from flask import Flask
 from flask.ext.script import Command, Manager, InvalidCommand, Option
 
+
 class SimpleCommand(Command):
     "simple command"
 
@@ -51,7 +52,7 @@ class CommandWithDynamicOptions(Command):
                    help="name to pass in",
                    dest="name",
                    default=self.default_name),
-            )
+        )
 
     def run(self, name):
         print name
@@ -65,6 +66,7 @@ class CommandWithCatchAll(Command):
     def get_options(self):
         return (Option('--foo', dest='foo',
                        action='store_true'),)
+
     def run(self, remaining_args, foo):
         print remaining_args
 
@@ -77,6 +79,7 @@ class TestCommands(unittest.TestCase):
 
         self.app = Flask(__name__)
         self.app.config.from_object(self)
+
 
 class TestManager(unittest.TestCase):
 
@@ -128,7 +131,6 @@ class TestManager(unittest.TestCase):
         @manager.command
         def hello(name):
             print "hello", name
-
 
         assert 'hello' in manager._commands
 
@@ -244,7 +246,7 @@ class TestManager(unittest.TestCase):
         assert 'hello joe' in sys.stdout.getvalue()
 
         manager.handle("manage.py", "hello_again",
-            ["--name=joe", "--url=reddit.com"])
+                       ["--name=joe", "--url=reddit.com"])
         assert 'hello joe from reddit.com' in sys.stdout.getvalue()
 
     def test_get_usage(self):
@@ -274,8 +276,8 @@ class TestManager(unittest.TestCase):
 
         manager = Manager(self.app)
         self.assertRaises(InvalidCommand,
-                           manager.handle,
-                           "manage.py", "simple")
+                          manager.handle,
+                          "manage.py", "simple")
 
     def test_run_existing(self):
 
@@ -293,7 +295,7 @@ class TestManager(unittest.TestCase):
         manager = Manager(self.app)
         sys.argv = ["manage.py", "simple"]
         try:
-            manager.run({'simple':SimpleCommand()})
+            manager.run({'simple': SimpleCommand()})
         except SystemExit, e:
             assert e.code == 0
         assert 'OK' in sys.stdout.getvalue()
@@ -386,13 +388,11 @@ class TestManager(unittest.TestCase):
         except SystemExit, e:
             assert e.code == 1
 
-
     def test_run_with_default_command(self):
         manager = Manager(self.app)
         manager.add_command('simple', SimpleCommand())
         try:
             manager.run(default_command='simple')
         except SystemExit, e:
-            assert e.code==0
+            assert e.code == 0
         assert 'OK' in sys.stdout.getvalue()
-
