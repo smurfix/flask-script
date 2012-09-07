@@ -7,7 +7,7 @@ Flask support for writing external scripts.
 Links
 `````
 
-* `documentation <http://packages.python.org/Flask-Script>`_
+* `documentation <http://flask-script.readthedocs.org>`_
 
 
 """
