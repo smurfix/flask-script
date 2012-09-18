@@ -11,6 +11,7 @@ Links
 
 
 """
+import sys
 from setuptools import setup
 
 # Hack to prevent stupid TypeError: 'NoneType' object is not callable error on
@@ -21,6 +22,10 @@ try:
     import multiprocessing
 except ImportError:
     pass
+
+install_requires = ['Flask']
+if sys.version_info < (2, 7):
+    install_requires += ['argparse']
 
 setup(
     name='Flask-Script',
@@ -39,10 +44,7 @@ setup(
     test_suite='nose.collector',
     zip_safe=False,
     platforms='any',
-    install_requires=[
-        'Flask',
-        'argparse',
-    ],
+    install_requires=install_requires,
     tests_require=[
         'nose',
     ],
