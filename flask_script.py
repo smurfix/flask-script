@@ -312,13 +312,15 @@ class Server(Command):
     :param threaded: should the process handle each request in a separate
                      thread?
     :param processes: number of processes to spawn
+    :param passthrough_errors: disable the error catching. This means that the server will die on errors but it can be useful to hook debuggers in (pdb etc.)
     :param options: :func:`werkzeug.run_simple` options.
     """
 
     description = 'Runs the Flask development server i.e. app.run()'
 
     def __init__(self, host='127.0.0.1', port=5000, use_debugger=True,
-                 use_reloader=True, threaded=False, processes=1, **options):
+                 use_reloader=True, threaded=False, processes=1,
+                 passthrough_errors=False, **options):
 
         self.port = port
         self.host = host
@@ -327,6 +329,7 @@ class Server(Command):
         self.server_options = options
         self.threaded = threaded
         self.processes = processes
+        self.passthrough_errors = passthrough_errors
 
     def get_options(self):
 
@@ -349,6 +352,11 @@ class Server(Command):
                    dest='processes',
                    type=int,
                    default=self.processes),
+
+            Option('--passthrough-errors',
+                   action='store_true',
+                   dest='passthrough_errors',
+                   default=self.passthrough_errors),
         )
 
         if self.use_debugger:
@@ -378,17 +386,18 @@ class Server(Command):
         return options
 
     def handle(self, app, host, port, use_debugger, use_reloader,
-               threaded, processes):
+               threaded, processes, passthrough_errors):
         # we don't need to run the server in request context
         # so just run it directly
 
         app.run(host=host,
                 port=port,
-                debug=use_debugger,
+                debug=app.config.get('DEBUG', use_debugger),
                 use_debugger=use_debugger,
                 use_reloader=use_reloader,
                 threaded=threaded,
                 processes=processes,
+                passthrough_errors=passthrough_errors,
                 **self.server_options)
 
 
@@ -441,7 +450,6 @@ class Manager(object):
 
         self.parent = None
 
-
     def add_default_commands(self):
         """
         Adds the shell and runserver default commands. To override these
@@ -486,8 +494,8 @@ class Manager(object):
         self._options.append(Option(*args, **kwargs))
 
     def create_app(self, **kwargs):
-        # Sub-manager, defer to parent Manager
         if self.parent:
+            # Sub-manager, defer to parent Manager
             return self.parent.create_app(**kwargs)
 
         if isinstance(self.app, Flask):
