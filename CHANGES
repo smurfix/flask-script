@@ -1,0 +1,19 @@
+Flask-Script Changelog
+======================
+
+Here you can see the full list of changes between each Flask-Script release.
+
+Version 0.5.1
+-------------
+
+Released on October 2nd, 2012.
+
+- Fixed an issue where debug settings were being overridden if present in config.
+- Expose 'passthrough_errors' on Server to disable error catching (useful to hook debuggers in (ex. pdb))
+
+Version 0.5.0
+-------------
+
+Released on September 22, 2012.
+
+- Sub-Manager support (see: http://flask-script.readthedocs.org/en/latest/index.html#sub-managers)
