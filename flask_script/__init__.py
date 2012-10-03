@@ -11,6 +11,7 @@ import argparse
 from flask import Flask
 
 from .commands import Option, InvalidCommand, Command, Server, Shell
+from .cli import prompt, prompt_pass, prompt_bool, prompt_choices
 
 __all__ = ["Command", "Shell", "Server", "Manager", "Option",
            "prompt", "prompt_pass", "prompt_bool", "prompt_choices"]
