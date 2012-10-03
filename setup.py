@@ -38,7 +38,7 @@ setup(
     maintainer_email='techniq35@gmail.com',
     description='Scripting support for Flask',
     long_description=__doc__,
-    py_modules=[
+    packages=[
         'flask_script'
     ],
     test_suite='nose.collector',

@@ -3,6 +3,15 @@ Flask-Script Changelog
 
 Here you can see the full list of changes between each Flask-Script release.
 
+Version 0.5.2-dev
+-------------
+
+No release date
+
+- Change from module to package and refactor project structure
+- Add BPython shell support
+- Add Clean and ShowUrls commands
+
 Version 0.5.1
 -------------
 
