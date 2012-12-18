@@ -377,7 +377,7 @@ The ``Shell`` command starts a Python shell. You can pass in a ``make_context`` 
     from myapp.models import db
 
     def _make_context():
-        return dict(app=app, app, db=db, models=models)
+        return dict(app=app, db=db, models=models)
 
     manager = Manager(create_app)
     manager.add_command("shell", Shell(make_context=_make_context))
