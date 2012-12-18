@@ -309,11 +309,11 @@ class Server(Command):
 
 
 class Clean(Command):
-    "Remove *.pyc files recursively starting at current directory"
+    "Remove *.pyc and *.pyo files recursively starting at current directory"
     def run(self):
         for dirpath, dirnames, filenames in os.walk('.'):
             for filename in filenames:
-                if '.pyc' in filename:
+                if '.pyc' or '.pyo' in filename:
                     full_pathname = os.path.join(dirpath, filename)
                     print 'Removing %s' % full_pathname
                     os.remove(full_pathname)
