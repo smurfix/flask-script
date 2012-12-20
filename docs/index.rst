@@ -3,18 +3,18 @@ Flask-Script
 
 .. module:: Flask-Script
 
-The **Flask-Script** extension provides support for writing external scripts in Flask. This includes running a development server, a customised Python shell, scripts to set up your database, cronjobs, and other command-line tasks that belong outside the web application itself. 
+The **Flask-Script** extension provides support for writing external scripts in Flask. This includes running a development server, a customised Python shell, scripts to set up your database, cronjobs, and other command-line tasks that belong outside the web application itself.
 
 **Flask-Script** works in a similar way to Flask itself. You define and add commands that can be called from the command line to a ``Manager`` instance::
 
     # manage.py
-    
+
     from flask.ext.script import Manager
 
     from myapp import app
 
     manager = Manager(app)
-    
+
     @manager.command
     def hello():
         print "hello"
@@ -70,15 +70,15 @@ keeps track of all the commands and handles how they are called from the command
 Calling ``manager.run()`` prepares your ``Manager`` instance to receive input from the command line.
 
 The ``Manager`` requires a single argument, a **Flask** instance. This may also be a function or other callable
-that returns a **Flask** instance instead, if you want to use a factory pattern. 
+that returns a **Flask** instance instead, if you want to use a factory pattern.
 
 The next step is to create and add your commands. There are three methods for creating commands:
 
-    * subclassing the ``Command`` class 
+    * subclassing the ``Command`` class
     * using the ``@command`` decorator
     * using the ``@option`` decorator
 
-To take a very simple example, we want to create a **Hello** command that just prints out "hello world". It 
+To take a very simple example, we want to create a **Hello** command that just prints out "hello world". It
 doesn't take any arguments so is very straightforward::
 
     from flask.ext.script import Command
@@ -115,8 +115,8 @@ To get help text for a particular command::
 
 This will print usage plus the docstring of the ``Command``.
 
-This first method is probably the most flexible, but it's also the most verbose. For simpler commands you can use 
-the ``@command`` decorator, which belongs to the ``Manager`` instance:: 
+This first method is probably the most flexible, but it's also the most verbose. For simpler commands you can use
+the ``@command`` decorator, which belongs to the ``Manager`` instance::
 
     @manager.command
     def hello():
@@ -133,7 +133,7 @@ As with the ``Command`` class, the docstring you use for the function will appea
     python manage.py -h
     > Just say hello
 
-Finally, the ``@option`` decorator, again belonging to ``Manager`` can be used when you want more sophisticated 
+Finally, the ``@option`` decorator, again belonging to ``Manager`` can be used when you want more sophisticated
 control over your commands::
 
     @manager.option('-n', '--name', help='Your name')
@@ -212,7 +212,7 @@ These can be called like so::
     hello Joe
 
 alternatively::
-    
+
     > python manage.py hello -n Joe
     hello Joe
 
@@ -265,7 +265,7 @@ This can be called like so::
     hello Joe from reddit.com
 
 or alternatively::
-    
+
     > python manage.py hello --name=Joe --url=reddit.com
     hello Joe from reddit.com
 
@@ -273,11 +273,11 @@ Adding options to the manager
 -----------------------------
 
 Options can also be passed to the ``Manager`` instance. This is allows you to set up options that are passed to the application rather
-than a single command. For example, you might want to have a flag to set the configuration file for your application. Suppose you create 
+than a single command. For example, you might want to have a flag to set the configuration file for your application. Suppose you create
 your application with a factory function::
 
     def create_app(config=None):
-        
+
         app = Flask(__name__)
         if config is not None:
             app.config.from_pyfile(config)
@@ -295,7 +295,7 @@ as ``Option``::
 As with any other **Flask-Script** configuration you can call this anywhere in your script module, but it must be called before your ``manager.run()`` call.
 
 Suppose you have this command::
-    
+
     @manager.command
     def hello(name):
         uppercase = app.config.get('USE_UPPERCASE', False)
@@ -310,7 +310,7 @@ You can now run the following::
 
 Assuming the ``USE_UPPERCASE`` setting is **True** in your dev.cfg file.
 
-Notice also that the "config" option is **not** passed to the command. 
+Notice also that the "config" option is **not** passed to the command.
 
 In order for manager options to work you must pass a factory function, rather than a Flask instance, to your
 ``Manager`` constructor. A simple but complete example is available in `this gist <https://gist.github.com/3531881>`_.
@@ -319,14 +319,14 @@ Getting user input
 ------------------
 
 **Flask-Script** comes with a set of helper functions for grabbing user input from the command line. For example::
-    
+
     from flask.ext.script import Manager, prompt_bool
-    
+
     from myapp import app
     from myapp.models import db
 
     manager = Manager(app)
-        
+
     @manager.command
     def dropdb():
         if prompt_bool(
@@ -371,7 +371,7 @@ The ``Shell`` command starts a Python shell. You can pass in a ``make_context`` 
     from flask import app
 
     from flask.ext.script import Shell, Manager
-    
+
     from myapp import app
     from myapp import models
     from myapp.models import db
@@ -381,7 +381,7 @@ The ``Shell`` command starts a Python shell. You can pass in a ``make_context`` 
 
     manager = Manager(create_app)
     manager.add_command("shell", Shell(make_context=_make_context))
-    
+
 This is handy if you want to include a bunch of defaults in your shell to save typing lots of ``import`` statements.
 
 The ``Shell`` command will use `IPython <http://ipython.scipy.org/moin/>`_ if it is installed, otherwise it defaults to the standard Python shell. You can disable this behaviour in two ways: by passing the ``use_ipython`` argument to the ``Shell`` constructor, or passing the flag ``--no-ipython`` in the command line::
@@ -398,7 +398,7 @@ This enables a **shell** command with the defaults enabled::
 
     > python manage.py shell
 
-The default commands **shell** and **runserver** are included by default, with the default options for these commands. If you wish to 
+The default commands **shell** and **runserver** are included by default, with the default options for these commands. If you wish to
 replace them with different commands simply override with ``add_command()`` or the decorators. If you pass ``with_default_commands=False``
 to the ``Manager`` constructor these commands will not be loaded::
 
@@ -429,6 +429,7 @@ Note to extension developers
 Extension developers can easily create convenient sub-manager instance within their extensions to make it easy for a user to consume all the available commands of an extension.
 
 Here is an example how a database extension could provide (ex. database.py)::
+
     manager = Manager("Perform database operations")
 
     @manager.command
@@ -469,12 +470,14 @@ Here is an example how a database extension could provide (ex. database.py)::
 
 
 Then the user can register the sub-manager to their primary Manager (within manage.py)::
+
     manager = Manager(app)
 
     from flask.ext.database import manager as database_manager
     manager.add_command("database", database_manager)
 
 The commands will then be available::
+
     > python manage.py database
 
      Please provide a command:
@@ -495,11 +498,11 @@ The ``Manager`` runs the command inside a `Flask test context <http://flask.poco
 API
 ---
 
-.. module:: flask.ext.script
+.. module:: flask_script
 
 .. autoclass:: Manager
    :members: run, add_option, add_command, command, option, shell, get_usage, print_usage, option
-    
+
 .. autoclass:: Command
    :members: run, get_options
 
