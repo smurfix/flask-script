@@ -405,7 +405,7 @@ to the ``Manager`` constructor these commands will not be loaded::
     manager = Manager(app, with_default_commands=False)
 
 Sub-Managers
------------
+------------
 A Sub-Manager is an instance of ``Manager`` added as a command to another Manager
 
 To create a submanager::
@@ -511,6 +511,8 @@ API
 .. autoclass:: Server
 
 .. autoclass:: Option
+
+.. autoclass:: Group
 
 .. autofunction:: prompt
 
