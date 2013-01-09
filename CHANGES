@@ -3,12 +3,12 @@ Flask-Script Changelog
 
 Here you can see the full list of changes between each Flask-Script release.
 
-Version 0.5.3-dev
+Version 0.5.3
 -------------
 
-No release date
+Released on January 9, 2013.
 
-- Nothing
+- Fix nasty bug in Clean command that deletes all files
 
 Version 0.5.2
 -------------
