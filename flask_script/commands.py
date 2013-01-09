@@ -368,7 +368,7 @@ class Clean(Command):
     def run(self):
         for dirpath, dirnames, filenames in os.walk('.'):
             for filename in filenames:
-                if '.pyc' or '.pyo' in filename:
+                if filename.endswith('.pyc') or filename.endswith('.pyo'):
                     full_pathname = os.path.join(dirpath, filename)
                     print 'Removing %s' % full_pathname
                     os.remove(full_pathname)
