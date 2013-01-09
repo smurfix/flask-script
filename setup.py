@@ -29,7 +29,7 @@ if sys.version_info < (2, 7):
 
 setup(
     name='Flask-Script',
-    version='0.5.3',
+    version='0.5.4-dev',
     url='http://github.com/techniq/flask-script',
     license='BSD',
     author='Dan Jacob',
