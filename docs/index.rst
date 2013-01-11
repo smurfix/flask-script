@@ -430,7 +430,7 @@ Extension developers can easily create convenient sub-manager instance within th
 
 Here is an example how a database extension could provide (ex. database.py)::
 
-    manager = Manager("Perform database operations")
+    manager = Manager(usage="Perform database operations")
 
     @manager.command
     def drop():
