@@ -2,6 +2,7 @@ import pprint
 
 from flask import Flask, current_app
 from flask.ext.script import Manager, prompt_choices, Server
+from flask.ext.script.commands import ShowUrls, Clean
 
 
 def create_app(config=None):
@@ -74,6 +75,8 @@ manager.add_option("-c", "--config",
                    required=False)
 
 manager.add_command("runservernoreload", Server(use_reloader=False))
+manager.add_command("urls", ShowUrls())
+manager.add_command("clean", Clean())
 
 if __name__ == "__main__":
     manager.run()
