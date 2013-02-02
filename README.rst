@@ -13,5 +13,5 @@ web application.
 Resources
 ---------
 
-- `Documentation <http://packages.python.org/Flask-Script/>`_
+- `Documentation <http://flask-script.readthedocs.org>`_
 - `Issue Tracker <http://github.com/techniq/flask-script/issues>`_
