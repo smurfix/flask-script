@@ -292,7 +292,7 @@ class Manager(object):
         try:
             command = self._commands[name]
         except KeyError:
-            raise InvalidCommand, "Command %s not found" % name
+            raise InvalidCommand("Command %s not found" % name)
 
         if isinstance(command, Manager):
             # Run sub-manager, stripping first argument
@@ -346,7 +346,7 @@ class Manager(object):
                 command = default_command
 
             if command is None:
-                raise InvalidCommand, "Please provide a command:"
+                raise InvalidCommand("Please provide a command:")
 
             result = self.handle(sys.argv[0], command, sys.argv[2:])
 
