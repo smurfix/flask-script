@@ -355,7 +355,6 @@ class Server(Command):
 
         app.run(host=host,
                 port=port,
-                debug=app.config.get('DEBUG', use_debugger),
                 use_debugger=use_debugger,
                 use_reloader=use_reloader,
                 threaded=threaded,
