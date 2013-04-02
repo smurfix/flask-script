@@ -58,7 +58,7 @@ class Manager(object):
         if with_default_commands or (app and with_default_commands is None):
             self.add_default_commands()
 
-        self.usage = usage
+        self.usage = self.description = usage
 
         self.parent = None
 
@@ -115,17 +115,28 @@ class Manager(object):
 
         return self.app(**kwargs)
 
-    def create_parser(self, prog):
+    def create_parser(self, prog, parser=None):
 
         """
         Creates an ArgumentParser instance from options returned
         by get_options(), and a subparser for the given command.
         """
-
         prog = os.path.basename(prog)
-        parser = argparse.ArgumentParser(prog=prog)
+
+        if parser is None:
+            parser = argparse.ArgumentParser(prog=prog, usage=self.usage)
+
+        #parser.set_defaults(func_handle=self._handle)
+
         for option in self.get_options():
             parser.add_argument(*option.args, **option.kwargs)
+
+        subparsers = parser.add_subparsers()
+        for name, command in self._commands.iteritems():
+            description = getattr(command, 'description',
+                                  'Perform command ' + name)
+            p = subparsers.add_parser(name, help=description, usage=description)
+            command.create_parser(name, parser=p)
 
         return parser
 
@@ -167,6 +178,7 @@ class Manager(object):
         kwargs = dict(zip(*[reversed(l) for l in (args, defaults)]))
 
         for arg in args:
+
             if arg in kwargs:
 
                 default = kwargs[arg]
@@ -285,6 +297,14 @@ class Manager(object):
 
         print self.get_usage()
 
+    def _handle(self, app, *args, **kwargs):
+        """
+        Calling manager without command prints usage message.
+        """
+        with app.test_request_context():
+            self.print_usage()
+            return 1
+
     def handle(self, prog, name, args=None):
 
         args = list(args or [])
@@ -294,34 +314,26 @@ class Manager(object):
         except KeyError:
             raise InvalidCommand("Command %s not found" % name)
 
-        if isinstance(command, Manager):
-            # Run sub-manager, stripping first argument
-            sys.argv = sys.argv[1:]
-            command.run()
+        app_parser = self.create_parser(prog)
+        app_namespace, remaining_args = app_parser.parse_known_args([name] + args)
+
+        kwargs = app_namespace.__dict__
+        handle = kwargs['func_handle']
+        del kwargs['func_handle']
+        app = self.create_app(**app_namespace.__dict__)
+
+        # get command from bounded handle function (py2.7+)
+        command = handle.__self__
+        if getattr(command, 'capture_all_args', False):
+            positional_args = [remaining_args]
         else:
-            help_args = ('-h', '--help')
-
-            # remove -h/--help from args if present, and add to remaining args
-            app_args = [a for a in args if a not in help_args]
-
-            app_parser = self.create_parser(prog)
-            app_namespace, remaining_args = app_parser.parse_known_args(app_args)
-            app = self.create_app(**app_namespace.__dict__)
-
-            for arg in help_args:
-                if arg in args:
-                    remaining_args.append(arg)
-
-            command_parser = command.create_parser(prog + " " + name)
-            if getattr(command, 'capture_all_args', False):
-                command_namespace, unparsed_args = \
-                    command_parser.parse_known_args(remaining_args)
-                positional_args = [unparsed_args]
-            else:
-                command_namespace = command_parser.parse_args(remaining_args)
-                positional_args = []
-
-        return command.handle(app, *positional_args, **command_namespace.__dict__)
+            if len(remaining_args):
+                # raise correct exception
+                # FIXME maybe change capture_all_args flag
+                app_parser.parse_args([name] + args)
+                # sys.exit(2)
+            positional_args = []
+        return handle(app, *positional_args, **kwargs)
 
     def run(self, commands=None, default_command=None):
 
