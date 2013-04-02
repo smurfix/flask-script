@@ -1,7 +1,8 @@
 Flask-Script
 ==============
 
-.. image:: https://secure.travis-ci.org/techniq/flask-script.png
+.. image:: https://travis-ci.org/techniq/flask-script.png?branch=master
+        :target: https://travis-ci.org/techniq/flask-script
 
 A set of utilities for use with the Flask framework, which provide
 decorators, classes and helpers for writing your own script commands.
