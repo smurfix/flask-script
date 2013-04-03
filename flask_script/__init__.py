@@ -16,6 +16,14 @@ from .cli import prompt, prompt_pass, prompt_bool, prompt_choices
 __all__ = ["Command", "Shell", "Server", "Manager", "Group", "Option",
            "prompt", "prompt_pass", "prompt_bool", "prompt_choices"]
 
+safe_actions = (argparse._StoreAction,
+                argparse._StoreConstAction,
+                argparse._StoreTrueAction,
+                argparse._StoreFalseAction,
+                argparse._AppendAction,
+                argparse._AppendConstAction,
+                argparse._CountAction)
+
 
 class Manager(object):
     """
@@ -131,12 +139,12 @@ class Manager(object):
         for option in self.get_options():
             parser.add_argument(*option.args, **option.kwargs)
 
-        subparsers = parser.add_subparsers()
+        subparsers = parser.add_subparsers()  # dest='subparser_'+prog)
         for name, command in self._commands.iteritems():
             description = getattr(command, 'description',
                                   'Perform command ' + name)
             p = subparsers.add_parser(name, help=description, usage=description)
-            command.create_parser(name, parser=p)
+            p = command.create_parser(name, parser=p)
 
         return parser
 
@@ -305,24 +313,30 @@ class Manager(object):
             self.print_usage()
             return 1
 
-    def handle(self, prog, name, args=None):
+    def handle(self, prog, args=None):
 
         args = list(args or [])
 
-        try:
-            command = self._commands[name]
-        except KeyError:
-            raise InvalidCommand("Command %s not found" % name)
-
         app_parser = self.create_parser(prog)
-        app_namespace, remaining_args = app_parser.parse_known_args([name] + args)
+        app_namespace, remaining_args = app_parser.parse_known_args(args)
 
         kwargs = app_namespace.__dict__
         handle = kwargs['func_handle']
         del kwargs['func_handle']
-        app = self.create_app(**app_namespace.__dict__)
 
-        # get command from bounded handle function (py2.7+)
+        ## get only safe config options
+        app_config_keys = [action.dest for action in app_parser._actions
+                           if action.__class__ in safe_actions]
+
+        ## pass only safe app config keys
+        app_config = dict((k, v) for k, v in kwargs.iteritems()
+                          if k in app_config_keys)
+
+        ## remove application config keys from handle kwargs
+        kwargs = dict((k, v) for k, v in kwargs.iteritems()
+                      if k not in app_config_keys)
+
+        ## get command from bounded handle function (py2.7+)
         command = handle.__self__
         if getattr(command, 'capture_all_args', False):
             positional_args = [remaining_args]
@@ -330,9 +344,12 @@ class Manager(object):
             if len(remaining_args):
                 # raise correct exception
                 # FIXME maybe change capture_all_args flag
-                app_parser.parse_args([name] + args)
+                app_parser.parse_args(args)
                 # sys.exit(2)
+                pass
             positional_args = []
+
+        app = self.create_app(**app_config)
         return handle(app, *positional_args, **kwargs)
 
     def run(self, commands=None, default_command=None):
@@ -351,21 +368,14 @@ class Manager(object):
         if commands:
             self._commands.update(commands)
 
+        if default_command is not None and len(sys.argv) == 1:
+            sys.argv.append(default_command)
+
         try:
-            try:
-                command = sys.argv[1]
-            except IndexError:
-                command = default_command
+            result = self.handle(sys.argv[0], sys.argv[1:])
+        except SystemExit as e:
+            result = e.code
+        except Exception as e:
+            raise e
 
-            if command is None:
-                raise InvalidCommand("Please provide a command:")
-
-            result = self.handle(sys.argv[0], command, sys.argv[2:])
-
-            sys.exit(result or 0)
-
-        except InvalidCommand, e:
-            print e
-            self.print_usage()
-
-        sys.exit(1)
+        sys.exit(result or 0)
