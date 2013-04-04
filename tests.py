@@ -25,6 +25,9 @@ def run(command_line, manager_run, capture_stderr=False):
         exit_code = e.code
     finally:
         out = sys.stdout.getvalue()
+        # clear the standard output buffer
+        sys.stdout.truncate(0)
+        assert len(sys.stdout.getvalue()) == 0
         if capture_stderr:
             out += sys.stderr.getvalue()
         sys.stderr = sys_stderr_orig
@@ -260,7 +263,7 @@ class TestManager(unittest.TestCase):
         stdout, code = run('manage.py hello_again --name=joe --url=reddit.com', lambda: manager.run())
         assert 'hello joe from reddit.com' in stdout
 
-    def test_global_option_provided_before_command(self):
+    def test_global_option_provided_before_and_after_command(self):
 
         manager = Manager(self.app)
         manager.add_option('-c', '--config', dest='config_name', required=False, default='Development')
@@ -270,6 +273,44 @@ class TestManager(unittest.TestCase):
 
         stdout, code = run('manage.py -c Development simple', lambda: manager.run())
         assert code == 0
+        assert 'OK' in stdout
+
+        stdout, code = run('manage.py simple -c Development', lambda: manager.run())
+        assert code == 0
+        assert 'OK' in stdout
+
+    def test_global_option_value(self):
+
+        def create_app(config_name='Empty'):
+            print config_name
+            return self.app
+
+        manager = Manager(create_app)
+        manager.add_option('-c', '--config', dest='config_name', required=False, default='Development')
+        manager.add_command('simple', SimpleCommand())
+
+        assert isinstance(manager._commands['simple'], SimpleCommand)
+
+        stdout, code = run('manage.py simple', lambda: manager.run())
+        assert code == 0
+        assert 'Empty' not in stdout  # config_name is overwritten by default option value
+        assert 'Development' in stdout
+        assert 'OK' in stdout
+
+        stdout, code = run('manage.py -c Before simple', lambda: manager.run())
+        assert code == 0
+        assert 'Before' in stdout
+        assert 'OK' in stdout
+
+        stdout, code = run('manage.py simple -c After', lambda: manager.run())
+        assert code == 0
+        assert 'After' in stdout
+        assert 'OK' in stdout
+
+        stdout, code = run('manage.py -c DoNotShow simple -c NewValue', lambda: manager.run())
+        assert code == 0
+        assert 'DoNotShow' not in stdout  # first parameter is ignored
+        assert 'NewValue' in stdout       # second on is printed
         assert 'OK' in stdout
 
     def test_get_usage(self):

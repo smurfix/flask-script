@@ -123,7 +123,7 @@ class Manager(object):
 
         return self.app(**kwargs)
 
-    def create_parser(self, prog, parser=None):
+    def create_parser(self, prog, parents=None):
 
         """
         Creates an ArgumentParser instance from options returned
@@ -131,21 +131,31 @@ class Manager(object):
         """
         prog = os.path.basename(prog)
 
-        if parser is None:
-            parser = argparse.ArgumentParser(prog=prog, usage=self.usage)
+        option_parser = argparse.ArgumentParser(add_help=False)
+        for option in self.get_options():
+            option_parser.add_argument(*option.args, **option.kwargs)
+
+        if parents is None:
+            parents = [option_parser]
+
+        def _create_command(item):
+            name, command = item
+            description = getattr(command, 'description',
+                                  command.__doc__)
+            return name, command, description, \
+                command.create_parser(name, parents=parents)
+
+        commands = map(_create_command, self._commands.iteritems())
+
+        parser = argparse.ArgumentParser(prog=prog, usage=self.usage,
+                                         parents=parents)
 
         #parser.set_defaults(func_handle=self._handle)
 
-        for option in self.get_options():
-            parser.add_argument(*option.args, **option.kwargs)
-
-        subparsers = parser.add_subparsers()  # dest='subparser_'+prog)
-        for name, command in self._commands.iteritems():
-            description = getattr(command, 'description',
-                                  'Perform command ' + name)
-            p = subparsers.add_parser(name, help=description, usage=description)
-            p = command.create_parser(name, parser=p)
-
+        subparsers = parser.add_subparsers()
+        for name, command, description, parent in commands:
+            subparsers.add_parser(name, usage=description, help=description,
+                                  parents=[parent], add_help=False)
         return parser
 
     def get_options(self):
@@ -315,11 +325,16 @@ class Manager(object):
 
     def handle(self, prog, args=None):
 
-        args = list(args or [])
-
         app_parser = self.create_parser(prog)
+
+        if args is None or len(args) == 0:
+            app_parser.print_help()
+            return 2
+
+        args = list(args or [])
         app_namespace, remaining_args = app_parser.parse_known_args(args)
 
+        ## get the handle function and remove it from parsed options
         kwargs = app_namespace.__dict__
         handle = kwargs['func_handle']
         del kwargs['func_handle']
