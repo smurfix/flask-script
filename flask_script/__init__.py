@@ -27,9 +27,9 @@ safe_actions = (argparse._StoreAction,
 
 try:
     import argcomplete
-    ARGCOMLETE_IMPORTED = True
+    ARGCOMPLETE_IMPORTED = True
 except ImportError:
-    ARGCOMLETE_IMPORTED = False
+    ARGCOMPLETE_IMPORTED = False
 
 
 class Manager(object):
@@ -167,7 +167,7 @@ class Manager(object):
 
         ## enable autocomplete only for parent parser when argcomplete is
         ## imported and it is NOT disabled in constructor
-        if parents is None and ARGCOMLETE_IMPORTED \
+        if parents is None and ARGCOMPLETE_IMPORTED \
                 and not self.disable_argcomplete:
             argcomplete.autocomplete(parser, always_complete_options=True)
 
@@ -294,49 +294,6 @@ class Manager(object):
         self.add_command('shell', Shell(make_context=func))
 
         return func
-
-    def get_usage(self):
-
-        """
-        Returns string consisting of all commands and their
-        descriptions.
-        """
-        pad = max(map(len, self._commands.iterkeys())) + 2
-        format = '  %%- %ds%%s' % pad
-
-        rv = []
-
-        if self.usage:
-            rv.append(self.usage)
-
-        for name, command in sorted(self._commands.iteritems()):
-            usage = name
-
-            if isinstance(command, Manager):
-                description = command.usage or ''
-            else:
-                description = command.description or ''
-
-            usage = format % (name, description)
-            rv.append(usage)
-
-        return "\n".join(rv)
-
-    def print_usage(self):
-
-        """
-        Prints result of get_usage()
-        """
-
-        print self.get_usage()
-
-    def _handle(self, app, *args, **kwargs):
-        """
-        Calling manager without command prints usage message.
-        """
-        with app.test_request_context():
-            self.print_usage()
-            return 1
 
     def handle(self, prog, args=None):
 

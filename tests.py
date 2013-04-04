@@ -318,15 +318,16 @@ class TestManager(unittest.TestCase):
         manager = Manager(self.app)
         manager.add_command('simple', SimpleCommand())
 
-        assert 'simple     simple command' in manager.get_usage()
+        usage = manager.create_parser('manage.py').format_help()
+        assert 'simple command' in usage
 
     def test_get_usage_with_specified_usage(self):
 
         manager = Manager(self.app, usage='hello')
         manager.add_command('simple', SimpleCommand())
 
-        usage = manager.get_usage()
-        assert 'simple     simple command' in usage
+        usage = manager.create_parser('manage.py').format_help()
+        assert 'simple command' in usage
         assert 'hello' in usage
 
     def test_run_existing_command(self):
