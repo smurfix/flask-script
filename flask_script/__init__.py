@@ -25,6 +25,13 @@ safe_actions = (argparse._StoreAction,
                 argparse._CountAction)
 
 
+try:
+    import argcomplete
+    ARGCOMLETE_IMPORTED = True
+except ImportError:
+    ARGCOMLETE_IMPORTED = False
+
+
 class Manager(object):
     """
     Controller class for handling a set of commands.
@@ -52,9 +59,12 @@ class Manager(object):
     :param app: Flask instance or callable returning a Flask instance.
     :param with_default_commands: load commands **runserver** and **shell**
                                   by default.
+    :param disable_argcomplete: disable automatic loading of argcomplete.
+
     """
 
-    def __init__(self, app=None, with_default_commands=None, usage=None):
+    def __init__(self, app=None, with_default_commands=None, usage=None,
+                 disable_argcomplete=False):
 
         self.app = app
 
@@ -67,6 +77,7 @@ class Manager(object):
             self.add_default_commands()
 
         self.usage = self.description = usage
+        self.disable_argcomplete = disable_argcomplete
 
         self.parent = None
 
@@ -135,27 +146,31 @@ class Manager(object):
         for option in self.get_options():
             option_parser.add_argument(*option.args, **option.kwargs)
 
-        if parents is None:
-            parents = [option_parser]
+        parser_parents = [option_parser] if parents is None else parents
 
         def _create_command(item):
             name, command = item
             description = getattr(command, 'description',
                                   command.__doc__)
             return name, command, description, \
-                command.create_parser(name, parents=parents)
+                command.create_parser(name, parents=parser_parents)
 
         commands = map(_create_command, self._commands.iteritems())
 
         parser = argparse.ArgumentParser(prog=prog, usage=self.usage,
-                                         parents=parents)
-
-        #parser.set_defaults(func_handle=self._handle)
+                                         parents=parser_parents)
 
         subparsers = parser.add_subparsers()
         for name, command, description, parent in commands:
             subparsers.add_parser(name, usage=description, help=description,
                                   parents=[parent], add_help=False)
+
+        ## enable autocomplete only for parent parser when argcomplete is
+        ## imported and it is NOT disabled in constructor
+        if parents is None and ARGCOMLETE_IMPORTED \
+                and not self.disable_argcomplete:
+            argcomplete.autocomplete(parser, always_complete_options=True)
+
         return parser
 
     def get_options(self):
@@ -365,6 +380,7 @@ class Manager(object):
             positional_args = []
 
         app = self.create_app(**app_config)
+
         return handle(app, *positional_args, **kwargs)
 
     def run(self, commands=None, default_command=None):
