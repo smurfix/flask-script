@@ -48,7 +48,7 @@ class Group(object):
         if ((self.title or self.description) and
                 (self.required or self.exclusive)):
             raise TypeError("title and/or description cannot be used with "
-                                "required and/or exclusive.")
+                            "required and/or exclusive.")
 
         super(Group, self).__init__(**kwargs)
 
@@ -113,25 +113,28 @@ class Command(object):
         """
         return self.option_list
 
-    def create_parser(self, prog):
-        parser = argparse.ArgumentParser(prog=prog,
+    def create_parser(self, prog, parents=None):
+
+        parser = argparse.ArgumentParser(prog=prog, parents=parents,
                                          description=self.description)
 
         for option in self.get_options():
             if isinstance(option, Group):
                 if option.exclusive:
                     group = parser.add_mutually_exclusive_group(
-                                required=option.required,
-                            )
+                        required=option.required,
+                    )
                 else:
                     group = parser.add_argument_group(
-                                title=option.title,
-                                description=option.description,
-                            )
+                        title=option.title,
+                        description=option.description,
+                    )
                 for opt in option.get_options():
                     group.add_argument(*opt.args, **opt.kwargs)
             else:
                 parser.add_argument(*option.args, **option.kwargs)
+
+        parser.set_defaults(func_handle=self.handle)
 
         return parser
 

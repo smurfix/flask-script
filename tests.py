@@ -24,9 +24,15 @@ def run(command_line, manager_run, capture_stderr=False):
     except SystemExit as e:
         exit_code = e.code
     finally:
+        out = sys.stdout.getvalue()
+        # clear the standard output buffer
+        sys.stdout.truncate(0)
+        assert len(sys.stdout.getvalue()) == 0
+        if capture_stderr:
+            out += sys.stderr.getvalue()
         sys.stderr = sys_stderr_orig
 
-    return sys.stdout.getvalue(), exit_code
+    return out, exit_code
 
 
 class SimpleCommand(Command):
@@ -265,29 +271,63 @@ class TestManager(unittest.TestCase):
 
         assert isinstance(manager._commands['simple'], SimpleCommand)
 
+        stdout, code = run('manage.py -c Development simple', lambda: manager.run())
+        assert code == 0
+        assert 'OK' in stdout
+
         stdout, code = run('manage.py simple -c Development', lambda: manager.run())
         assert code == 0
         assert 'OK' in stdout
 
-        # TODO: Allow swapping '-c Development' option and 'simple' command
-        # stdout, code = run('manage.py -c Development simple', lambda: manager.run())
-        # assert code == 0
-        # assert 'OK' in stdout
+    def test_global_option_value(self):
+
+        def create_app(config_name='Empty'):
+            print config_name
+            return self.app
+
+        manager = Manager(create_app)
+        manager.add_option('-c', '--config', dest='config_name', required=False, default='Development')
+        manager.add_command('simple', SimpleCommand())
+
+        assert isinstance(manager._commands['simple'], SimpleCommand)
+
+        stdout, code = run('manage.py simple', lambda: manager.run())
+        assert code == 0
+        assert 'Empty' not in stdout  # config_name is overwritten by default option value
+        assert 'Development' in stdout
+        assert 'OK' in stdout
+
+        stdout, code = run('manage.py -c Before simple', lambda: manager.run())
+        assert code == 0
+        assert 'Before' in stdout
+        assert 'OK' in stdout
+
+        stdout, code = run('manage.py simple -c After', lambda: manager.run())
+        assert code == 0
+        assert 'After' in stdout
+        assert 'OK' in stdout
+
+        stdout, code = run('manage.py -c DoNotShow simple -c NewValue', lambda: manager.run())
+        assert code == 0
+        assert 'DoNotShow' not in stdout  # first parameter is ignored
+        assert 'NewValue' in stdout       # second on is printed
+        assert 'OK' in stdout
 
     def test_get_usage(self):
 
         manager = Manager(self.app)
         manager.add_command('simple', SimpleCommand())
 
-        assert 'simple     simple command' in manager.get_usage()
+        usage = manager.create_parser('manage.py').format_help()
+        assert 'simple command' in usage
 
     def test_get_usage_with_specified_usage(self):
 
         manager = Manager(self.app, usage='hello')
         manager.add_command('simple', SimpleCommand())
 
-        usage = manager.get_usage()
-        assert 'simple     simple command' in usage
+        usage = manager.create_parser('manage.py').format_help()
+        assert 'simple command' in usage
         assert 'hello' in usage
 
     def test_run_existing_command(self):
@@ -300,7 +340,7 @@ class TestManager(unittest.TestCase):
     def test_run_non_existant_command(self):
 
         manager = Manager(self.app)
-        self.assertRaises(InvalidCommand, manager.handle, 'manage.py', 'simple')
+        self.assertRaises(SystemExit, manager.handle, 'manage.py', 'simple')
 
     def test_run_existing(self):
 
@@ -324,7 +364,7 @@ class TestManager(unittest.TestCase):
         manager = Manager(self.app)
 
         stdout, code = run('manage.py simple', lambda: manager.run())
-        assert code == 1
+        assert code == 2
         assert 'OK' not in stdout
 
     def test_run_no_name(self):
@@ -332,7 +372,7 @@ class TestManager(unittest.TestCase):
         manager = Manager(self.app)
 
         stdout, code = run('manage.py', lambda: manager.run())
-        assert code == 1
+        assert code == 2
 
     def test_run_good_options(self):
 
@@ -372,7 +412,7 @@ class TestManager(unittest.TestCase):
         assert callable(manager.app)
 
     def test_init_with_callable(self):
-        manager = Manager(lambda: app)
+        manager = Manager(lambda: self.app)
         assert callable(manager.app)
 
     def test_raise_index_error(self):
@@ -384,7 +424,7 @@ class TestManager(unittest.TestCase):
             raise IndexError()
 
         try:
-            self.assertRaises(IndexError, manager.run, default_command='error')
+            self.assertRaises(IndexError, run, 'manage.py error', lambda: manager.run())
         except SystemExit, e:
             assert e.code == 1
 
@@ -442,7 +482,7 @@ class TestSubManager(unittest.TestCase):
         assert code == 0
         assert 'OK' in stdout
 
-        stdout, code = run('manage.py sub_manager simple -c Development', lambda: manager.run())
+        stdout, code = run('manage.py -c Development sub_manager simple', lambda: manager.run())
         assert code == 0
         assert 'OK' in stdout
 
@@ -453,9 +493,9 @@ class TestSubManager(unittest.TestCase):
         manager = Manager(self.app)
         manager.add_command('sub_manager', sub_manager)
 
-        stdout, code = run('manage.py', lambda: manager.run())
-        assert code == 1
-        assert 'sub_manager  Example sub-manager' in stdout
+        stdout, code = run('manage.py -h', lambda: manager.run())
+        assert code == 0
+        assert 'Example sub-manager' in stdout
 
     def test_submanager_usage(self):
 
@@ -465,9 +505,14 @@ class TestSubManager(unittest.TestCase):
         manager = Manager(self.app)
         manager.add_command('sub_manager', sub_manager)
 
-        stdout, code = run('manage.py sub_manager', lambda: manager.run())
-        assert code == 1
-        assert 'simple  simple command' in stdout
+        stdout, code = run('manage.py sub_manager', lambda: manager.run(),
+                           capture_stderr=True)
+        assert code == 2
+        assert 'too few arguments' in stdout
+
+        stdout, code = run('manage.py sub_manager -h', lambda: manager.run())
+        assert code == 0
+        assert 'simple command' in stdout
 
     def test_submanager_has_no_default_commands(self):
 
