@@ -54,7 +54,7 @@ def prompt_bool(name, default=False, yes_choices=None, no_choices=None):
     no_choices = no_choices or ('n', 'no', '0', 'off', 'false', 'f')
 
     while True:
-        rv = prompt(name + '?', default and yes_choices[0] or no_choices[0])
+        rv = prompt(name, default and yes_choices[0] or no_choices[0])
         if not rv:
             return default
         if rv.lower() in yes_choices:
@@ -87,7 +87,7 @@ def prompt_choices(name, choices, default=None, resolve=string.lower,
         _choices.append(choice)
 
     while True:
-        rv = prompt(name + '? - (%s)' % ', '.join(options), default)
+        rv = prompt(name + ' - (%s)' % ', '.join(options), default)
         if not rv:
             return default
         rv = resolve(rv)

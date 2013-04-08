@@ -1,11 +1,46 @@
 # -*- coding: utf-8 -*-
 
+import re
 import sys
 import unittest
 import StringIO
 
 from flask import Flask
-from flask.ext.script import Command, Manager, InvalidCommand, Option
+from flask.ext.script import Command, Manager, Option, prompt, prompt_bool
+
+
+class Catcher(object):
+    """Helper decorator to test raw_input."""
+    ## see: http://stackoverflow.com/questions/13480632/python-stringio-selectively-place-data-into-stdin
+
+    def __init__(self, handler):
+        self.handler = handler
+        self.inputs = []
+
+    def __enter__(self):
+        self.__stdin  = sys.stdin
+        self.__stdout = sys.stdout
+        sys.stdin = self
+        sys.stdout = self
+
+    def __exit__(self, type, value, traceback):
+        sys.stdin  = self.__stdin
+        sys.stdout = self.__stdout
+
+    def write(self, value):
+        self.__stdout.write(value)
+        result = self.handler(value)
+        if result is not None:
+            self.inputs.append(result)
+
+    def readline(self):
+        return self.inputs.pop()
+
+    def getvalue(self):
+        return self.__stdout.getvalue()
+
+    def truncate(self, pos):
+        return self.__stdout.truncate(pos)
 
 
 def run(command_line, manager_run, capture_stderr=False):
@@ -435,6 +470,87 @@ class TestManager(unittest.TestCase):
         stdout, code = run('manage.py', lambda: manager.run(default_command='simple'))
         assert code == 0
         assert 'OK' in stdout
+
+    def test_command_with_prompt(self):
+
+        manager = Manager(self.app)
+
+        @manager.command
+        def hello():
+            print prompt(name='hello')
+
+        @Catcher
+        def hello_john(msg):
+            if re.search("hello", msg):
+                return 'john'
+
+        with hello_john:
+            stdout, code = run('manage.py hello', lambda: manager.run())
+            assert 'hello: john' in stdout
+
+    def test_command_with_default_prompt(self):
+
+        manager = Manager(self.app)
+
+        @manager.command
+        def hello():
+            print prompt(name='hello', default='romeo')
+
+        @Catcher
+        def hello(msg):
+            if re.search("hello", msg):
+                return '\n'  # just hit enter
+
+        with hello:
+            stdout, code = run('manage.py hello', lambda: manager.run())
+            assert 'hello [romeo]: romeo' in stdout
+
+        @Catcher
+        def hello_juliette(msg):
+            if re.search("hello", msg):
+                return 'juliette'
+
+        with hello_juliette:
+            stdout, code = run('manage.py hello', lambda: manager.run())
+            assert 'hello [romeo]: juliette' in stdout
+
+
+    def test_command_with_prompt_bool(self):
+
+        manager = Manager(self.app)
+
+        @manager.command
+        def hello():
+            print prompt_bool(name='correct', default=True, yes_choices=['y'],
+                              no_choices=['n']) and 'yes' or 'no'
+
+        @Catcher
+        def correct_default(msg):
+            if re.search("correct", msg):
+                return '\n'  # just hit enter
+
+        @Catcher
+        def correct_y(msg):
+            if re.search("correct", msg):
+                return 'y'
+
+        @Catcher
+        def correct_n(msg):
+            if re.search("correct", msg):
+                return 'n'
+
+
+        with correct_default:
+            stdout, code = run('manage.py hello', lambda: manager.run())
+            assert 'correct [y]: yes' in stdout
+
+        with correct_y:
+            stdout, code = run('manage.py hello', lambda: manager.run())
+            assert 'correct [y]: yes' in stdout
+
+        with correct_n:
+            stdout, code = run('manage.py hello', lambda: manager.run())
+            assert 'correct [y]: no' in stdout
 
 
 class TestSubManager(unittest.TestCase):
