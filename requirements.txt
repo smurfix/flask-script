@@ -1,2 +1,2 @@
-Flask
+git+git://github.com/mitsuhiko/flask.git#egg=flask
 argparse
