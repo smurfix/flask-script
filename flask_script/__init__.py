@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
-from __future__ import with_statement
 
 import os
 import sys
@@ -9,6 +8,7 @@ import inspect
 import argparse
 
 from flask import Flask
+from flask._compat import text_type, iteritems, imap, izip
 
 from .commands import Group, Option, InvalidCommand, Command, Server, Shell
 from .cli import prompt, prompt_pass, prompt_bool, prompt_choices
@@ -155,7 +155,7 @@ class Manager(object):
             return name, command, description, \
                 command.create_parser(name, parents=parser_parents)
 
-        commands = map(_create_command, self._commands.iteritems())
+        commands = imap(_create_command, iteritems(self._commands))
 
         parser = argparse.ArgumentParser(prog=prog, usage=self.usage,
                                          parents=parser_parents)
@@ -208,7 +208,7 @@ class Manager(object):
         # first arg is always "app" : ignore
 
         defaults = defaults or []
-        kwargs = dict(zip(*[reversed(l) for l in (args, defaults)]))
+        kwargs = dict(izip(*[reversed(l) for l in (args, defaults)]))
 
         for arg in args:
 
@@ -227,12 +227,12 @@ class Manager(object):
                     options.append(Option('-%s' % arg[0],
                                           '--%s' % arg,
                                           dest=arg,
-                                          type=unicode,
+                                          type=text_type,
                                           required=False,
                                           default=default))
 
             else:
-                options.append(Option(arg, type=unicode))
+                options.append(Option(arg, type=text_type))
 
         command = Command()
         command.run = func
@@ -308,22 +308,21 @@ class Manager(object):
 
         ## get the handle function and remove it from parsed options
         kwargs = app_namespace.__dict__
-        handle = kwargs['func_handle']
-        del kwargs['func_handle']
+        handle = kwargs.pop('func_handle')
 
         ## get only safe config options
         app_config_keys = [action.dest for action in app_parser._actions
                            if action.__class__ in safe_actions]
 
         ## pass only safe app config keys
-        app_config = dict((k, v) for k, v in kwargs.iteritems()
+        app_config = dict((k, v) for k, v in iteritems(kwargs)
                           if k in app_config_keys)
 
         ## remove application config keys from handle kwargs
-        kwargs = dict((k, v) for k, v in kwargs.iteritems()
+        kwargs = dict((k, v) for k, v in iteritems(kwargs)
                       if k not in app_config_keys)
 
-        ## get command from bounded handle function (py2.7+)
+        ## get command from bound handle function (py2.7+)
         command = handle.__self__
         if getattr(command, 'capture_all_args', False):
             positional_args = [remaining_args]

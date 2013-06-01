@@ -3,9 +3,9 @@
 import re
 import sys
 import unittest
-import StringIO
 
 from flask import Flask
+from flask._compat import StringIO, text_type
 from flask.ext.script import Command, Manager, Option, prompt, prompt_bool
 
 from pytest import raises
@@ -63,7 +63,7 @@ class SimpleCommand(Command):
     'simple command'
 
     def run(self):
-        print 'OK'
+        print('OK')
 
 
 class CommandWithArgs(Command):
@@ -74,7 +74,7 @@ class CommandWithArgs(Command):
     )
 
     def run(self, name):
-        print name
+        print(name)
 
 
 class CommandWithOptions(Command):
@@ -87,7 +87,7 @@ class CommandWithOptions(Command):
     )
 
     def run(self, name):
-        print name
+        print(name)
 
 
 class CommandWithDynamicOptions(Command):
@@ -106,7 +106,7 @@ class CommandWithDynamicOptions(Command):
         )
 
     def run(self, name):
-        print name
+        print(name)
 
 
 class CommandWithCatchAll(Command):
@@ -119,7 +119,7 @@ class CommandWithCatchAll(Command):
                        action='store_true'),)
 
     def run(self, remaining_args, foo):
-        print remaining_args
+        print(remaining_args)
 
 
 class TestCommands(unittest.TestCase):
@@ -168,7 +168,7 @@ class TestManager:
 
         @manager.command
         def hello():
-            print 'hello'
+            print('hello')
 
         assert 'hello' in manager._commands
 
@@ -182,7 +182,7 @@ class TestManager:
 
         @manager.command
         def hello(name):
-            print 'hello', name
+            print('hello ' + name)
 
         assert 'hello' in manager._commands
 
@@ -197,7 +197,7 @@ class TestManager:
         @manager.command
         def hello(name='fred'):
             'Prints your name'
-            print 'hello', name
+            print('hello ' + name)
 
         assert 'hello' in manager._commands
 
@@ -224,7 +224,7 @@ class TestManager:
         @manager.command
         def verify(verified=False):
             'Checks if verified'
-            print 'VERIFIED ?', 'YES' if verified else 'NO'
+            print('VERIFIED ? ' + 'YES' if verified else 'NO')
 
         assert 'verify' in manager._commands
 
@@ -251,11 +251,11 @@ class TestManager:
         @manager.command
         def hello(name, url=None):
             if url:
-                assert type(url) is unicode
-                print 'hello', name, 'from', url
+                assert type(url) is text_type
+                print('hello ' + name + ' from ' + url)
             else:
-                assert type(name) is unicode
-                print 'hello', name
+                assert type(name) is text_type
+                print('hello ' + name)
 
         assert 'hello' in manager._commands
 
@@ -273,7 +273,7 @@ class TestManager:
 
         @manager.option('-n', '--name', dest='name', help='Your name')
         def hello(name):
-            print 'hello', name
+            print('hello ' + name)
 
         assert 'hello' in manager._commands
 
@@ -289,9 +289,9 @@ class TestManager:
         @manager.option('-u', '--url', dest='url', help='Your URL')
         def hello_again(name, url=None):
             if url:
-                print 'hello', name, 'from', url
+                print('hello ' + name + ' from ' + url)
             else:
-                print 'hello', name
+                print('hello ' + name)
 
         assert 'hello_again' in manager._commands
 
@@ -324,7 +324,7 @@ class TestManager:
     def test_global_option_value(self, capsys):
 
         def create_app(config_name='Empty'):
-            print config_name
+            print(config_name)
             return self.app
 
         manager = Manager(create_app)
@@ -478,8 +478,15 @@ class TestManager:
         def error():
             raise IndexError()
 
+<<<<<<< HEAD
         with raises(IndexError):
             run('manage.py error', lambda: manager.run())
+=======
+        try:
+            self.assertRaises(IndexError, run, 'manage.py error', lambda: manager.run())
+        except SystemExit as e:
+            assert e.code == 1
+>>>>>>> python 3.3 port (same sourcecode support 2.6/2.7/3.3)
 
     def test_run_with_default_command(self, capsys):
         manager = Manager(self.app)
@@ -496,7 +503,7 @@ class TestManager:
 
         @manager.command
         def hello():
-            print prompt(name='hello')
+            print(prompt(name='hello'))
 
         @Catcher
         def hello_john(msg):
@@ -514,7 +521,7 @@ class TestManager:
 
         @manager.command
         def hello():
-            print prompt(name='hello', default='romeo')
+            print(prompt(name='hello', default='romeo'))
 
         @Catcher
         def hello(msg):
@@ -543,8 +550,8 @@ class TestManager:
 
         @manager.command
         def hello():
-            print prompt_bool(name='correct', default=True, yes_choices=['y'],
-                              no_choices=['n']) and 'yes' or 'no'
+            print(prompt_bool(name='correct', default=True, yes_choices=['y'],
+                              no_choices=['n']) and 'yes' or 'no')
 
         @Catcher
         def correct_default(msg):
