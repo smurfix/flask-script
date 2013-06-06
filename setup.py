@@ -46,7 +46,7 @@ setup(
     platforms='any',
     install_requires=install_requires,
     tests_require=[
-        'nose',
+        'pytest',
     ],
     classifiers=[
         'Development Status :: 4 - Beta',
