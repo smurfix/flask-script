@@ -478,15 +478,8 @@ class TestManager:
         def error():
             raise IndexError()
 
-<<<<<<< HEAD
         with raises(IndexError):
             run('manage.py error', lambda: manager.run())
-=======
-        try:
-            self.assertRaises(IndexError, run, 'manage.py error', lambda: manager.run())
-        except SystemExit as e:
-            assert e.code == 1
->>>>>>> python 3.3 port (same sourcecode support 2.6/2.7/3.3)
 
     def test_run_with_default_command(self, capsys):
         manager = Manager(self.app)
