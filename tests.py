@@ -8,6 +8,8 @@ import StringIO
 from flask import Flask
 from flask.ext.script import Command, Manager, Option, prompt, prompt_bool
 
+from pytest import raises
+
 
 class Catcher(object):
     """Helper decorator to test raw_input."""
@@ -43,31 +45,18 @@ class Catcher(object):
         return self.__stdout.truncate(pos)
 
 
-def run(command_line, manager_run, capture_stderr=False):
+def run(command_line, manager_run):
     '''
         Returns tuple of standard output and exit code
     '''
-    sys_stderr_orig = sys.stderr
-
-    if capture_stderr:
-        sys.stderr = StringIO.StringIO()
-
     sys.argv = command_line.split()
     exit_code = None
     try:
         manager_run()
     except SystemExit as e:
         exit_code = e.code
-    finally:
-        out = sys.stdout.getvalue()
-        # clear the standard output buffer
-        sys.stdout.truncate(0)
-        assert len(sys.stdout.getvalue()) == 0
-        if capture_stderr:
-            out += sys.stderr.getvalue()
-        sys.stderr = sys_stderr_orig
 
-    return out, exit_code
+    return exit_code
 
 
 class SimpleCommand(Command):
@@ -137,17 +126,17 @@ class TestCommands(unittest.TestCase):
 
     TESTING = True
 
-    def setUp(self):
+    def setup(self):
 
         self.app = Flask(__name__)
         self.app.config.from_object(self)
 
 
-class TestManager(unittest.TestCase):
+class TestManager:
 
     TESTING = True
 
-    def setUp(self):
+    def setup(self):
 
         self.app = Flask(__name__)
         self.app.config.from_object(self)
@@ -173,7 +162,7 @@ class TestManager(unittest.TestCase):
 
         assert isinstance(manager._commands['simple'], SimpleCommand)
 
-    def test_simple_command_decorator(self):
+    def test_simple_command_decorator(self, capsys):
 
         manager = Manager(self.app)
 
@@ -183,10 +172,11 @@ class TestManager(unittest.TestCase):
 
         assert 'hello' in manager._commands
 
-        stdout, code = run('manage.py hello', lambda: manager.run())
-        assert 'hello' in stdout
+        code = run('manage.py hello', lambda: manager.run())
+        out, err = capsys.readouterr()
+        assert 'hello' in out
 
-    def test_simple_command_decorator_with_pos_arg(self):
+    def test_simple_command_decorator_with_pos_arg(self, capsys):
 
         manager = Manager(self.app)
 
@@ -196,10 +186,11 @@ class TestManager(unittest.TestCase):
 
         assert 'hello' in manager._commands
 
-        stdout, code = run('manage.py hello joe', lambda: manager.run())
-        assert 'hello joe' in stdout
+        code = run('manage.py hello joe', lambda: manager.run())
+        out, err = capsys.readouterr()
+        assert 'hello joe' in out
 
-    def test_command_decorator_with_options(self):
+    def test_command_decorator_with_options(self, capsys):
 
         manager = Manager(self.app)
 
@@ -210,19 +201,23 @@ class TestManager(unittest.TestCase):
 
         assert 'hello' in manager._commands
 
-        stdout, code = run('manage.py hello --name=joe', lambda: manager.run())
-        assert 'hello joe' in stdout
+        code = run('manage.py hello --name=joe', lambda: manager.run())
+        out, err = capsys.readouterr()
+        assert 'hello joe' in out
 
-        stdout, code = run('manage.py hello -n joe', lambda: manager.run())
-        assert 'hello joe' in stdout
+        code = run('manage.py hello -n joe', lambda: manager.run())
+        out, err = capsys.readouterr()
+        assert 'hello joe' in out
 
-        stdout, code = run('manage.py hello -h', lambda: manager.run())
-        assert 'Prints your name' in stdout
+        code = run('manage.py hello -h', lambda: manager.run())
+        out, err = capsys.readouterr()
+        assert 'Prints your name' in out
 
-        stdout, code = run('manage.py hello --help', lambda: manager.run())
-        assert 'Prints your name' in stdout
+        code = run('manage.py hello --help', lambda: manager.run())
+        out, err = capsys.readouterr()
+        assert 'Prints your name' in out
 
-    def test_command_decorator_with_boolean_options(self):
+    def test_command_decorator_with_boolean_options(self, capsys):
 
         manager = Manager(self.app)
 
@@ -233,19 +228,23 @@ class TestManager(unittest.TestCase):
 
         assert 'verify' in manager._commands
 
-        stdout, code = run('manage.py verify --verified', lambda: manager.run())
-        assert 'YES' in stdout
+        code = run('manage.py verify --verified', lambda: manager.run())
+        out, err = capsys.readouterr()
+        assert 'YES' in out
 
-        stdout, code = run('manage.py verify -v', lambda: manager.run())
-        assert 'YES' in stdout
+        code = run('manage.py verify -v', lambda: manager.run())
+        out, err = capsys.readouterr()
+        assert 'YES' in out
 
-        stdout, code = run('manage.py verify', lambda: manager.run())
-        assert 'NO' in stdout
+        code = run('manage.py verify', lambda: manager.run())
+        out, err = capsys.readouterr()
+        assert 'NO' in out
 
-        stdout, code = run('manage.py verify -h', lambda: manager.run())
-        assert 'Checks if verified' in stdout
+        code = run('manage.py verify -h', lambda: manager.run())
+        out, err = capsys.readouterr()
+        assert 'Checks if verified' in out
 
-    def test_simple_command_decorator_with_pos_arg_and_options(self):
+    def test_simple_command_decorator_with_pos_arg_and_options(self, capsys):
 
         manager = Manager(self.app)
 
@@ -260,13 +259,15 @@ class TestManager(unittest.TestCase):
 
         assert 'hello' in manager._commands
 
-        stdout, code = run('manage.py hello joe', lambda: manager.run())
-        assert 'hello joe' in stdout
+        code = run('manage.py hello joe', lambda: manager.run())
+        out, err = capsys.readouterr()
+        assert 'hello joe' in out
 
-        stdout, code = run('manage.py hello joe --url=reddit.com', lambda: manager.run())
-        assert 'hello joe from reddit.com' in stdout
+        code = run('manage.py hello joe --url=reddit.com', lambda: manager.run())
+        out, err = capsys.readouterr()
+        assert 'hello joe from reddit.com' in out
 
-    def test_command_decorator_with_additional_options(self):
+    def test_command_decorator_with_additional_options(self, capsys):
 
         manager = Manager(self.app)
 
@@ -276,11 +277,13 @@ class TestManager(unittest.TestCase):
 
         assert 'hello' in manager._commands
 
-        stdout, code = run('manage.py hello --name=joe', lambda: manager.run())
-        assert 'hello joe' in stdout
+        code = run('manage.py hello --name=joe', lambda: manager.run())
+        out, err = capsys.readouterr()
+        assert 'hello joe' in out
 
-        stdout, code = run('manage.py hello -h', lambda: manager.run())
-        assert 'Your name' in stdout
+        code = run('manage.py hello -h', lambda: manager.run())
+        out, err = capsys.readouterr()
+        assert 'Your name' in out
 
         @manager.option('-n', '--name', dest='name', help='Your name')
         @manager.option('-u', '--url', dest='url', help='Your URL')
@@ -292,13 +295,15 @@ class TestManager(unittest.TestCase):
 
         assert 'hello_again' in manager._commands
 
-        stdout, code = run('manage.py hello_again --name=joe', lambda: manager.run())
-        assert 'hello joe' in stdout
+        code = run('manage.py hello_again --name=joe', lambda: manager.run())
+        out, err = capsys.readouterr()
+        assert 'hello joe' in out
 
-        stdout, code = run('manage.py hello_again --name=joe --url=reddit.com', lambda: manager.run())
-        assert 'hello joe from reddit.com' in stdout
+        code = run('manage.py hello_again --name=joe --url=reddit.com', lambda: manager.run())
+        out, err = capsys.readouterr()
+        assert 'hello joe from reddit.com' in out
 
-    def test_global_option_provided_before_and_after_command(self):
+    def test_global_option_provided_before_and_after_command(self, capsys):
 
         manager = Manager(self.app)
         manager.add_option('-c', '--config', dest='config_name', required=False, default='Development')
@@ -306,15 +311,17 @@ class TestManager(unittest.TestCase):
 
         assert isinstance(manager._commands['simple'], SimpleCommand)
 
-        stdout, code = run('manage.py -c Development simple', lambda: manager.run())
+        code = run('manage.py -c Development simple', lambda: manager.run())
+        out, err = capsys.readouterr()
         assert code == 0
-        assert 'OK' in stdout
+        assert 'OK' in out
 
-        stdout, code = run('manage.py simple -c Development', lambda: manager.run())
+        code = run('manage.py simple -c Development', lambda: manager.run())
+        out, err = capsys.readouterr()
         assert code == 0
-        assert 'OK' in stdout
+        assert 'OK' in out
 
-    def test_global_option_value(self):
+    def test_global_option_value(self, capsys):
 
         def create_app(config_name='Empty'):
             print config_name
@@ -326,27 +333,31 @@ class TestManager(unittest.TestCase):
 
         assert isinstance(manager._commands['simple'], SimpleCommand)
 
-        stdout, code = run('manage.py simple', lambda: manager.run())
+        code = run('manage.py simple', lambda: manager.run())
+        out, err = capsys.readouterr()
         assert code == 0
-        assert 'Empty' not in stdout  # config_name is overwritten by default option value
-        assert 'Development' in stdout
-        assert 'OK' in stdout
+        assert 'Empty' not in out  # config_name is overwritten by default option value
+        assert 'Development' in out
+        assert 'OK' in out
 
-        stdout, code = run('manage.py -c Before simple', lambda: manager.run())
+        code = run('manage.py -c Before simple', lambda: manager.run())
+        out, err = capsys.readouterr()
         assert code == 0
-        assert 'Before' in stdout
-        assert 'OK' in stdout
+        assert 'Before' in out
+        assert 'OK' in out
 
-        stdout, code = run('manage.py simple -c After', lambda: manager.run())
+        code = run('manage.py simple -c After', lambda: manager.run())
+        out, err = capsys.readouterr()
         assert code == 0
-        assert 'After' in stdout
-        assert 'OK' in stdout
+        assert 'After' in out
+        assert 'OK' in out
 
-        stdout, code = run('manage.py -c DoNotShow simple -c NewValue', lambda: manager.run())
+        code = run('manage.py -c DoNotShow simple -c NewValue', lambda: manager.run())
+        out, err = capsys.readouterr()
         assert code == 0
-        assert 'DoNotShow' not in stdout  # first parameter is ignored
-        assert 'NewValue' in stdout       # second on is printed
-        assert 'OK' in stdout
+        assert 'DoNotShow' not in out  # first parameter is ignored
+        assert 'NewValue' in out       # second on is printed
+        assert 'OK' in out
 
     def test_get_usage(self):
 
@@ -365,81 +376,90 @@ class TestManager(unittest.TestCase):
         assert 'simple command' in usage
         assert 'hello' in usage
 
-    def test_run_existing_command(self):
+    def test_run_existing_command(self, capsys):
 
         manager = Manager(self.app)
         manager.add_command('simple', SimpleCommand())
-        stdout, code = run('manage.py simple', lambda: manager.run())
-        assert 'OK' in stdout
+        code = run('manage.py simple', lambda: manager.run())
+        out, err = capsys.readouterr()
+        assert 'OK' in out
 
-    def test_run_non_existant_command(self):
+    def test_run_non_existant_command(self, capsys):
 
         manager = Manager(self.app)
-        self.assertRaises(SystemExit, manager.handle, 'manage.py', 'simple')
+        run('manage.py simple', lambda: manager.run())
+        out, err = capsys.readouterr()
+        assert 'invalid choice' in err
 
-    def test_run_existing(self):
+    def test_run_existing(self, capsys):
 
         manager = Manager(self.app)
         manager.add_command('simple', SimpleCommand())
 
-        stdout, code = run('manage.py simple', lambda: manager.run())
+        code = run('manage.py simple', lambda: manager.run())
+        out, err = capsys.readouterr()
         assert 0 == code
-        assert 'OK' in stdout
+        assert 'OK' in out
 
-    def test_run_existing_bind_later(self):
+    def test_run_existing_bind_later(self, capsys):
 
         manager = Manager(self.app)
 
-        stdout, code = run('manage.py simple', lambda: manager.run({'simple': SimpleCommand()}))
+        code = run('manage.py simple', lambda: manager.run({'simple': SimpleCommand()}))
+        out, err = capsys.readouterr()
         assert code == 0
-        assert 'OK' in stdout
+        assert 'OK' in out
 
-    def test_run_not_existing(self):
+    def test_run_not_existing(self, capsys):
 
         manager = Manager(self.app)
 
-        stdout, code = run('manage.py simple', lambda: manager.run())
+        code = run('manage.py simple', lambda: manager.run())
+        out, err = capsys.readouterr()
         assert code == 2
-        assert 'OK' not in stdout
+        assert 'OK' not in out
 
     def test_run_no_name(self):
 
         manager = Manager(self.app)
 
-        stdout, code = run('manage.py', lambda: manager.run())
+        code = run('manage.py', lambda: manager.run())
         assert code == 2
 
-    def test_run_good_options(self):
+    def test_run_good_options(self, capsys):
 
         manager = Manager(self.app)
         manager.add_command('simple', CommandWithOptions())
 
-        stdout, code = run('manage.py simple --name=Joe', lambda: manager.run())
+        code = run('manage.py simple --name=Joe', lambda: manager.run())
+        out, err = capsys.readouterr()
         assert code == 0
-        assert 'Joe' in stdout
+        assert 'Joe' in out
 
-    def test_run_dynamic_options(self):
+    def test_run_dynamic_options(self, capsys):
 
         manager = Manager(self.app)
         manager.add_command('simple', CommandWithDynamicOptions('Fred'))
 
-        stdout, code = run('manage.py simple', lambda: manager.run())
+        code = run('manage.py simple', lambda: manager.run())
+        out, err = capsys.readouterr()
         assert code == 0
-        assert 'Fred' in stdout
+        assert 'Fred' in out
 
-    def test_run_catch_all(self):
+    def test_run_catch_all(self, capsys):
         manager = Manager(self.app)
         manager.add_command('catch', CommandWithCatchAll())
 
-        stdout, code = run('manage.py catch pos1 --foo pos2 --bar', lambda: manager.run())
+        code = run('manage.py catch pos1 --foo pos2 --bar', lambda: manager.run())
+        out, err = capsys.readouterr()
         assert code == 0
-        assert "['pos1', 'pos2', '--bar']" in stdout
+        assert "['pos1', 'pos2', '--bar']" in out
 
-    def test_run_bad_options(self):
+    def test_run_bad_options(self, capsys):
         manager = Manager(self.app)
         manager.add_command('simple', CommandWithOptions())
 
-        stdout, code = run('manage.py simple --foo=bar', lambda: manager.run(), capture_stderr=True)
+        code = run('manage.py simple --foo=bar', lambda: manager.run())
         assert code == 2
 
     def test_init_with_flask_instance(self):
@@ -458,20 +478,19 @@ class TestManager(unittest.TestCase):
         def error():
             raise IndexError()
 
-        try:
-            self.assertRaises(IndexError, run, 'manage.py error', lambda: manager.run())
-        except SystemExit, e:
-            assert e.code == 1
+        with raises(IndexError):
+            run('manage.py error', lambda: manager.run())
 
-    def test_run_with_default_command(self):
+    def test_run_with_default_command(self, capsys):
         manager = Manager(self.app)
         manager.add_command('simple', SimpleCommand())
 
-        stdout, code = run('manage.py', lambda: manager.run(default_command='simple'))
+        code = run('manage.py', lambda: manager.run(default_command='simple'))
+        out, err = capsys.readouterr()
         assert code == 0
-        assert 'OK' in stdout
+        assert 'OK' in out
 
-    def test_command_with_prompt(self):
+    def test_command_with_prompt(self, capsys):
 
         manager = Manager(self.app)
 
@@ -485,10 +504,11 @@ class TestManager(unittest.TestCase):
                 return 'john'
 
         with hello_john:
-            stdout, code = run('manage.py hello', lambda: manager.run())
-            assert 'hello: john' in stdout
+            code = run('manage.py hello', lambda: manager.run())
+            out, err = capsys.readouterr()
+            assert 'hello: john' in out
 
-    def test_command_with_default_prompt(self):
+    def test_command_with_default_prompt(self, capsys):
 
         manager = Manager(self.app)
 
@@ -502,8 +522,9 @@ class TestManager(unittest.TestCase):
                 return '\n'  # just hit enter
 
         with hello:
-            stdout, code = run('manage.py hello', lambda: manager.run())
-            assert 'hello [romeo]: romeo' in stdout
+            code = run('manage.py hello', lambda: manager.run())
+            out, err = capsys.readouterr()
+            assert 'hello [romeo]: romeo' in out
 
         @Catcher
         def hello_juliette(msg):
@@ -511,11 +532,12 @@ class TestManager(unittest.TestCase):
                 return 'juliette'
 
         with hello_juliette:
-            stdout, code = run('manage.py hello', lambda: manager.run())
-            assert 'hello [romeo]: juliette' in stdout
+            code = run('manage.py hello', lambda: manager.run())
+            out, err = capsys.readouterr()
+            assert 'hello [romeo]: juliette' in out
 
 
-    def test_command_with_prompt_bool(self):
+    def test_command_with_prompt_bool(self, capsys):
 
         manager = Manager(self.app)
 
@@ -539,25 +561,27 @@ class TestManager(unittest.TestCase):
             if re.search("correct", msg):
                 return 'n'
 
-
         with correct_default:
-            stdout, code = run('manage.py hello', lambda: manager.run())
-            assert 'correct [y]: yes' in stdout
+            code = run('manage.py hello', lambda: manager.run())
+            out, err = capsys.readouterr()
+            assert 'correct [y]: yes' in out
 
         with correct_y:
-            stdout, code = run('manage.py hello', lambda: manager.run())
-            assert 'correct [y]: yes' in stdout
+            code = run('manage.py hello', lambda: manager.run())
+            out, err = capsys.readouterr()
+            assert 'correct [y]: yes' in out
 
         with correct_n:
-            stdout, code = run('manage.py hello', lambda: manager.run())
-            assert 'correct [y]: no' in stdout
+            code = run('manage.py hello', lambda: manager.run())
+            out, err = capsys.readouterr()
+            assert 'correct [y]: no' in out
 
 
-class TestSubManager(unittest.TestCase):
+class TestSubManager:
 
     TESTING = True
 
-    def setUp(self):
+    def setup(self):
 
         self.app = Flask(__name__)
         self.app.config.from_object(self)
@@ -573,7 +597,7 @@ class TestSubManager(unittest.TestCase):
         assert sub_manager.parent == manager
         assert sub_manager.get_options() == manager.get_options()
 
-    def test_run_submanager_command(self):
+    def test_run_submanager_command(self, capsys):
 
         sub_manager = Manager()
         sub_manager.add_command('simple', SimpleCommand())
@@ -581,11 +605,12 @@ class TestSubManager(unittest.TestCase):
         manager = Manager(self.app)
         manager.add_command('sub_manager', sub_manager)
 
-        stdout, code = run('manage.py sub_manager simple', lambda: manager.run())
+        code = run('manage.py sub_manager simple', lambda: manager.run())
+        out, err = capsys.readouterr()
         assert code == 0
-        assert 'OK' in stdout
+        assert 'OK' in out
 
-    def test_submanager_has_options(self):
+    def test_submanager_has_options(self, capsys):
 
         sub_manager = Manager()
         sub_manager.add_command('simple', SimpleCommand())
@@ -594,26 +619,29 @@ class TestSubManager(unittest.TestCase):
         manager.add_command('sub_manager', sub_manager)
         manager.add_option('-c', '--config', dest='config', required=False)
 
-        stdout, code = run('manage.py sub_manager simple', lambda: manager.run())
+        code = run('manage.py sub_manager simple', lambda: manager.run())
+        out, err = capsys.readouterr()
         assert code == 0
-        assert 'OK' in stdout
+        assert 'OK' in out
 
-        stdout, code = run('manage.py -c Development sub_manager simple', lambda: manager.run())
+        code = run('manage.py -c Development sub_manager simple', lambda: manager.run())
+        out, err = capsys.readouterr()
         assert code == 0
-        assert 'OK' in stdout
+        assert 'OK' in out
 
-    def test_manager_usage_with_submanager(self):
+    def test_manager_usage_with_submanager(self, capsys):
 
         sub_manager = Manager(usage='Example sub-manager')
 
         manager = Manager(self.app)
         manager.add_command('sub_manager', sub_manager)
 
-        stdout, code = run('manage.py -h', lambda: manager.run())
+        code = run('manage.py -h', lambda: manager.run())
+        out, err = capsys.readouterr()
         assert code == 0
-        assert 'Example sub-manager' in stdout
+        assert 'Example sub-manager' in out
 
-    def test_submanager_usage(self):
+    def test_submanager_usage(self, capsys):
 
         sub_manager = Manager(usage='Example sub-manager')
         sub_manager.add_command('simple', SimpleCommand())
@@ -621,14 +649,15 @@ class TestSubManager(unittest.TestCase):
         manager = Manager(self.app)
         manager.add_command('sub_manager', sub_manager)
 
-        stdout, code = run('manage.py sub_manager', lambda: manager.run(),
-                           capture_stderr=True)
+        code = run('manage.py sub_manager', lambda: manager.run())
+        out, err = capsys.readouterr()
         assert code == 2
-        assert 'too few arguments' in stdout
+        assert 'too few arguments' in err
 
-        stdout, code = run('manage.py sub_manager -h', lambda: manager.run())
+        code = run('manage.py sub_manager -h', lambda: manager.run())
+        out, err = capsys.readouterr()
         assert code == 0
-        assert 'simple command' in stdout
+        assert 'simple command' in out
 
     def test_submanager_has_no_default_commands(self):
 
