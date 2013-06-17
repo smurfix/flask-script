@@ -239,6 +239,7 @@ class Shell(Command):
         """
 
         context = self.get_context()
+        
         if not no_bpython:
             # Try BPython
             try:
@@ -246,18 +247,20 @@ class Shell(Command):
                 embed(banner=self.banner, locals_=self.get_context())
                 return
             except ImportError:
-                # Try IPython
-                if not no_ipython:
-                    try:
-                        import IPython
-                        try:
-                            sh = IPython.Shell.IPShellEmbed(banner=self.banner)
-                        except AttributeError:
-                            sh = IPython.frontend.terminal.embed.InteractiveShellEmbed(banner1=self.banner)
-                        sh(global_ns=dict(), local_ns=context)
-                        return
-                    except ImportError:
-                        pass
+                pass
+
+        if not no_ipython:
+            # Try IPython
+            try:
+                import IPython
+                try:
+                    sh = IPython.Shell.IPShellEmbed(banner=self.banner)
+                except AttributeError:
+                    sh = IPython.frontend.terminal.embed.InteractiveShellEmbed(banner1=self.banner)
+                sh(global_ns=dict(), local_ns=context)
+                return
+            except ImportError:
+                pass
 
         # Use basic python shell
         code.interact(self.banner, local=context)
