@@ -141,35 +141,33 @@ class Manager(object):
         return self.app(**kwargs)
 
     def create_parser(self, prog, parents=None):
-
         """
         Creates an ArgumentParser instance from options returned
         by get_options(), and a subparser for the given command.
         """
         prog = os.path.basename(prog)
 
-        option_parser = argparse.ArgumentParser(add_help=False)
+        options_parser = argparse.ArgumentParser(add_help=False)
         for option in self.get_options():
-            option_parser.add_argument(*option.args, **option.kwargs)
+            options_parser.add_argument(*option.args, **option.kwargs)
 
-        parser_parents = [option_parser] if parents is None else parents
-
-        def _create_command(item):
-            name, command = item
-            description = getattr(command, 'description',
-                                  command.__doc__)
-            return name, command, description, \
-                command.create_parser(name, parents=parser_parents)
-
-        commands = imap(_create_command, iteritems(self._commands))
+        # parser_parents = parents if parents else [option_parser]
+        # parser_parents = [options_parser]
 
         parser = argparse.ArgumentParser(prog=prog, usage=self.usage,
-                                         parents=parser_parents)
+                                         parents=[options_parser])
 
         subparsers = parser.add_subparsers()
-        for name, command, description, parent in commands:
-            subparsers.add_parser(name, usage=description, help=description,
-                                  parents=[parent], add_help=False)
+
+        for name, command in self._commands.items():
+            description = getattr(command, 'description', command.__doc__)
+            command_parser = command.create_parser(name, parents=[options_parser])
+            subparser = subparsers.add_parser(name, usage=description, help=description,
+                                              parents=[command_parser], add_help=False)
+            # subparser.set_defaults(func_handle=command.handle)
+            # if isinstance(command, Manager):
+            #     subparser.set_defaults(func_handle=self.foo)
+
 
         ## enable autocomplete only for parent parser when argcomplete is
         ## imported and it is NOT disabled in constructor
@@ -179,6 +177,9 @@ class Manager(object):
 
         return parser
 
+    # def foo(self, app, *args, **kwargs):
+    #     print(args)
+
     def get_options(self):
         if self.parent:
             return self.parent._options
@@ -186,7 +187,6 @@ class Manager(object):
         return self._options
 
     def add_command(self, name, command):
-
         """
         Adds command to registry.
 
@@ -250,7 +250,6 @@ class Manager(object):
         return func
 
     def option(self, *args, **kwargs):
-
         """
         Decorator to add an option to a function. Automatically registers the
         function - do not use together with ``@command``. You can add as many
@@ -312,23 +311,23 @@ class Manager(object):
         args = list(args or [])
         app_namespace, remaining_args = app_parser.parse_known_args(args)
 
-        ## get the handle function and remove it from parsed options
+        # get the handle function and remove it from parsed options
         kwargs = app_namespace.__dict__
         handle = kwargs.pop('func_handle')
 
-        ## get only safe config options
+        # get only safe config options
         app_config_keys = [action.dest for action in app_parser._actions
                            if action.__class__ in safe_actions]
 
-        ## pass only safe app config keys
+        # pass only safe app config keys
         app_config = dict((k, v) for k, v in iteritems(kwargs)
                           if k in app_config_keys)
 
-        ## remove application config keys from handle kwargs
+        # remove application config keys from handle kwargs
         kwargs = dict((k, v) for k, v in iteritems(kwargs)
                       if k not in app_config_keys)
 
-        ## get command from bound handle function (py2.7+)
+        # get command from bound handle function (py2.7+)
         command = handle.__self__
         if getattr(command, 'capture_all_args', False):
             positional_args = [remaining_args]
@@ -346,7 +345,6 @@ class Manager(object):
         return handle(app, *positional_args, **kwargs)
 
     def run(self, commands=None, default_command=None):
-
         """
         Prepares manager to receive command line input. Usually run
         inside "if __name__ == "__main__" block in a Python script.

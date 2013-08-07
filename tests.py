@@ -650,7 +650,6 @@ class TestSubManager:
         manager.add_command('sub_manager', sub_manager)
 
         code = run('manage.py sub_manager', lambda: manager.run())
-
         out, err = capsys.readouterr()
         assert code == 2
         assert 'too few arguments' in err

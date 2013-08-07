@@ -107,7 +107,7 @@ class Command(object):
 
     def get_options(self):
         """
-        By default, returns self.option_list.Override if you
+        By default, returns self.option_list. Override if you
         need to do instance-specific configuration.
         """
         return self.option_list
