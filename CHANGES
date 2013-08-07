@@ -3,21 +3,25 @@ Flask-Script Changelog
 
 Here you can see the full list of changes between each Flask-Script release.
 
-Version 0.x.x-dev
+Version 0.6.1-dev
 -----------------
 
 No release date
 
+Version 0.6.0
+-------------
+
+Released on August 7, 2013.
+
+- Drop support for Python 2.5
 - Support Python 2.6/2.7 and >= 3.3 using same source code.
   Import necessary compatibility code from flask._compat module of current
   Flask repo code.
-
-Version 0.5.4-dev
--------------
-
-No release date
-
-- Drop support for Python 2.5
+- Use proper argparse subparsers
+- Tab completion using `argcomplete`
+- Remove question marks from automatically being appended to prompt_bool and prompt_choices
+- FIXED: ipython with disabled bpython
+- FIXED: debug parameter no longer passed in from flask_script
 
 Version 0.5.3
 -------------
