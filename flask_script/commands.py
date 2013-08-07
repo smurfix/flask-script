@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
-from __future__ import with_statement
 
 import os
 import code
@@ -108,7 +107,7 @@ class Command(object):
 
     def get_options(self):
         """
-        By default, returns self.option_list.Override if you
+        By default, returns self.option_list. Override if you
         need to do instance-specific configuration.
         """
         return self.option_list
@@ -376,7 +375,7 @@ class Clean(Command):
             for filename in filenames:
                 if filename.endswith('.pyc') or filename.endswith('.pyo'):
                     full_pathname = os.path.join(dirpath, filename)
-                    print 'Removing %s' % full_pathname
+                    print('Removing %s' % full_pathname)
                     os.remove(full_pathname)
 
 
@@ -416,7 +415,7 @@ class ShowUrls(Command):
                                              .match(url, return_rule=True)
                 rows.append((rule.rule, rule.endpoint, arguments))
                 column_length = 3
-            except (NotFound, MethodNotAllowed), e:
+            except (NotFound, MethodNotAllowed) as e:
                 rows.append(("<%s>" % e, None, None))
                 column_length = 1
         else:
@@ -447,8 +446,8 @@ class ShowUrls(Command):
             str_template += '  %-' + str(max_arguments_length) + 's'
             table_width += 2 + max_arguments_length
 
-        print str_template % (column_headers[:column_length])
-        print '-' * table_width
+        print(str_template % (column_headers[:column_length]))
+        print('-' * table_width)
 
         for row in rows:
-            print str_template % row[:column_length]
+            print(str_template % row[:column_length])

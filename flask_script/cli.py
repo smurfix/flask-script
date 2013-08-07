@@ -1,7 +1,17 @@
 # -*- coding: utf-8 -*-
-import string
-import getpass
 
+try:
+    from string import lower as ascii_lowercase  # py2
+except:
+    from string import ascii_lowercase  # py3
+
+try:
+    input = raw_input  # py2
+except:
+    input = input  # py3
+
+import getpass
+from flask._compat import string_types
 
 def prompt(name, default=None):
     """
@@ -14,7 +24,7 @@ def prompt(name, default=None):
     prompt = name + (default and ' [%s]' % default or '')
     prompt += name.endswith('?') and ' ' or ': '
     while True:
-        rv = raw_input(prompt)
+        rv = input(prompt)
         if rv:
             return rv
         if default is not None:
@@ -63,7 +73,7 @@ def prompt_bool(name, default=False, yes_choices=None, no_choices=None):
             return False
 
 
-def prompt_choices(name, choices, default=None, resolve=string.lower,
+def prompt_choices(name, choices, default=None, resolve=ascii_lowercase,
                    no_choice=('none',)):
     """
     Grabs user input from command line from set of provided choices.
@@ -79,7 +89,7 @@ def prompt_choices(name, choices, default=None, resolve=string.lower,
     options = []
 
     for choice in choices:
-        if isinstance(choice, basestring):
+        if isinstance(choice, string_types):
             options.append(choice)
         else:
             options.append("%s [%s]" % (choice[1], choice[0]))
