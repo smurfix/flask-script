@@ -1,17 +1,7 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from string import lower as ascii_lowercase  # py2
-except:
-    from string import ascii_lowercase  # py3
-
-try:
-    input = raw_input  # py2
-except:
-    input = input  # py3
-
 import getpass
-from flask._compat import string_types
+from ._compat import string_types, ascii_lowercase, input
 
 def prompt(name, default=None):
     """

@@ -8,14 +8,8 @@ import inspect
 import argparse
 
 from flask import Flask
-from flask._compat import text_type, iteritems
 
-try:
-    from itertools import imap, izip
-except ImportError:
-    imap = map
-    izip = zip
-
+from ._compat import text_type, iteritems, imap, izip
 from .commands import Group, Option, InvalidCommand, Command, Server, Shell
 from .cli import prompt, prompt_pass, prompt_bool, prompt_choices
 
