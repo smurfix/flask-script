@@ -243,7 +243,7 @@ class Shell(Command):
             # Try BPython
             try:
                 from bpython import embed
-                embed(banner=self.banner, locals_=self.get_context())
+                embed(banner=self.banner, locals_=context)
                 return
             except ImportError:
                 pass
@@ -251,14 +251,15 @@ class Shell(Command):
         if not no_ipython:
             # Try IPython
             try:
-                import IPython
                 try:
                     # 0.10.x
-                    sh = IPython.Shell.IPShellEmbed(banner=self.banner)
+                    from IPython.Shell import IPShellEmbed
+                    ipshell = IPShellEmbed(banner=self.banner)
+                    ipshell(global_ns=dict(), local_ns=context)
                 except AttributeError:
                     # 0.12+
-                    sh = IPython.embed.InteractiveShellEmbed(banner1=self.banner)
-                sh(global_ns=dict(), local_ns=context)
+                    from IPython import embed
+                    embed(banner1=self.banner, local_ns=context)
                 return
             except ImportError:
                 pass
