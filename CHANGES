@@ -3,10 +3,17 @@ Flask-Script Changelog
 
 Here you can see the full list of changes between each Flask-Script release.
 
-Version 0.6.1-dev
+Version 0.6.2-dev
 -----------------
 
 No release date
+
+Version 0.6.1-dev
+-----------------
+
+Released on August 9, 2013
+
+- FIXED: IPython Shell embedding fails after upgrade to IPython 1.0
 
 Version 0.6.0
 -------------
