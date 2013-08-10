@@ -41,13 +41,12 @@ setup(
     packages=[
         'flask_script'
     ],
-    test_suite='nose.collector',
     zip_safe=False,
-    platforms='any',
     install_requires=install_requires,
     tests_require=[
         'pytest',
     ],
+    platforms='any',
     classifiers=[
         'Development Status :: 4 - Beta',
         'Environment :: Web Environment',
