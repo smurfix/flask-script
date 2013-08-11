@@ -256,10 +256,10 @@ class Shell(Command):
                     from IPython.Shell import IPShellEmbed
                     ipshell = IPShellEmbed(banner=self.banner)
                     ipshell(global_ns=dict(), local_ns=context)
-                except AttributeError:
+                except ImportError:
                     # 0.12+
                     from IPython import embed
-                    embed(banner1=self.banner, local_ns=context)
+                    embed(banner1=self.banner, user_ns=context)
                 return
             except ImportError:
                 pass
