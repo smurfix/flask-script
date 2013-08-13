@@ -362,7 +362,5 @@ class Manager(object):
             result = self.handle(sys.argv[0], sys.argv[1:])
         except SystemExit as e:
             result = e.code
-        except Exception as e:
-            raise e
 
         sys.exit(result or 0)
