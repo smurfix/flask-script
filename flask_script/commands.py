@@ -112,10 +112,9 @@ class Command(object):
         """
         return self.option_list
 
-    def create_parser(self, prog, parents=None):
+    def create_parser(self, *args, **kwargs):
 
-        parser = argparse.ArgumentParser(prog=prog, parents=parents,
-                                         description=self.description)
+        parser = argparse.ArgumentParser(*args, **kwargs)
 
         for option in self.get_options():
             if isinstance(option, Group):

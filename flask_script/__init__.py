@@ -158,9 +158,6 @@ class Manager(object):
             command_parser = command.create_parser(name, parents=[options_parser])
             subparser = subparsers.add_parser(name, usage=description, help=description,
                                               parents=[command_parser], add_help=False)
-            # subparser.set_defaults(func_handle=command.handle)
-            # if isinstance(command, Manager):
-            #     subparser.set_defaults(func_handle=self.foo)
 
 
         ## enable autocomplete only for parent parser when argcomplete is
