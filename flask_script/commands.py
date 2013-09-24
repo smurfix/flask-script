@@ -362,6 +362,7 @@ class Server(Command):
 
         app.run(host=host,
                 port=port,
+                debug=use_debugger,
                 use_debugger=use_debugger,
                 use_reloader=use_reloader,
                 threaded=threaded,
