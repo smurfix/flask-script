@@ -501,7 +501,7 @@ API
 .. module:: flask_script
 
 .. autoclass:: Manager
-   :members: run, add_option, add_command, command, option, shell, get_usage, print_usage, option
+   :members: run, add_option, add_command, command, option, shell, get_usage, print_usage
 
 .. autoclass:: Command
    :members: run, get_options
