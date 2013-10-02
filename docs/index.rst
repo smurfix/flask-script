@@ -368,8 +368,6 @@ Needless to say the development server is not intended for production use.
 
 The ``Shell`` command starts a Python shell. You can pass in a ``make_context`` argument, which must be a ``callable`` returning a ``dict``. By default, this is just a dict returning the your Flask application instance::
 
-    from flask import app
-
     from flask.ext.script import Shell, Manager
 
     from myapp import app
