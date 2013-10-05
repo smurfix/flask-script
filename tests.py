@@ -66,6 +66,22 @@ class SimpleCommand(Command):
         print('OK')
 
 
+class NamedCommand(Command):
+    'named command'
+
+    def run(self):
+        print('OK')
+
+
+class ExplicitNamedCommand(Command):
+    'named command'
+
+    name = 'named'
+
+    def run(self):
+        print('OK')
+
+
 class CommandWithArgs(Command):
     'command with args'
 
@@ -161,6 +177,23 @@ class TestManager:
         manager.add_command('simple', SimpleCommand())
 
         assert isinstance(manager._commands['simple'], SimpleCommand)
+
+    def test_add_named_command(self):
+
+        manager = Manager(self.app)
+        manager.add_command(NamedCommand())
+
+        assert 'named' in manager._commands
+        assert isinstance(manager._commands['named'], NamedCommand)
+
+    def test_add_explicit_named_command(self):
+
+        manager = Manager(self.app)
+        manager.add_command(ExplicitNamedCommand())
+
+        name = ExplicitNamedCommand.name
+        assert name in manager._commands
+        assert isinstance(manager._commands[name], ExplicitNamedCommand)
 
     def test_simple_command_decorator(self, capsys):
 

@@ -2,6 +2,7 @@
 from __future__ import absolute_import
 
 import os
+import re
 import sys
 import inspect
 
@@ -177,12 +178,28 @@ class Manager(object):
 
         return self._options
 
-    def add_command(self, name, command):
+    def add_command(self, *args):
         """
         Adds command to registry.
 
         :param command: Command instance
+        :param name: Name of the command (optional)
         """
+
+        if len(args) == 1:
+            command = args[0]
+            name = None
+
+        else:
+            name, command = args
+
+        if name is None:
+            if hasattr(command, 'name'):
+                name = command.name
+
+            else:
+                name = type(command).__name__.lower()
+                name = re.sub(r'command$', '', name)
 
         if isinstance(command, Manager):
             command.parent = self
