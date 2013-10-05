@@ -178,12 +178,13 @@ class Manager(object):
 
         return self._options
 
-    def add_command(self, *args):
+    def add_command(self, *args, **kwargs):
         """
         Adds command to registry.
 
         :param command: Command instance
         :param name: Name of the command (optional)
+        :param namespace: Namespace of the command (optional; pass as kwarg)
         """
 
         if len(args) == 1:
@@ -204,7 +205,18 @@ class Manager(object):
         if isinstance(command, Manager):
             command.parent = self
 
-        self._commands[name] = command
+        namespace = kwargs.get('namespace')
+        if not namespace:
+            namespace = getattr(command, 'namespace', None)
+
+        if namespace:
+            if namespace not in self._commands:
+                self.add_command(namespace, Manager())
+
+            self._commands[namespace]._commands[name] = command
+
+        else:
+            self._commands[name] = command
 
     def command(self, func):
         """
