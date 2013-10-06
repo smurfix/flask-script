@@ -228,6 +228,13 @@ class TestManager:
         assert isinstance(ns._commands['hello'], SimpleCommand)
         assert isinstance(ns._commands['world'], SimpleCommand)
 
+    def test_add_command_class(self):
+
+        manager = Manager(self.app)
+        manager.add_command('simple', SimpleCommand)
+
+        assert isinstance(manager._commands['simple'], SimpleCommand)
+
     def test_simple_command_decorator(self, capsys):
 
         manager = Manager(self.app)

@@ -205,6 +205,9 @@ class Manager(object):
         if isinstance(command, Manager):
             command.parent = self
 
+        if isinstance(command, type):
+            command = command()
+
         namespace = kwargs.get('namespace')
         if not namespace:
             namespace = getattr(command, 'namespace', None)
