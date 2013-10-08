@@ -641,13 +641,22 @@ class TestSubManager:
         assert code == 0
         assert 'Example sub-manager' in out
 
-    def test_submanager_usage(self, capsys):
+    def test_submanager_usage_and_help_and_description(self, capsys):
 
-        sub_manager = Manager(usage='Example sub-manager')
+        sub_manager = Manager(usage='sub_manager [--foo]',
+                              help='shorter desc for submanager',
+                              description='longer desc for submanager')
         sub_manager.add_command('simple', SimpleCommand())
 
         manager = Manager(self.app)
         manager.add_command('sub_manager', sub_manager)
+
+        code = run('manage.py -h', lambda: manager.run())
+        out, err = capsys.readouterr()
+        assert code == 0
+        assert 'sub_manager [--foo]' not in out
+        assert 'shorter desc for submanager' in out
+        assert 'longer desc for submanager' not in out
 
         code = run('manage.py sub_manager', lambda: manager.run())
         out, err = capsys.readouterr()
@@ -657,6 +666,15 @@ class TestSubManager:
         code = run('manage.py sub_manager -h', lambda: manager.run())
         out, err = capsys.readouterr()
         assert code == 0
+        assert 'sub_manager [--foo]' in out
+        assert 'shorter desc for submanager' not in out
+        assert 'longer desc for submanager' in out
+        assert 'simple command' in out
+
+        code = run('manage.py sub_manager simple -h', lambda: manager.run())
+        out, err = capsys.readouterr()
+        assert code == 0
+        assert 'sub_manager [--foo] simple [-h]' in out
         assert 'simple command' in out
 
     def test_submanager_has_no_default_commands(self):
