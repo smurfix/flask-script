@@ -66,6 +66,31 @@ class SimpleCommand(Command):
         print('OK')
 
 
+class NamedCommand(Command):
+    'named command'
+
+    def run(self):
+        print('OK')
+
+
+class ExplicitNamedCommand(Command):
+    'named command'
+
+    name = 'named'
+
+    def run(self):
+        print('OK')
+
+
+class NamespacedCommand(Command):
+    'namespaced command'
+
+    namespace = 'ns'
+
+    def run(self):
+        print('OK')
+
+
 class CommandWithArgs(Command):
     'command with args'
 
@@ -159,6 +184,54 @@ class TestManager:
 
         manager = Manager(self.app)
         manager.add_command('simple', SimpleCommand())
+
+        assert isinstance(manager._commands['simple'], SimpleCommand)
+
+    def test_add_named_command(self):
+
+        manager = Manager(self.app)
+        manager.add_command(NamedCommand())
+
+        assert 'named' in manager._commands
+        assert isinstance(manager._commands['named'], NamedCommand)
+
+    def test_add_explicit_named_command(self):
+
+        manager = Manager(self.app)
+        manager.add_command(ExplicitNamedCommand())
+
+        name = ExplicitNamedCommand.name
+        assert name in manager._commands
+        assert isinstance(manager._commands[name], ExplicitNamedCommand)
+
+    def test_add_namespaced_command(self):
+
+        manager = Manager(self.app)
+        manager.add_command('one', NamespacedCommand())
+        manager.add_command('two', NamespacedCommand())
+
+        assert 'ns' in manager._commands
+        assert isinstance(manager._commands['ns'], Manager)
+        ns = manager._commands['ns']
+        assert isinstance(ns._commands['one'], NamespacedCommand)
+        assert isinstance(ns._commands['two'], NamespacedCommand)
+
+    def test_add_namespaced_simple_command(self):
+
+        manager = Manager(self.app)
+        manager.add_command('hello', SimpleCommand(), namespace='ns')
+        manager.add_command('world', SimpleCommand(), namespace='ns')
+
+        assert 'ns' in manager._commands
+        assert isinstance(manager._commands['ns'], Manager)
+        ns = manager._commands['ns']
+        assert isinstance(ns._commands['hello'], SimpleCommand)
+        assert isinstance(ns._commands['world'], SimpleCommand)
+
+    def test_add_command_class(self):
+
+        manager = Manager(self.app)
+        manager.add_command('simple', SimpleCommand)
 
         assert isinstance(manager._commands['simple'], SimpleCommand)
 
