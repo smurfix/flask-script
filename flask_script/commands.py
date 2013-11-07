@@ -197,7 +197,7 @@ class Shell(Command):
 
     banner = ''
 
-    description = 'Runs a Python shell inside Flask application context.'
+    help = description = 'Runs a Python shell inside Flask application context.'
 
     def __init__(self, banner=None, make_context=None, use_ipython=True,
                 use_bpython=True):
@@ -286,7 +286,7 @@ class Server(Command):
     :param options: :func:`werkzeug.run_simple` options.
     """
 
-    description = 'Runs the Flask development server i.e. app.run()'
+    help = description = 'Runs the Flask development server i.e. app.run()'
 
     def __init__(self, host='127.0.0.1', port=5000, use_debugger=True,
                  use_reloader=True, threaded=False, processes=1,
