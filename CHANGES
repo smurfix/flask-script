@@ -3,10 +3,13 @@ Flask-Script Changelog
 
 Here you can see the full list of changes between each Flask-Script release.
 
-Version 0.6.3-dev
+Version 0.6.3
 -----------------
 
-No release date
+Released on November 11, 2013
+
+- Separate usage into usage/help/description
+- Allow for command auto detection
 
 Version 0.6.2
 -----------------
