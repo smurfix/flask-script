@@ -5,6 +5,7 @@ import os
 import re
 import sys
 import inspect
+import warnings
 
 import argparse
 
@@ -161,7 +162,14 @@ class Manager(object):
             usage = getattr(command, 'usage', None)
             help = getattr(command, 'help', command.__doc__)
             description = getattr(command, 'description', command.__doc__)
-            command_parser = command.create_parser(name, parents=[options_parser])
+
+            # Only pass `parents` argument for commands that support it
+            if 'parents' in inspect.getargspec(command.create_parser).args:
+                command_parser = command.create_parser(name, parents=[options_parser])
+            else:
+                warnings.warn("create_parser for {0} command should accept a `parents` argument".format(name))
+                command_parser = command.create_parser(name)
+
             subparser = subparsers.add_parser(name, usage=usage, help=help,
                                               description=description,
                                               parents=[command_parser], add_help=False)
