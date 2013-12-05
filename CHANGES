@@ -3,6 +3,13 @@ Flask-Script Changelog
 
 Here you can see the full list of changes between each Flask-Script release.
 
+Version 0.6.4
+-----------------
+
+Released on December 5, 2013
+
+- Only pass `parents` argument if a command's `create_parser` accepts it.  Workaround for #71
+
 Version 0.6.3
 -----------------
 
