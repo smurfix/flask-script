@@ -3,6 +3,13 @@ Flask-Script Changelog
 
 Here you can see the full list of changes between each Flask-Script release.
 
+Version 0.6.5
+-----------------
+
+Released on December 5, 2013
+
+- Change warning from UserWarning to DeprecationWarning so it is ignored by default
+
 Version 0.6.4
 -----------------
 
