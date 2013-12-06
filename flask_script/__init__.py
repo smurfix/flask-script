@@ -167,7 +167,7 @@ class Manager(object):
             if 'parents' in inspect.getargspec(command.create_parser).args:
                 command_parser = command.create_parser(name, parents=[options_parser])
             else:
-                warnings.warn("create_parser for {0} command should accept a `parents` argument".format(name))
+                warnings.warn("create_parser for {0} command should accept a `parents` argument".format(name), DeprecationWarning)
                 command_parser = command.create_parser(name)
 
             subparser = subparsers.add_parser(name, usage=usage, help=help,
