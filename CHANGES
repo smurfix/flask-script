@@ -3,6 +3,13 @@ Flask-Script Changelog
 
 Here you can see the full list of changes between each Flask-Script release.
 
+Version 0.6.6
+-----------------
+
+Released on December 6, 2013
+
+- Fix global being passed after command by not expliciting checking for the 'parents' argument.
+
 Version 0.6.5
 -----------------
 
