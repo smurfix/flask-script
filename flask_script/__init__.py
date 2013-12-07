@@ -164,9 +164,9 @@ class Manager(object):
             description = getattr(command, 'description', command.__doc__)
 
             # Only pass `parents` argument for commands that support it
-            if 'parents' in inspect.getargspec(command.create_parser).args:
+            try:
                 command_parser = command.create_parser(name, parents=[options_parser])
-            else:
+            except TypeError:
                 warnings.warn("create_parser for {0} command should accept a `parents` argument".format(name), DeprecationWarning)
                 command_parser = command.create_parser(name)
 
