@@ -380,6 +380,8 @@ class Manager(object):
             positional_args = []
 
         app = self.create_app(**app_config)
+        # for convience usage in a command
+        self.app = app
 
         return handle(app, *positional_args, **kwargs)
 
