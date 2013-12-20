@@ -11,8 +11,8 @@ import argparse
 
 from flask import Flask
 
-from ._compat import text_type, iteritems, imap, izip
-from .commands import Group, Option, InvalidCommand, Command, Server, Shell
+from ._compat import text_type, iteritems, izip
+from .commands import Group, Option, Command, Server, Shell
 from .cli import prompt, prompt_pass, prompt_bool, prompt_choices
 
 __all__ = ["Command", "Shell", "Server", "Manager", "Group", "Option",
@@ -380,6 +380,8 @@ class Manager(object):
             positional_args = []
 
         app = self.create_app(**app_config)
+        # for convience usage in a command
+        self.app = app
 
         return handle(app, *positional_args, **kwargs)
 
