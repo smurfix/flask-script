@@ -413,25 +413,6 @@ class TestManager:
         assert 'Development' in out
         assert 'OK' in out
 
-        code = run('manage.py -c Before simple', lambda: manager.run())
-        out, err = capsys.readouterr()
-        assert code == 0
-        assert 'Before' in out
-        assert 'OK' in out
-
-        code = run('manage.py simple -c After', lambda: manager.run())
-        out, err = capsys.readouterr()
-        assert code == 0
-        assert 'After' in out
-        assert 'OK' in out
-
-        code = run('manage.py -c DoNotShow simple -c NewValue', lambda: manager.run())
-        out, err = capsys.readouterr()
-        assert code == 0
-        assert 'DoNotShow' not in out  # first parameter is ignored
-        assert 'NewValue' in out       # second on is printed
-        assert 'OK' in out
-
     def test_get_usage(self):
 
         manager = Manager(self.app)
