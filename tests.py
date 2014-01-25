@@ -718,7 +718,10 @@ class TestSubManager:
         code = run('manage.py sub_manager', lambda: manager.run())
         out, err = capsys.readouterr()
         assert code == 2
-        assert 'too few arguments' in err
+        assert 'sub_manager [--foo]' in out
+        assert 'shorter desc for submanager' not in out
+        assert 'longer desc for submanager' in out
+        assert 'simple command' in out
 
         code = run('manage.py sub_manager -h', lambda: manager.run())
         out, err = capsys.readouterr()

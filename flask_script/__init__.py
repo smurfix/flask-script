@@ -4,6 +4,7 @@ from __future__ import absolute_import
 import os
 import re
 import sys
+import types
 import inspect
 import warnings
 
@@ -156,6 +157,8 @@ class Manager(object):
                                          description=self.description,
                                          parents=[options_parser])
 
+        self._patch_argparser(parser)
+
         subparsers = parser.add_subparsers()
 
         for name, command in self._commands.items():
@@ -174,6 +177,8 @@ class Manager(object):
                                               description=description,
                                               parents=[command_parser], add_help=False)
 
+            if isinstance(command, Manager):
+                self._patch_argparser(subparser)
 
         ## enable autocomplete only for parent parser when argcomplete is
         ## imported and it is NOT disabled in constructor
@@ -185,6 +190,21 @@ class Manager(object):
 
     # def foo(self, app, *args, **kwargs):
     #     print(args)
+
+    def _patch_argparser(self, parser):
+        """
+        Patches the parser to print the full help if no arguments are supplied
+        """
+
+        def _parse_known_args(self, arg_strings, *args, **kw):
+            if not arg_strings:
+                self.print_help()
+                self.exit(2)
+
+            return self._parse_known_args2(arg_strings, *args, **kw)
+
+        parser._parse_known_args2 = parser._parse_known_args
+        parser._parse_known_args = types.MethodType(_parse_known_args, parser)
 
     def get_options(self):
         if self.parent:
@@ -340,10 +360,6 @@ class Manager(object):
     def handle(self, prog, args=None):
 
         app_parser = self.create_parser(prog)
-
-        if args is None or len(args) == 0:
-            app_parser.print_help()
-            return 2
 
         args = list(args or [])
         app_namespace, remaining_args = app_parser.parse_known_args(args)
