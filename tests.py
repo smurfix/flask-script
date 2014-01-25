@@ -473,12 +473,15 @@ class TestManager:
         assert code == 2
         assert 'OK' not in out
 
-    def test_run_no_name(self):
+    def test_run_no_name(self, capsys):
 
         manager = Manager(self.app)
+        manager.add_command('simple', SimpleCommand())
 
         code = run('manage.py', lambda: manager.run())
+        out, err = capsys.readouterr()
         assert code == 2
+        assert 'simple command' in out
 
     def test_run_good_options(self, capsys):
 
