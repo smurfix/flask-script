@@ -390,16 +390,15 @@ class ShowUrls(Command):
         self.order = order
 
     def get_options(self):
-        options = super(ShowUrls, self).get_options()
-        options += Option('url',
-                          nargs='?',
-                          help='Url to test (ex. /static/image.png)',
-                          ),
-        options += Option('--order',
-                          dest='order',
-                          default=self.order,
-                          help='Property on Rule to order by (default: %s)' % self.order,
-                          ),
+        return (
+            Option('url',
+                   nargs='?',
+                   help='Url to test (ex. /static/image.png)'),
+            Option('--order',
+                   dest='order',
+                   default=self.order,
+                   help='Property on Rule to order by (default: %s)' % self.order)
+        )
 
         return options
 
