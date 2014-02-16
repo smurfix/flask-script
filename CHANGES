@@ -3,6 +3,15 @@ Flask-Script Changelog
 
 Here you can see the full list of changes between each Flask-Script release.
 
+Version 0.6.7
+-----------------
+
+Released on February 16, 2014
+
+- Expose app instance in a command commands (manage.app). #83
+- Show full help for submanagers if called without arguments. #85
+- Fix ShowUrls command conflict.  #88
+
 Version 0.6.6
 -----------------
 
