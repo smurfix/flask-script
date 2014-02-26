@@ -204,7 +204,7 @@ Or you can do optional arguments::
 
     @manager.command
     def hello(name="Fred")
-        print hello, name
+        print "hello", name
 
 These can be called like so::
 
@@ -301,7 +301,7 @@ Suppose you have this command::
         uppercase = app.config.get('USE_UPPERCASE', False)
         if uppercase:
             name = name.upper()
-        print hello, name
+        print "hello", name
 
 You can now run the following::
 
