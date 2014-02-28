@@ -265,6 +265,8 @@ class Manager(object):
         """
 
         args, varargs, keywords, defaults = inspect.getargspec(func)
+        if inspect.ismethod(func):
+            args = args[1:]
 
         options = []
 
