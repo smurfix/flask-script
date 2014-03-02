@@ -147,24 +147,28 @@ class CommandWithCatchAll(Command):
         print(remaining_args)
 
 
-class TestCommands(unittest.TestCase):
+class EmptyContext(object):
+    def __enter__(self):
+        pass
+    def __exit__(self, a,b,c):
+        pass
 
-    TESTING = True
-
-    def setup(self):
-
-        self.app = Flask(__name__)
-        self.app.config.from_object(self)
+class TestApp(object):
+    def __init__(self, verbose=False):
+        self.verbose = verbose
+    def test_request_context(self):
+        return EmptyContext()
+    def __call__(self,**kw):
+        if self.verbose:
+            print("APP "+" ".join("%s=%s" % (k,v) for k,v in kw.items()))
+        return self
 
 
 class TestManager:
 
-    TESTING = True
-
     def setup(self):
 
-        self.app = Flask(__name__)
-        self.app.config.from_object(self)
+        self.app = TestApp()
 
     def test_with_default_commands(self):
 
@@ -636,12 +640,9 @@ class TestManager:
 
 class TestSubManager:
 
-    TESTING = True
-
     def setup(self):
 
-        self.app = Flask(__name__)
-        self.app.config.from_object(self)
+        self.app = TestApp()
 
     def test_add_submanager(self):
 
