@@ -47,7 +47,7 @@ class Catcher(object):
 
 def run(command_line, manager_run):
     '''
-        Returns tuple of standard output and exit code
+        Runs a manager command line, returns exit code
     '''
     sys.argv = command_line.split()
     exit_code = None
