@@ -114,6 +114,7 @@ class Command(object):
 
     def create_parser(self, *args, **kwargs):
 
+        func_stack = kwargs.pop('func_stack',())
         parser = argparse.ArgumentParser(*args, **kwargs)
 
         for option in self.get_options():
@@ -132,9 +133,19 @@ class Command(object):
             else:
                 parser.add_argument(*option.args, **option.kwargs)
 
-        parser.set_defaults(func_handle=self.handle)
+        parser.set_defaults(func_stack=func_stack+(self,))
 
+        self.parser = parser
         return parser
+
+    def __call__(self, app=None, *args, **kwargs):
+        """
+        Compatibility code so that we can pass outselves to argparse
+        as `func_handle`, above.
+        The call to handle() is not replaced, so older code can still
+        override it.
+        """
+        return self.handle(app, *args, **kwargs)
 
     def handle(self, app, *args, **kwargs):
         """

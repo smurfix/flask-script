@@ -74,15 +74,11 @@ class Manager(object):
         self._commands = dict()
         self._options = list()
 
-        # Primary/root Manager instance adds default commands by default,
-        # Sub-Managers do not
-        if with_default_commands or (app and with_default_commands is None):
-            self.add_default_commands()
-
         self.usage = usage
         self.help = help if help is not None else usage
         self.description = description if description is not None else usage
         self.disable_argcomplete = disable_argcomplete
+        self.with_default_commands = with_default_commands
 
         self.parent = None
 
@@ -92,8 +88,10 @@ class Manager(object):
         simply add your own equivalents using add_command or decorators.
         """
 
-        self.add_command("shell", Shell())
-        self.add_command("runserver", Server())
+        if "shell" not in self._commands:
+            self.add_command("shell", Shell())
+        if "runserver" not in self._commands:
+            self.add_command("runserver", Server())
 
     def add_option(self, *args, **kwargs):
         """
@@ -129,22 +127,33 @@ class Manager(object):
 
         self._options.append(Option(*args, **kwargs))
 
-    def create_app(self, **kwargs):
-        if self.parent:
-            # Sub-manager, defer to parent Manager
+    def create_app(self, app=None, **kwargs):
+        if self.app is None:
+            # defer to parent Manager
             return self.parent.create_app(**kwargs)
 
         if isinstance(self.app, Flask):
             return self.app
 
-        return self.app(**kwargs)
+        return self.app(**kwargs) or app
 
-    def create_parser(self, prog, parents=None):
+    def __call__(self, app=None, *args, **kwargs):
+        """
+        Call self.app()
+        """
+        res = self.create_app(app, *args, **kwargs)
+        if res is None:
+            res = app
+        return res
+
+
+    def create_parser(self, prog, func_stack=(), parents=None):
         """
         Creates an ArgumentParser instance from options returned
         by get_options(), and a subparser for the given command.
         """
         prog = os.path.basename(prog)
+        func_stack=func_stack+(self,)
 
         options_parser = argparse.ArgumentParser(add_help=False)
         for option in self.get_options():
@@ -166,12 +175,7 @@ class Manager(object):
             help = getattr(command, 'help', command.__doc__)
             description = getattr(command, 'description', command.__doc__)
 
-            # Only pass `parents` argument for commands that support it
-            try:
-                command_parser = command.create_parser(name, parents=[options_parser])
-            except TypeError:
-                warnings.warn("create_parser for {0} command should accept a `parents` argument".format(name), DeprecationWarning)
-                command_parser = command.create_parser(name)
+            command_parser = command.create_parser(name, func_stack=func_stack)
 
             subparser = subparsers.add_parser(name, usage=usage, help=help,
                                               description=description,
@@ -186,6 +190,7 @@ class Manager(object):
                 and not self.disable_argcomplete:
             argcomplete.autocomplete(parser, always_complete_options=True)
 
+        self.parser = parser
         return parser
 
     # def foo(self, app, *args, **kwargs):
@@ -207,9 +212,6 @@ class Manager(object):
         parser._parse_known_args = types.MethodType(_parse_known_args, parser)
 
     def get_options(self):
-        if self.parent:
-            return self.parent._options
-
         return self._options
 
     def add_command(self, *args, **kwargs):
@@ -357,49 +359,52 @@ class Manager(object):
 
         return func
 
+    def set_defaults(self):
+        if self.with_default_commands is None:
+            self.with_default_commands = self.parent is None
+        if self.with_default_commands:
+            self.add_default_commands()
+        self.with_default_commands = False
+
     def handle(self, prog, args=None):
-
+        self.set_defaults()
         app_parser = self.create_parser(prog)
-
+        
         args = list(args or [])
         app_namespace, remaining_args = app_parser.parse_known_args(args)
 
         # get the handle function and remove it from parsed options
         kwargs = app_namespace.__dict__
-        handle = kwargs.pop('func_handle', None)
-        if not handle:
+        func_stack = kwargs.pop('func_stack', None)
+        if not func_stack:
             app_parser.error('too few arguments')
 
-        # get only safe config options
-        app_config_keys = [action.dest for action in app_parser._actions
-                           if action.__class__ in safe_actions]
+        last_func = func_stack[-1]
+        if remaining_args and not getattr(last_func, 'capture_all_args', False):
+            app_parser.error('too many arguments')
 
-        # pass only safe app config keys
-        app_config = dict((k, v) for k, v in iteritems(kwargs)
-                          if k in app_config_keys)
+        args = []
+        for handle in func_stack:
 
-        # remove application config keys from handle kwargs
-        kwargs = dict((k, v) for k, v in iteritems(kwargs)
-                      if k not in app_config_keys)
+            # get only safe config options
+            config_keys = [action.dest for action in handle.parser._actions
+                               if handle is last_func or action.__class__ in safe_actions]
 
-        # get command from bound handle function (py2.7+)
-        command = handle.__self__
-        if getattr(command, 'capture_all_args', False):
-            positional_args = [remaining_args]
-        else:
-            if len(remaining_args):
-                # raise correct exception
-                # FIXME maybe change capture_all_args flag
-                app_parser.parse_args(args)
-                # sys.exit(2)
-                pass
-            positional_args = []
+            # pass only safe app config keys
+            config = dict((k, v) for k, v in iteritems(kwargs)
+                          if k in config_keys)
 
-        app = self.create_app(**app_config)
-        # for convience usage in a command
-        self.app = app
+            # remove application config keys from handle kwargs
+            kwargs = dict((k, v) for k, v in iteritems(kwargs)
+                          if k not in config_keys)
 
-        return handle(app, *positional_args, **kwargs)
+            if handle is last_func and getattr(last_func, 'capture_all_args', False):
+                args.append(remaining_args)
+            res = handle(*args, **config)
+            args = [res]
+
+        assert not kwargs
+        return res
 
     def run(self, commands=None, default_command=None):
         """

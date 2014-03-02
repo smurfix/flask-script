@@ -102,6 +102,17 @@ class CommandWithArgs(Command):
         print(name)
 
 
+class CommandWithOptionalArg(Command):
+    'command with optional arg'
+
+    option_list = (
+        Option('-n','--name', required=False),
+    )
+
+    def run(self, name="NotGiven"):
+        print("OK name="+str(name))
+
+
 class CommandWithOptions(Command):
     'command with options'
 
@@ -173,6 +184,7 @@ class TestManager:
     def test_with_default_commands(self):
 
         manager = Manager(self.app)
+        manager.set_defaults()
 
         assert 'runserver' in manager._commands
         assert 'shell' in manager._commands
@@ -180,6 +192,7 @@ class TestManager:
     def test_without_default_commands(self):
 
         manager = Manager(self.app, with_default_commands=False)
+        manager.set_defaults()
 
         assert 'runserver' not in manager._commands
         assert 'shell' not in manager._commands
@@ -395,8 +408,8 @@ class TestManager:
 
         code = run('manage.py simple -c Development', manager.run)
         out, err = capsys.readouterr()
-        assert code == 0
-        assert 'OK' in out
+        assert code == 2
+        assert 'OK' not in out
 
     def test_global_option_value(self, capsys):
 
@@ -687,6 +700,24 @@ class TestSubManager:
         assert code == 0
         assert 'OK' in out
 
+
+    def test_submanager_separate_options(self, capsys):
+
+        sub_manager = Manager(TestApp(verbose=True), with_default_commands=False)
+        sub_manager.add_command('opt', CommandWithOptionalArg())
+        sub_manager.add_option('-n', '--name', dest='name_sub', required=False)
+
+        manager = Manager(TestApp(verbose=True), with_default_commands=False)
+        manager.add_command('sub_manager', sub_manager)
+        manager.add_option('-n', '--name', dest='name_main', required=False)
+
+        code = run('manage.py -n MyMainName sub_manager -n MySubName opt -n MyName', manager.run)
+        out, err = capsys.readouterr()
+        assert code == 0
+        assert 'APP name_main=MyMainName' in out
+        assert 'APP name_sub=MySubName' in out
+        assert 'OK name=MyName' in out
+
     def test_manager_usage_with_submanager(self, capsys):
 
         sub_manager = Manager(usage='Example sub-manager')
@@ -744,6 +775,7 @@ class TestSubManager:
 
         manager = Manager()
         manager.add_command('sub_manager', sub_manager)
+        manager.set_defaults()
 
         assert 'runserver' not in sub_manager._commands
         assert 'shell' not in sub_manager._commands
