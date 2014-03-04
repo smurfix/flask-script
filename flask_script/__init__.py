@@ -5,14 +5,13 @@ import os
 import re
 import sys
 import types
-import inspect
 import warnings
 
 import argparse
 
 from flask import Flask
 
-from ._compat import text_type, iteritems, izip
+from ._compat import iteritems
 from .commands import Group, Option, Command, Server, Shell
 from .cli import prompt, prompt_pass, prompt_bool, prompt_choices
 
@@ -264,44 +263,7 @@ class Manager(object):
 
         """
 
-        args, varargs, keywords, defaults = inspect.getargspec(func)
-
-        options = []
-
-        # first arg is always "app" : ignore
-
-        defaults = defaults or []
-        kwargs = dict(izip(*[reversed(l) for l in (args, defaults)]))
-
-        for arg in args:
-
-            if arg in kwargs:
-
-                default = kwargs[arg]
-
-                if isinstance(default, bool):
-                    options.append(Option('-%s' % arg[0],
-                                          '--%s' % arg,
-                                          action="store_true",
-                                          dest=arg,
-                                          required=False,
-                                          default=default))
-                else:
-                    options.append(Option('-%s' % arg[0],
-                                          '--%s' % arg,
-                                          dest=arg,
-                                          type=text_type,
-                                          required=False,
-                                          default=default))
-
-            else:
-                options.append(Option(arg, type=text_type))
-
-        command = Command()
-        command.run = func
-        command.__doc__ = func.__doc__
-        command.option_list = options
-
+        command = Command(func)
         self.add_command(func.__name__, command)
 
         return func
