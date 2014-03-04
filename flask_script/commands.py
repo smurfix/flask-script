@@ -165,7 +165,10 @@ class Command(object):
     def create_parser(self, *args, **kwargs):
 
         func_stack = kwargs.pop('func_stack',())
-        parser = argparse.ArgumentParser(*args, add_help=self.add_help, **kwargs)
+        parser = argparse.ArgumentParser(*args, add_help=False, **kwargs)
+        if self.add_help:
+            from flask_script import add_help
+            add_help(parser)
 
         for option in self.get_options():
             if isinstance(option, Group):
@@ -190,17 +193,8 @@ class Command(object):
 
     def __call__(self, app=None, *args, **kwargs):
         """
-        Compatibility code so that we can pass outselves to argparse
-        as `func_handle`, above.
-        The call to handle() is not replaced, so older code can still
-        override it.
-        """
-        return self.handle(app, *args, **kwargs)
-
-    def handle(self, app, *args, **kwargs):
-        """
-        Handles the command with given app. Default behaviour is to call within
-        a test request context.
+        Handles the command with the given app.
+        Default behaviour is to call ``self.run`` within a test request context.
         """
         with app.test_request_context():
             return self.run(*args, **kwargs)
@@ -211,34 +205,6 @@ class Command(object):
         arguments as configured by the Command options.
         """
         raise NotImplementedError
-
-    def prompt(self, name, default=None):
-        warnings.warn_explicit(
-            "Command.prompt is deprecated, use prompt() function instead")
-
-        prompt(name, default)
-
-    def prompt_pass(self, name, default=None):
-        warnings.warn_explicit(
-            "Command.prompt_pass is deprecated, use prompt_pass() function "
-            "instead")
-
-        prompt_pass(name, default)
-
-    def prompt_bool(self, name, default=False):
-        warnings.warn_explicit(
-            "Command.prompt_bool is deprecated, use prompt_bool() function "
-            "instead")
-
-        prompt_bool(name, default)
-
-    def prompt_choices(self, name, choices, default=None):
-        warnings.warn_explicit(
-            "Command.choices is deprecated, use prompt_choices() function "
-            "instead")
-
-        prompt_choices(name, choices, default)
-
 
 class Shell(Command):
     """
@@ -365,7 +331,7 @@ class Server(Command):
     def get_options(self):
 
         options = (
-            Option('-t', '--host',
+            Option('-h', '--host',
                    dest='host',
                    default=self.host),
 
@@ -391,7 +357,11 @@ class Server(Command):
         )
 
         if self.use_debugger:
-            options += (Option('-d', '--no-debug',
+            options += (Option('-d', '--debug',
+                               action='store_true',
+                               dest='use_debugger',
+                               help="(no-op for compatibility)"),)
+            options += (Option('-D', '--no-debug',
                                action='store_false',
                                dest='use_debugger',
                                default=self.use_debugger),)
@@ -401,9 +371,17 @@ class Server(Command):
                                action='store_true',
                                dest='use_debugger',
                                default=self.use_debugger),)
+            options += (Option('-D', '--no-debug',
+                               action='store_false',
+                               dest='use_debugger',
+                               help="(no-op for compatibility)"),)
 
         if self.use_reloader:
-            options += (Option('-r', '--no-reload',
+            options += (Option('-r', '--reload',
+                               action='store_true',
+                               dest='use_reloader',
+                               help="(no-op for compatibility)"),)
+            options += (Option('-R', '--no-reload',
                                action='store_false',
                                dest='use_reloader',
                                default=self.use_reloader),)
@@ -413,10 +391,14 @@ class Server(Command):
                                action='store_true',
                                dest='use_reloader',
                                default=self.use_reloader),)
+            options += (Option('-R', '--no-reload',
+                               action='store_false',
+                               dest='use_reloader',
+                               help="(no-op for compatibility)"),)
 
         return options
 
-    def handle(self, app, host, port, use_debugger, use_reloader,
+    def __call__(self, app, host, port, use_debugger, use_reloader,
                threaded, processes, passthrough_errors):
         # we don't need to run the server in request context
         # so just run it directly
@@ -514,3 +496,5 @@ class ShowUrls(Command):
 
         for row in rows:
             print(str_template % row[:column_length])
+
+

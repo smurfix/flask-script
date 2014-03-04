@@ -315,7 +315,7 @@ class TestManager:
         out, err = capsys.readouterr()
         assert 'hello joe' in out
 
-        code = run('manage.py hello -h', manager.run)
+        code = run('manage.py hello -?', manager.run)
         out, err = capsys.readouterr()
         assert 'Prints your name' in out
 
@@ -346,7 +346,7 @@ class TestManager:
         out, err = capsys.readouterr()
         assert 'NO' in out
 
-        code = run('manage.py verify -h', manager.run)
+        code = run('manage.py verify -?', manager.run)
         out, err = capsys.readouterr()
         assert 'Checks if verified' in out
 
@@ -387,7 +387,7 @@ class TestManager:
         out, err = capsys.readouterr()
         assert 'hello joe' in out
 
-        code = run('manage.py hello -h', manager.run)
+        code = run('manage.py hello -?', manager.run)
         out, err = capsys.readouterr()
         assert 'Your name' in out
 
@@ -741,7 +741,7 @@ class TestSubManager:
         manager = Manager(self.app)
         manager.add_command('sub_manager', sub_manager)
 
-        code = run('manage.py -h', manager.run)
+        code = run('manage.py -?', manager.run)
         out, err = capsys.readouterr()
         assert code == 0
         assert 'Example sub-manager' in out
@@ -756,7 +756,7 @@ class TestSubManager:
         manager = Manager(self.app)
         manager.add_command('sub_manager', sub_manager)
 
-        code = run('manage.py -h', manager.run)
+        code = run('manage.py -?', manager.run)
         out, err = capsys.readouterr()
         assert code == 0
         assert 'sub_manager [--foo]' not in out
@@ -771,7 +771,7 @@ class TestSubManager:
         assert 'longer desc for submanager' in out
         assert 'simple command' in out
 
-        code = run('manage.py sub_manager -h', manager.run)
+        code = run('manage.py sub_manager -?', manager.run)
         out, err = capsys.readouterr()
         assert code == 0
         assert 'sub_manager [--foo]' in out
@@ -779,10 +779,10 @@ class TestSubManager:
         assert 'longer desc for submanager' in out
         assert 'simple command' in out
 
-        code = run('manage.py sub_manager simple -h', manager.run)
+        code = run('manage.py sub_manager simple -?', manager.run)
         out, err = capsys.readouterr()
         assert code == 0
-        assert 'sub_manager [--foo] simple [-h]' in out
+        assert 'sub_manager [--foo] simple [-?]' in out
         assert 'simple command' in out
 
     def test_submanager_has_no_default_commands(self):

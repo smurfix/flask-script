@@ -6,6 +6,7 @@ import re
 import sys
 import types
 import warnings
+from gettext import gettext as _
 
 import argparse
 
@@ -33,6 +34,9 @@ try:
 except ImportError:
     ARGCOMPLETE_IMPORTED = False
 
+def add_help(parser): 
+    parser.add_argument('-?', '--help',
+                        action='help', default=argparse.SUPPRESS, help=_('show this help message and exit'))
 
 class Manager(object):
     """
@@ -163,7 +167,9 @@ class Manager(object):
 
         parser = argparse.ArgumentParser(prog=prog, usage=self.usage,
                                          description=self.description,
-                                         parents=[options_parser])
+                                         parents=[options_parser],
+                                         add_help=False)
+        add_help(parser)
 
         self._patch_argparser(parser)
 
@@ -178,7 +184,8 @@ class Manager(object):
 
             subparser = subparsers.add_parser(name, usage=usage, help=help,
                                               description=description,
-                                              parents=[command_parser], add_help=False)
+                                              parents=[command_parser],
+                                              add_help=False)
 
             if isinstance(command, Manager):
                 self._patch_argparser(subparser)
