@@ -93,6 +93,7 @@ class Command(object):
     """
 
     option_list = []
+    add_help = True
 
     @property
     def description(self):
@@ -115,7 +116,7 @@ class Command(object):
     def create_parser(self, *args, **kwargs):
 
         func_stack = kwargs.pop('func_stack',())
-        parser = argparse.ArgumentParser(*args, **kwargs)
+        parser = argparse.ArgumentParser(*args, add_help=self.add_help, **kwargs)
 
         for option in self.get_options():
             if isinstance(option, Group):
