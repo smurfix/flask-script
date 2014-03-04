@@ -280,6 +280,22 @@ class TestManager:
         out, err = capsys.readouterr()
         assert 'hello joe' in out
 
+    def test_method_command_decorator_with_pos_arg(self, capsys):
+
+        manager = Manager(self.app)
+
+        class SomeTest(object):
+            def hello(self,name):
+                print('hello ' + name)
+        sometest = SomeTest()
+        manager.command(sometest.hello)
+
+        assert 'hello' in manager._commands
+
+        code = run('manage.py hello joe', lambda: manager.run())
+        out, err = capsys.readouterr()
+        assert 'hello joe' in out
+
     def test_command_decorator_with_options(self, capsys):
 
         manager = Manager(self.app)

@@ -5,12 +5,14 @@ import os
 import code
 import warnings
 import string
+import inspect
 
 import argparse
 
 from flask import _request_ctx_stack
 
 from .cli import prompt, prompt_pass, prompt_bool, prompt_choices
+from ._compat import izip, text_type
 
 
 class InvalidCommand(Exception):
@@ -90,10 +92,55 @@ class Option(object):
 class Command(object):
     """
     Base class for creating commands.
+
+    :param func:  Initialize this command by introspecting the function.
     """
 
     option_list = []
     add_help = True
+
+    def __init__(self, func=None):
+        if func is None:
+            return
+
+        args, varargs, keywords, defaults = inspect.getargspec(func)
+        if inspect.ismethod(func):
+            args = args[1:]
+            
+        options = []
+        
+        # first arg is always "app" : ignore
+        
+        defaults = defaults or []
+        kwargs = dict(izip(*[reversed(l) for l in (args, defaults)]))
+        
+        for arg in args:
+        
+            if arg in kwargs:
+            
+                default = kwargs[arg]
+                
+                if isinstance(default, bool):
+                    options.append(Option('-%s' % arg[0],
+                                          '--%s' % arg,
+                                          action="store_true",
+                                          dest=arg,
+                                          required=False,
+                                          default=default))
+                else:                     
+                    options.append(Option('-%s' % arg[0],
+                                          '--%s' % arg,
+                                          dest=arg,
+                                          type=text_type,
+                                          required=False,
+                                          default=default))
+                                          
+            else:
+                options.append(Option(arg, type=text_type))
+                
+        self.run = func
+        self.__doc__ = func.__doc__
+        self.option_list = options
 
     @property
     def description(self):
