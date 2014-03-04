@@ -96,10 +96,12 @@ class Command(object):
     :param func:  Initialize this command by introspecting the function.
     """
 
-    option_list = []
+    option_list = ()
 
     def __init__(self, func=None):
         if func is None:
+            if not self.option_list:
+                self.option_list = []
             return
 
         args, varargs, keywords, defaults = inspect.getargspec(func)
