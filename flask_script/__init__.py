@@ -177,8 +177,10 @@ class Manager(object):
 
         for name, command in self._commands.items():
             usage = getattr(command, 'usage', None)
-            help = getattr(command, 'help', command.__doc__)
-            description = getattr(command, 'description', command.__doc__)
+            help = getattr(command, 'help', None)
+            if help is None: help = command.__doc__
+            description = getattr(command, 'description', None)
+            if description is None: description = command.__doc__
 
             command_parser = command.create_parser(name, func_stack=func_stack)
 
