@@ -355,6 +355,8 @@ class Manager(object):
             app_parser.error('too many arguments')
 
         args = []
+        if self.app is not None:
+            args.append(self.app)
         for handle in func_stack:
 
             # get only safe config options
