@@ -323,6 +323,30 @@ class TestManager:
         out, err = capsys.readouterr()
         assert 'Prints your name' in out
 
+    def test_no_help(self, capsys):
+        """
+        Tests that erasing --help really works.
+        """
+
+        manager = Manager(self.app)
+        manager.help_args = ()
+
+        @manager.command
+        def hello(name='fred'):
+            'Prints your name'
+            print('hello ' + name)
+        assert 'hello' in manager._commands
+
+        code = run('manage.py --help hello', manager.run)
+        out, err = capsys.readouterr()
+        print(out)
+        assert 'too many arguments' in err
+
+        code = run('manage.py hello --help', manager.run)
+        out, err = capsys.readouterr()
+        print(out)
+        assert 'too many arguments' in err
+
     def test_command_decorator_with_boolean_options(self, capsys):
 
         manager = Manager(self.app)

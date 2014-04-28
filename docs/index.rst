@@ -146,8 +146,28 @@ The ``@option`` decorator is explained in more detail below.
 
 Help was previously available with **--help** and **-h**. This had a couple
 of less-than-ideal consequences, among them the inability to use **-h** as
-a shortcut for **--host**. If you want to restore the original meaning of
-**-h**, 
+a shortcut for **--host** or similar options.
+
+*New in version 2.0.2*
+
+If you want to restore the original meaning of **-h**, set your manager's
+``help_args`` attribute to a list of argument strings you want to be
+considered helpful.
+
+    manager = Manager()
+    manager.help_args = ('-h','-?','--help)
+
+You can override this list in sub-commands and -managers::
+
+    def talker(host='localhost'):
+        pass
+    ccmd = ConnectCmd(talker)
+    ccmd.help_args = ('-?','--help)
+    manager.add_command("connect", ccmd)
+    manager.run()
+
+so that **manager -h** prints help, while **manager connect -h fubar.example.com**
+connects to a remote host.
 
 Adding arguments to commands
 ----------------------------
@@ -351,8 +371,8 @@ Before version 2, options and command names could be interspersed freely.
 The author decided to discontinue this practice for a number of reasons;
 the problem with the most impact was that it was not possible to do
 
-	> python manage.py connect -d DEST
-	> python manage.py import -d DIR
+    > python manage.py connect -d DEST
+    > python manage.py import -d DIR
 
 as these options collided.
 

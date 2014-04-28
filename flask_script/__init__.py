@@ -34,8 +34,10 @@ try:
 except ImportError:
     ARGCOMPLETE_IMPORTED = False
 
-def add_help(parser): 
-    parser.add_argument('-?', '--help',
+def add_help(parser, help_args): 
+    if not help_args:
+        return
+    parser.add_argument(*help_args,
                         action='help', default=argparse.SUPPRESS, help=_('show this help message and exit'))
 
 class Manager(object):
@@ -68,6 +70,7 @@ class Manager(object):
     :param disable_argcomplete: disable automatic loading of argcomplete.
 
     """
+    help_args = ('-?','--help')
 
     def __init__(self, app=None, with_default_commands=None, usage=None,
                  help=None, description=None, disable_argcomplete=False):
@@ -174,7 +177,7 @@ class Manager(object):
                                          description=self.description,
                                          parents=[options_parser],
                                          add_help=False)
-        add_help(parser)
+        add_help(parser, self.help_args)
 
         self._patch_argparser(parser)
 

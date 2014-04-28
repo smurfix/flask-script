@@ -97,7 +97,7 @@ class Command(object):
     """
 
     option_list = ()
-    add_help = True
+    help_args = None
 
     def __init__(self, func=None):
         if func is None:
@@ -163,13 +163,17 @@ class Command(object):
         return self.option_list
 
     def create_parser(self, *args, **kwargs):
-
         func_stack = kwargs.pop('func_stack',())
         parent = kwargs.pop('parent',None)
         parser = argparse.ArgumentParser(*args, add_help=False, **kwargs)
-        if self.add_help:
+        help_args = self.help_args
+        while help_args is None and parent is not None:
+            help_args = parent.help_args
+            parent = getattr(parent,'parent',None)
+
+        if help_args:
             from flask_script import add_help
-            add_help(parser)
+            add_help(parser,help_args)
 
         for option in self.get_options():
             if isinstance(option, Group):
