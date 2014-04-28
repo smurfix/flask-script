@@ -62,7 +62,7 @@ class Manager(object):
         python manage.py print
         > hello
 
-    :param app: Flask instance or callable returning a Flask instance.
+    :param app: Flask instance, or callable returning a Flask instance.
     :param with_default_commands: load commands **runserver** and **shell**
                                   by default.
     :param disable_argcomplete: disable automatic loading of argcomplete.
@@ -87,7 +87,7 @@ class Manager(object):
 
     def add_default_commands(self):
         """
-        Adds the shell and runserver default commands. To override these
+        Adds the shell and runserver default commands. To override these,
         simply add your own equivalents using add_command or decorators.
         """
 
@@ -98,31 +98,33 @@ class Manager(object):
 
     def add_option(self, *args, **kwargs):
         """
-        Adds an application-wide option. This is useful if you want to set
-        variables applying to the application setup, rather than individual
-        commands.
+        Adds a global option. This is useful if you want to set variables
+        applying to the application setup, rather than individual commands.
 
         For this to work, the manager must be initialized with a factory
-        function rather than an instance. Otherwise any options you set will
-        be ignored.
+        function rather than a Flask instance. Otherwise any options you set
+        will be ignored.
 
         The arguments are then passed to your function, e.g.::
 
-            def create_app(config=None):
+            def create_my_app(config=None):
                 app = Flask(__name__)
                 if config:
                     app.config.from_pyfile(config)
 
                 return app
 
-            manager = Manager(create_app)
+            manager = Manager(create_my_app)
             manager.add_option("-c", "--config", dest="config", required=False)
+            @manager.command
+            def mycommand(app):
+                app.do_something()
 
-        and are evoked like this::
+        and are invoked like this::
 
             > python manage.py -c dev.cfg mycommand
 
-        Any manager options passed in the command line will not be passed to
+        Any manager options passed on the command line will not be passed to
         the command.
 
         Arguments for this function are the same as for the Option class.
@@ -130,30 +132,36 @@ class Manager(object):
 
         self._options.append(Option(*args, **kwargs))
 
-    def create_app(self, app=None, **kwargs):
-        if self.app is None:
-            # defer to parent Manager
-            return self.parent.create_app(**kwargs)
-
-        if isinstance(self.app, Flask):
-            return self.app
-
-        return self.app(**kwargs) or app
-
-    def __call__(self, app=None, *args, **kwargs):
+    def __call__(self, app=None, **kwargs):
         """
-        Call self.app()
+        This procedure is called with the App instance (if this is a
+        sub-Manager) and any options. 
+
+        If your sub-Manager does not override this, any values for options will get lost.
         """
-        res = self.create_app(app, *args, **kwargs)
-        if res is None:
-            res = app
-        return res
+        if app is None:
+            app = self.app
+            if app is None:
+                raise Exception("There is no app here. This is unlikely to work.")
 
+        if isinstance(app, Flask):
+            if kwargs:
+                import warnings
+                warnings.warn("Options will be ignored.")
+            return app
 
-    def create_parser(self, prog, func_stack=(), parents=None):
+        app = app(**kwargs)
+        self.app = app
+        return app
+
+    def create_app(self, *args, **kwargs):
+        warnings.warn("create_app() is deprecated; use __call__().", warnings.DeprecationWarning)
+        return self(*args,**kwargs)
+
+    def create_parser(self, prog, func_stack=(), parent=None):
         """
         Creates an ArgumentParser instance from options returned
-        by get_options(), and a subparser for the given command.
+        by get_options(), and subparser for the given commands.
         """
         prog = os.path.basename(prog)
         func_stack=func_stack+(self,)
@@ -161,9 +169,6 @@ class Manager(object):
         options_parser = argparse.ArgumentParser(add_help=False)
         for option in self.get_options():
             options_parser.add_argument(*option.args, **option.kwargs)
-
-        # parser_parents = parents if parents else [option_parser]
-        # parser_parents = [options_parser]
 
         parser = argparse.ArgumentParser(prog=prog, usage=self.usage,
                                          description=self.description,
@@ -182,7 +187,7 @@ class Manager(object):
             description = getattr(command, 'description', None)
             if description is None: description = command.__doc__
 
-            command_parser = command.create_parser(name, func_stack=func_stack)
+            command_parser = command.create_parser(name, func_stack=func_stack, parent=self)
 
             subparser = subparsers.add_parser(name, usage=usage, help=help,
                                               description=description,
@@ -194,7 +199,7 @@ class Manager(object):
 
         ## enable autocomplete only for parent parser when argcomplete is
         ## imported and it is NOT disabled in constructor
-        if parents is None and ARGCOMPLETE_IMPORTED \
+        if parent is None and ARGCOMPLETE_IMPORTED \
                 and not self.disable_argcomplete:
             argcomplete.autocomplete(parser, always_complete_options=True)
 
@@ -355,8 +360,6 @@ class Manager(object):
             app_parser.error('too many arguments')
 
         args = []
-        if self.app is not None:
-            args.append(self.app)
         for handle in func_stack:
 
             # get only safe config options

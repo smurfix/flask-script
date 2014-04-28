@@ -165,6 +165,7 @@ class Command(object):
     def create_parser(self, *args, **kwargs):
 
         func_stack = kwargs.pop('func_stack',())
+        parent = kwargs.pop('parent',None)
         parser = argparse.ArgumentParser(*args, add_help=False, **kwargs)
         if self.add_help:
             from flask_script import add_help
@@ -189,6 +190,7 @@ class Command(object):
         parser.set_defaults(func_stack=func_stack+(self,))
 
         self.parser = parser
+        self.parent = parent
         return parser
 
     def __call__(self, app=None, *args, **kwargs):
@@ -243,11 +245,13 @@ class Shell(Command):
             Option('--no-ipython',
                 action="store_true",
                 dest='no_ipython',
-                default=not(self.use_ipython)),
+                default=not(self.use_ipython),
+                help="Do not use the BPython shell"),
             Option('--no-bpython',
                 action="store_true",
                 dest='no_bpython',
-                default=not(self.use_bpython))
+                default=not(self.use_bpython),
+                help="Do not use the IPython shell"),
         )
 
     def get_context(self):
