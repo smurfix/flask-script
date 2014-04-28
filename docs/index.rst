@@ -29,6 +29,17 @@ Once you define your script commands, you can then run them on the command line:
 
 Source code and issue tracking at `GitHub`_.
 
+*Maintainance version*
+
+Note that version 1 of Flask-Script is in maintainance mode.
+
+New development will occur in Version 2, which features API-incompatible changes:
+
+    * Options are specific to sub-commands and no longer freely moveable
+    * App creation and handling is streamlined
+	* Command help will default to **-?**, in order to free up **-h** for
+      options like **--host**.
+
 Installing Flask-Script
 ------------------------
 
