@@ -111,7 +111,7 @@ To get a list of available commands and their descriptions, just run with no com
 
 To get help text for a particular command::
 
-    python manage.py runserver -h
+    python manage.py runserver -?
 
 This will print usage plus the docstring of the ``Command``.
 
@@ -128,9 +128,9 @@ Commands created this way are run in exactly the same way as those created with 
     python manage.py hello
     > hello
 
-As with the ``Command`` class, the docstring you use for the function will appear when you run with the **-h** option::
+As with the ``Command`` class, the docstring you use for the function will appear when you run with the **-?** or **--help** option::
 
-    python manage.py -h
+    python manage.py -?
     > Just say hello
 
 Finally, the ``@option`` decorator, again belonging to ``Manager`` can be used when you want more sophisticated
@@ -142,6 +142,12 @@ control over your commands::
 
 The ``@option`` decorator is explained in more detail below.
 
+*New in version 2.0*
+
+Help was previously available with **--help** and **-h**. This had a couple
+of less-than-ideal consequences, among them the inability to use **-h** as
+a shortcut for **--host**. If you want to restore the original meaning of
+**-h**, 
 
 Adding arguments to commands
 ----------------------------
@@ -216,12 +222,10 @@ alternatively::
     > python manage.py hello -n Joe
     hello Joe
 
-There are a couple of important points to note here.
+The short-form **-n** is formed from the first letter of the argument, so "name" > "-n". Therefore it's a good idea for your
+optional argument variable names to begin with different letters.
 
-The short-form **-n** is formed from the first letter of the argument, so "name" > "-n". Therefore it's a good idea that your
-optional argument variable names begin with different letters.
-
-The second issue is that the **-h** switch always runs the help text for that command, so avoid arguments starting with the letter "h".
+*New in version 2.0*
 
 Note also that if your optional argument is a boolean, for example::
 
@@ -341,10 +345,16 @@ argument parser.
 In order for manager options to work you must pass a factory function, rather than a Flask instance, to your
 ``Manager`` constructor. A simple but complete example is available in `this gist <https://gist.github.com/smurfix/9307618>`_.
 
-*New in version 0.7.0.*
+*New in version 2.0*
 
-Before version 0.7, options and command names could be interspersed freely.
-This is no longer possible.
+Before version 2, options and command names could be interspersed freely.
+The author decided to discontinue this practice for a number of reasons;
+the problem with the most impact was that it was not possible to do
+
+	> python manage.py connect -d DEST
+	> python manage.py import -d DIR
+
+as these options collided.
 
 Getting user input
 ------------------
@@ -366,8 +376,8 @@ Getting user input
 
 It then runs like this::
 
-    python manage.py dropdb
-    > Are you sure you want to lose all your data ? [N]
+    > python manage.py dropdb
+    Are you sure you want to lose all your data ? [N]
 
 See the :ref:`api` below for details on the various prompt functions.
 
@@ -391,7 +401,7 @@ and then run the command::
 
     python manage.py runserver
 
-The ``Server`` command has a number of command-line arguments - run ``python manage.py runserver -h`` for details on these. You can redefine the defaults in the constructor::
+The ``Server`` command has a number of command-line arguments - run ``python manage.py runserver -?`` for details on these. You can redefine the defaults in the constructor::
 
     server = Server(host="0.0.0.0", port=9000)
 
