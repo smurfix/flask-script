@@ -27,7 +27,7 @@ install_requires = ['Flask']
 
 setup(
     name='Flask-Script',
-    version='2.0.2',
+    version='2.0.3',
     url='http://github.com/smurfix/flask-script',
     license='BSD',
     author='Dan Jacob',

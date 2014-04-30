@@ -16,8 +16,17 @@ from ._compat import izip, text_type
 
 
 class InvalidCommand(Exception):
-    pass
+    """\
+        This is a generic error for "bad" commands.
+        It is not used in Flask-Script itself, but you should throw
+		this error (or one derived from it) in your command handlers,
+        and your main code should display this error's message without
+        a stack trace.
 
+        This way, we maintain interoperability if some other plug-in code
+        supplies Flask-Script hooks.
+        """
+    pass
 
 class Group(object):
     """

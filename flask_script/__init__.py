@@ -379,7 +379,12 @@ class Manager(object):
 
             if handle is last_func and getattr(last_func, 'capture_all_args', False):
                 args.append(remaining_args)
-            res = handle(*args, **config)
+            try:
+                res = handle(*args, **config)
+            except TypeError as err:
+                err.args = ("{}: {}".format(handle,str(err)),)
+                raise
+
             args = [res]
 
         assert not kwargs

@@ -569,6 +569,35 @@ The commands will then be available::
       populate  Populate database with default data
       recreate  Recreates database tables (same as issuing 'drop' and then 'create')
 
+Error handling
+--------------
+
+Users do not like to see stack traces, but developers want them for bug reports.
+
+Therefore, ``flask.ext.script.command`` provides an `InvalidCommand` error
+class which is not supposed to print a stack trace when reported.
+
+In your command handler:
+
+	from flask.ext.script.command import InvalidCommand
+
+    [… if some command verification fails …]
+    class MyCommand(Command):
+        def run(self, foo=None,bar=None):
+            if foo and bar:
+	            raise InvalidCommand("Options foo and bar are incompatible")
+
+In your main loop:
+
+    try:
+        MyManager().run()
+    except InvalidCommand as err:
+        print(err, file=sys.stderr)
+        sys.exit(1)
+
+This way, you maintain interoperability if some plug-in code supplies
+Flask-Script hooks you'd like to use, or vice versa.
+
 Accessing local proxies
 -----------------------
 
