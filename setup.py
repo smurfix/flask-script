@@ -35,7 +35,7 @@ setup(
     author_email='danjac354@gmail.com',
     maintainer='Matthias Urlichs',
     maintainer_email='matthias@urlichs.de',
-    description='Scripting support for Flask',
+    description='Scripting support for Flask (legacy version, compatible with v0.6)',
     long_description=__doc__,
     packages=[
         'flask_script'
