@@ -29,6 +29,7 @@ setup(
     name='Flask-Script',
     version='2.0.3',
     url='http://github.com/smurfix/flask-script',
+	download_url = 'https://github.com/smurfix/flask-script/tarball/v2.0.3',
     license='BSD',
     author='Dan Jacob',
     author_email='danjac354@gmail.com',
