@@ -29,6 +29,7 @@ setup(
     name='Flask-Script',
     version='1.0.0',
     url='http://github.com/smurfix/flask-script',
+    download_url='http://github.com/smurfix/flask-script/tarballs/master/v1.0.0',
     license='BSD',
     author='Dan Jacob',
     author_email='danjac354@gmail.com',
@@ -46,7 +47,7 @@ setup(
     ],
     platforms='any',
     classifiers=[
-        'Development Status :: 5 - Production',
+        'Development Status :: 5 - Production/Stable',
         'Environment :: Web Environment',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: BSD License',
