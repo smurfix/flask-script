@@ -49,12 +49,12 @@ Creating and running commands
 -----------------------------
 
 The first step is to create a Python module to run your script commands in. You can call it
-anything you like, for our examples we'll call it **manage.py**.
+anything you like, for our examples we'll call it ``manage.py``.
 
 You don't have to place all your commands in the same file; for example, in a larger project
 with lots of commands you might want to split them into a number of files with related commands.
 
-In your **manage.py** file you have to create a ``Manager`` instance. The ``Manager`` class
+In your ``manage.py`` file you have to create a ``Manager`` instance. The ``Manager`` class
 keeps track of all the commands and handles how they are called from the command line::
 
     from flask.ext.script import Manager
@@ -78,7 +78,7 @@ The next step is to create and add your commands. There are three methods for cr
     * using the ``@command`` decorator
     * using the ``@option`` decorator
 
-To take a very simple example, we want to create a **Hello** command that just prints out "hello world". It
+To take a very simple example, we want to create a ``hello`` command that just prints out "hello world". It
 doesn't take any arguments so is very straightforward::
 
     from flask.ext.script import Command
@@ -128,7 +128,7 @@ Commands created this way are run in exactly the same way as those created with 
     python manage.py hello
     > hello
 
-As with the ``Command`` class, the docstring you use for the function will appear when you run with the **-?** or **--help** option::
+As with the ``Command`` class, the docstring you use for the function will appear when you run with the ``-?`` or ``--help`` option::
 
     python manage.py -?
     > Just say hello
@@ -144,13 +144,13 @@ The ``@option`` decorator is explained in more detail below.
 
 *New in version 2.0*
 
-Help was previously available with **--help** and **-h**. This had a couple
-of less-than-ideal consequences, among them the inability to use **-h** as
-a shortcut for **--host** or similar options.
+Help was previously available with ``--help`` and ``-h``. This had a couple
+of less-than-ideal consequences, among them the inability to use ``-h`` as
+a shortcut for ``--host`` or similar options.
 
 *New in version 2.0.2*
 
-If you want to restore the original meaning of **-h**, set your manager's
+If you want to restore the original meaning of ``-h``, set your manager's
 ``help_args`` attribute to a list of argument strings you want to be
 considered helpful.
 
@@ -166,7 +166,7 @@ You can override this list in sub-commands and -managers::
     manager.add_command("connect", ccmd)
     manager.run()
 
-so that **manager -h** prints help, while **manager connect -h fubar.example.com**
+so that ``manager -h`` prints help, while ``manager connect -h fubar.example.com``
 connects to a remote host.
 
 Adding arguments to commands
@@ -242,7 +242,7 @@ alternatively::
     > python manage.py hello -n Joe
     hello Joe
 
-The short-form **-n** is formed from the first letter of the argument, so "name" > "-n". Therefore it's a good idea for your
+The short form ``-n`` is formed from the first letter of the argument, so "name" > "-n". Therefore it's a good idea for your
 optional argument variable names to begin with different letters.
 
 *New in version 2.0*
@@ -453,11 +453,11 @@ There is also a ``shell`` decorator which you can use with a context function::
     def make_shell_context():
         return dict(app=app, db=db, models=models)
 
-This enables a **shell** command with the defaults enabled::
+This enables a ``shell`` command with the defaults enabled::
 
     > python manage.py shell
 
-The default commands **shell** and **runserver** are included by default, with the default options for these commands. If you wish to
+The default commands ``shell`` and ``runserver`` are included by default, with the default options for these commands. If you wish to
 replace them with different commands simply override with ``add_command()`` or the decorators. If you pass ``with_default_commands=False``
 to the ``Manager`` constructor these commands will not be loaded::
 
