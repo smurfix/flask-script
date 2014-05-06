@@ -19,7 +19,7 @@ class InvalidCommand(Exception):
     """\
         This is a generic error for "bad" commands.
         It is not used in Flask-Script itself, but you should throw
-		this error (or one derived from it) in your command handlers,
+        this error (or one derived from it) in your command handlers,
         and your main code should display this error's message without
         a stack trace.
 
@@ -335,7 +335,7 @@ class Server(Command):
 
     help = description = 'Runs the Flask development server i.e. app.run()'
 
-    def __init__(self, host='127.0.0.1', port=5000, use_debugger=False,
+    def __init__(self, host='127.0.0.1', port=5000, use_debugger=None,
                  use_reloader=None, threaded=False, processes=1,
                  passthrough_errors=False, **options):
 
@@ -374,55 +374,29 @@ class Server(Command):
                    action='store_true',
                    dest='passthrough_errors',
                    default=self.passthrough_errors),
-        )
 
-        if self.use_debugger:
-            options += (Option('-d', '--debug',
-                               action='store_true',
-                               dest='use_debugger',
-                               help="(no-op for compatibility. USE '--no-debug' IN PRODCUTION CODE)",
-							   default=True),)
-            options += (Option('-D', '--no-debug',
-                               action='store_false',
-                               dest='use_debugger',
-							   help='disable the Werkzeug debugger',
-                               default=True),)
+            Option('-d', '--debug',
+                   action='store_true',
+                   dest='use_debugger',
+                   help='enable the Werkzeug debugger (DO NOT use in production code)',
+                   default=self.use_debugger),
+            Option('-D', '--no-debug',
+                   action='store_false',
+                   dest='use_debugger',
+                   help='disable the Werkzeug debugger',
+                   default=self.use_debugger),
 
-        else:
-            options += (Option('-d', '--debug',
-                               action='store_true',
-                               dest='use_debugger',
-							   help='enable the Werkzeug debugger (DO NOT use in production code)',
-                               default=False),)
-            options += (Option('-D', '--no-debug',
-                               action='store_false',
-                               dest='use_debugger',
-                               help="(no-op for compatibility)",
-                               default=False),)
-
-        if self.use_reloader:
-            options += (Option('-r', '--reload',
-                               action='store_true',
-                               dest='use_reloader',
-                               help="(no-op for compatibility)",
-                               default=True),)
-            options += (Option('-R', '--no-reload',
-                               action='store_false',
-                               dest='use_reloader',
-							   help='do not monitor Python files for changes',
-                               default=True),)
-
-        else:
-            options += (Option('-r', '--reload',
-                               action='store_true',
-                               dest='use_reloader',
-							   help='monitor Python files for changes',
-                               default=False),)
-            options += (Option('-R', '--no-reload',
-                               action='store_false',
-                               dest='use_reloader',
-                               help="(no-op for compatibility)",
-                               default=False),)
+            Option('-r', '--reload',
+                   action='store_true',
+                   dest='use_reloader',
+                   help='monitor Python files for changes (not 100% safe for production use)',
+                   default=self.use_reloader),
+            Option('-R', '--no-reload',
+                   action='store_false',
+                   dest='use_reloader',
+                   help='do not monitor Python files for changes',
+                   default=self.use_reloader),
+            )
 
         return options
 
@@ -431,6 +405,10 @@ class Server(Command):
         # we don't need to run the server in request context
         # so just run it directly
 
+        if use_debugger is None:
+            use_debugger = app.debug
+        if use_reloader is None:
+            use_reloader = app.debug
         app.run(host=host,
                 port=port,
                 debug=use_debugger,
