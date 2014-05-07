@@ -2,6 +2,7 @@
 from __future__ import absolute_import
 
 import os
+import sys
 import code
 import warnings
 import string
@@ -407,6 +408,10 @@ class Server(Command):
 
         if use_debugger is None:
             use_debugger = app.debug
+            if use_debugger is None:
+                use_debugger = True
+                if sys.stderr.isatty():
+                    print("Debugging is on. DANGER: Do not allow random users to connect to this server.", file=sys.stderr)
         if use_reloader is None:
             use_reloader = app.debug
         app.run(host=host,

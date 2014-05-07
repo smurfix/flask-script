@@ -404,9 +404,12 @@ See the :ref:`api` below for details on the various prompt functions.
 Default commands
 ----------------
 
+runserver
++++++++++
+
 **Flask-Script** has a couple of ready commands you can add and customise: ``Server`` and ``Shell``.
 
-The ``Server`` command runs the **Flask** development server. It takes an optional ``port`` argument (default **5000**)::
+The ``Server`` command runs the **Flask** development server.
 
     from flask.ext.script import Server, Manager
     from myapp import create_app
@@ -426,6 +429,26 @@ The ``Server`` command has a number of command-line arguments - run ``python man
     server = Server(host="0.0.0.0", port=9000)
 
 Needless to say the development server is not intended for production use.
+
+*New in version 2.0.5*
+
+The most common use-case for ``runserver`` is to run a debug server for
+investigating problems. Therefore the default, if it is *not* set in the
+configuration file, is to enable debugging and auto-reloading.
+
+Unfortunately, Flask currently (as of May 2014) defaults to set the DEBUG
+configuration parameter to ``False``. Until this is changed, you can
+safely add ``DEFAULT=None`` to your Flask configuration. Flask-Script's
+``runserver`` will then turn on debugging, but everything else will treat
+it as being turned off.
+
+To prevent misunderstandings -- after all, debug mode is a serious security
+hole --, a warning is printed when Flask-Script treats a ``None`` default
+value as if it were set to ``True``. You can turn on debugging explicitly
+to get rid of this warning.
+
+shell
++++++
 
 The ``Shell`` command starts a Python shell. You can pass in a ``make_context`` argument, which must be a ``callable`` returning a ``dict``. By default, this is just a dict returning the your Flask application instance::
 
