@@ -11,6 +11,7 @@ from gettext import gettext as _
 import argparse
 
 from flask import Flask
+from flask._compat import text_type
 
 from ._compat import iteritems
 from .commands import Group, Option, Command, Server, Shell
@@ -405,11 +406,13 @@ class Manager(object):
         if commands:
             self._commands.update(commands)
 
-        if default_command is not None and len(sys.argv) == 1:
-            sys.argv.append(default_command)
+        # Make sure all of this is Unicode
+        argv = list(text_type(arg) for arg in sys.argv)
+        if default_command is not None and len(argv) == 1:
+            argv.append(default_command)
 
         try:
-            result = self.handle(sys.argv[0], sys.argv[1:])
+            result = self.handle(argv[0], argv[1:])
         except SystemExit as e:
             result = e.code
 

@@ -14,6 +14,8 @@ Links
 import sys
 from setuptools import setup
 
+version='2.0.6'
+
 # Hack to prevent stupid TypeError: 'NoneType' object is not callable error on
 # exit of python setup.py test # in multiprocessing/util.py _exit_function when
 # running python setup.py test (see
@@ -27,9 +29,9 @@ install_requires = ['Flask']
 
 setup(
     name='Flask-Script',
-    version='2.0.5',
+    version=version,
     url='http://github.com/smurfix/flask-script',
-	download_url = 'https://github.com/smurfix/flask-script/tarball/v2.0.3',
+	download_url = 'https://github.com/smurfix/flask-script/tarball/v'+version,
     license='BSD',
     author='Dan Jacob',
     author_email='danjac354@gmail.com',

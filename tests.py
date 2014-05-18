@@ -567,7 +567,7 @@ class TestManager:
         code = run('manage.py catch pos1 --foo pos2 --bar', manager.run)
         out, err = capsys.readouterr()
         assert code == 0
-        assert "['pos1', 'pos2', '--bar']" in out
+        assert "[u'pos1', u'pos2', u'--bar']" in out
 
     def test_run_bad_options(self, capsys):
         manager = Manager(self.app)
