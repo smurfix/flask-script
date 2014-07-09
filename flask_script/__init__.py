@@ -150,7 +150,6 @@ class Manager(object):
 
         if isinstance(app, Flask):
             if kwargs:
-                import warnings
                 warnings.warn("Options will be ignored.")
             return app
 
