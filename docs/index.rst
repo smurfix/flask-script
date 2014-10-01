@@ -249,7 +249,7 @@ optional argument variable names to begin with different letters.
 
 Note also that if your optional argument is a boolean, for example::
 
-    @manage.command
+    @manager.command
     def verify(verified=False):
         """
         Checks if verified
