@@ -383,7 +383,7 @@ class Manager(object):
             try:
                 res = handle(*args, **config)
             except TypeError as err:
-                err.args = ("{}: {}".format(handle,str(err)),)
+                err.args = ("{0}: {1}".format(handle,str(err)),)
                 raise
 
             args = [res]

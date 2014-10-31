@@ -353,7 +353,7 @@ a command:
         if uppercase:
             name = name.upper()
             clue = clue.upper()
-        print "hello {}, get a {}!".format(name,clue)
+        print "hello {0}, get a {1}!".format(name,clue)
 
     > python manage.py -c dev.cfg hello -c cookie -n frank
     hello FRANK, get a COOKIE!
