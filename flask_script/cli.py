@@ -87,11 +87,11 @@ def prompt_choices(name, choices, default=None, resolve=ascii_lowercase,
         _choices.append(choice)
 
     while True:
-        rv = prompt(name + ' - (%s)' % ', '.join(options), default)
-        if not rv:
-            return default
+        rv = prompt(name + ' - (%s)' % ', '.join(options), default=default)
+        #if not rv:
+        #    return default
         rv = resolve(rv)
         if rv in no_choice:
             return None
-        if rv in _choices:
+        if rv in _choices or rv == default:
             return rv
