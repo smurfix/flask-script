@@ -706,7 +706,7 @@ class TestManager:
         with hello_john:
             code = run('manage.py hello', manager.run)
             out, err = capsys.readouterr()
-            assert 'john' in out
+            assert 'hello - (peter, john, sam): john' in out
 			
     def test_command_with_default_prompt_choices(self, capsys):
 
@@ -724,7 +724,7 @@ class TestManager:
         with hello_john:
             code = run('manage.py hello', manager.run)
             out, err = capsys.readouterr()
-            assert 'john' in out
+            assert 'hello - (peter, charlie, sam) [john]: john' in out
             
         @Catcher
         def hello_charlie(msg):
@@ -734,7 +734,7 @@ class TestManager:
         with hello_charlie:
             code = run('manage.py hello', manager.run)
             out, err = capsys.readouterr()
-            assert 'charlie' in out
+            assert 'hello - (peter, charlie, sam) [john]: charlie' in out
 
 class TestSubManager:
 
