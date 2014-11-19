@@ -88,8 +88,6 @@ def prompt_choices(name, choices, default=None, resolve=ascii_lowercase,
 
     while True:
         rv = prompt(name + ' - (%s)' % ', '.join(options), default=default)
-        #if not rv:
-        #    return default
         rv = resolve(rv)
         if rv in no_choice:
             return None
