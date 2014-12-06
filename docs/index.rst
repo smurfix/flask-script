@@ -602,7 +602,7 @@ class which is not supposed to print a stack trace when reported.
 
 In your command handler:
 
-	from flask.ext.script.command import InvalidCommand
+	from flask.ext.script.commands import InvalidCommand
 
     [… if some command verification fails …]
     class MyCommand(Command):
