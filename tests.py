@@ -6,7 +6,7 @@ import unittest
 
 from flask import Flask
 from flask.ext.script._compat import StringIO, text_type
-from flask.ext.script import Command, Manager, Option, prompt, prompt_bool
+from flask.ext.script import Command, Manager, Option, prompt, prompt_bool, prompt_choices
 
 from pytest import raises
 
@@ -689,7 +689,52 @@ class TestManager:
             code = run('manage.py hello', manager.run)
             out, err = capsys.readouterr()
             assert 'correct [y]: no' in out
+			
+    def test_command_with_prompt_choices(self, capsys):
 
+        manager = Manager(self.app)
+
+        @manager.command
+        def hello():
+            print(prompt_choices(name='hello', choices=['peter', 'john', 'sam']))
+
+        @Catcher
+        def hello_john(msg):
+            if re.search("hello", msg):
+                return 'john'
+
+        with hello_john:
+            code = run('manage.py hello', manager.run)
+            out, err = capsys.readouterr()
+            assert 'hello - (peter, john, sam): john' in out
+			
+    def test_command_with_default_prompt_choices(self, capsys):
+
+        manager = Manager(self.app)
+
+        @manager.command
+        def hello():
+            print(prompt_choices(name='hello', choices=['peter', 'charlie', 'sam'], default="john"))
+
+        @Catcher
+        def hello_john(msg):
+            if re.search("hello", msg):
+                return '\n'
+
+        with hello_john:
+            code = run('manage.py hello', manager.run)
+            out, err = capsys.readouterr()
+            assert 'hello - (peter, charlie, sam) [john]: john' in out
+            
+        @Catcher
+        def hello_charlie(msg):
+            if re.search("hello", msg):
+                return 'charlie'
+
+        with hello_charlie:
+            code = run('manage.py hello', manager.run)
+            out, err = capsys.readouterr()
+            assert 'hello - (peter, charlie, sam) [john]: charlie' in out
 
 class TestSubManager:
 
