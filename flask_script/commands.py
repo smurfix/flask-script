@@ -260,12 +260,12 @@ class Shell(Command):
                 action="store_true",
                 dest='no_ipython',
                 default=not(self.use_ipython),
-                help="Do not use the BPython shell"),
+                help="Do not use the IPython shell"),
             Option('--no-bpython',
                 action="store_true",
                 dest='no_bpython',
                 default=not(self.use_bpython),
-                help="Do not use the IPython shell"),
+                help="Do not use the BPython shell"),
         )
 
     def get_context(self):
