@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 
 import re
 import sys
@@ -566,8 +567,9 @@ class TestManager:
 
         code = run('manage.py catch pos1 --foo pos2 --bar', manager.run)
         out, err = capsys.readouterr()
+        out_list = [o.strip('u\'') for o in out.strip('[]\n').split(', ')]
         assert code == 0
-        assert "[u'pos1', u'pos2', u'--bar']" in out
+        assert ['pos1', 'pos2', '--bar'] == out_list
 
     def test_run_bad_options(self, capsys):
         manager = Manager(self.app)
