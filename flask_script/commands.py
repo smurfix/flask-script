@@ -390,7 +390,7 @@ class Server(Command):
             Option('-r', '--reload',
                    action='store_true',
                    dest='use_reloader',
-                   help='monitor Python files for changes (not 100% safe for production use)',
+                   help='monitor Python files for changes (not 100%% safe for production use)',
                    default=self.use_reloader),
             Option('-R', '--no-reload',
                    action='store_false',
