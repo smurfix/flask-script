@@ -74,9 +74,9 @@ that returns a **Flask** instance instead, if you want to use a factory pattern.
 
 The next step is to create and add your commands. There are three methods for creating commands:
 
-    * subclassing the ``Command`` class
-    * using the ``@command`` decorator
-    * using the ``@option`` decorator
+* subclassing the ``Command`` class
+* using the ``@command`` decorator
+* using the ``@option`` decorator
 
 To take a very simple example, we want to create a ``hello`` command that just prints out "hello world". It
 doesn't take any arguments so is very straightforward::
@@ -152,7 +152,7 @@ a shortcut for ``--host`` or similar options.
 
 If you want to restore the original meaning of ``-h``, set your manager's
 ``help_args`` attribute to a list of argument strings you want to be
-considered helpful.
+considered helpful::
 
     manager = Manager()
     manager.help_args = ('-h','-?','--help)
@@ -335,7 +335,7 @@ You can now run the following::
 Assuming the ``USE_UPPERCASE`` setting is **True** in your dev.cfg file.
 
 Notice also that the "config" option is **not** passed to the command. In
-fact, this usage
+fact, this usage::
 
     > python manage.py hello joe -c dev.cfg
 
@@ -344,7 +344,7 @@ will show an error message because the ``-c`` option does not belong to the
 
 You can attach same-named options to different levels; this allows you to
 add an option to your app setup code without checking whether it conflicts with
-a command:
+a command::
 
     @manager.option('-n', '--name', dest='name', default='joe')
     @manager.option('-c', '--clue', dest='clue', default='clue')
@@ -369,7 +369,7 @@ In order for manager options to work you must pass a factory function, rather th
 
 Before version 2, options and command names could be interspersed freely.
 The author decided to discontinue this practice for a number of reasons;
-the problem with the most impact was that it was not possible to do
+the problem with the most impact was that it was not possible to do::
 
     > python manage.py connect -d DEST
     > python manage.py import -d DIR
@@ -600,9 +600,9 @@ Users do not like to see stack traces, but developers want them for bug reports.
 Therefore, ``flask.ext.script.command`` provides an `InvalidCommand` error
 class which is not supposed to print a stack trace when reported.
 
-In your command handler:
+In your command handler::
 
-	from flask.ext.script.commands import InvalidCommand
+    from flask.ext.script.commands import InvalidCommand
 
     [… if some command verification fails …]
     class MyCommand(Command):
@@ -610,7 +610,7 @@ In your command handler:
             if foo and bar:
 	            raise InvalidCommand("Options foo and bar are incompatible")
 
-In your main loop:
+In your main loop::
 
     try:
         MyManager().run()
