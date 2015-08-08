@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 
 import getpass
-from ._compat import string_types, ascii_lowercase, input
+from ._compat import string_types, input
+
 
 def prompt(name, default=None):
     """
@@ -63,8 +64,7 @@ def prompt_bool(name, default=False, yes_choices=None, no_choices=None):
             return False
 
 
-def prompt_choices(name, choices, default=None, resolve=ascii_lowercase,
-                   no_choice=('none',)):
+def prompt_choices(name, choices, default=None, no_choice=('none',)):
     """
     Grabs user input from command line from set of provided choices.
 
@@ -87,8 +87,7 @@ def prompt_choices(name, choices, default=None, resolve=ascii_lowercase,
         _choices.append(choice)
 
     while True:
-        rv = prompt(name + ' - (%s)' % ', '.join(options), default)
-        rv = resolve(rv)
+        rv = prompt(name + ' - (%s)' % ', '.join(options), default).lower()
         if rv in no_choice:
             return None
         if rv in _choices or rv == default:

@@ -48,7 +48,6 @@ if not PY2:
     get_next = lambda x: x.__next__
 
     input = input
-    from string import ascii_lowercase
 
 else:
     unichr = unichr
@@ -88,7 +87,6 @@ else:
         return filename
 
     input = raw_input
-    from string import lower as ascii_lowercase
 
 
 def with_metaclass(meta, *bases):
