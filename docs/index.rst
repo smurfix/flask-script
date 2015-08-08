@@ -597,7 +597,7 @@ Error handling
 
 Users do not like to see stack traces, but developers want them for bug reports.
 
-Therefore, ``flask.ext.script.command`` provides an `InvalidCommand` error
+Therefore, ``flask.ext.script.commands`` provides an `InvalidCommand` error
 class which is not supposed to print a stack trace when reported.
 
 In your command handler::
