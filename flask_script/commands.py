@@ -295,15 +295,8 @@ class Shell(Command):
         if not no_ipython:
             # Try IPython
             try:
-                try:
-                    # 0.10.x
-                    from IPython.Shell import IPShellEmbed
-                    ipshell = IPShellEmbed(banner=self.banner)
-                    ipshell(global_ns=dict(), local_ns=context)
-                except ImportError:
-                    # 0.12+
-                    from IPython import embed
-                    embed(banner1=self.banner, user_ns=context)
+                from IPython import embed
+                embed(banner1=self.banner, user_ns=context)
                 return
             except ImportError:
                 pass
