@@ -118,20 +118,20 @@ class Command(object):
         args, varargs, keywords, defaults = inspect.getargspec(func)
         if inspect.ismethod(func):
             args = args[1:]
-            
+
         options = []
-        
+
         # first arg is always "app" : ignore
-        
+
         defaults = defaults or []
         kwargs = dict(izip(*[reversed(l) for l in (args, defaults)]))
-        
+
         for arg in args:
-        
+
             if arg in kwargs:
-            
+
                 default = kwargs[arg]
-                
+
                 if isinstance(default, bool):
                     options.append(Option('-%s' % arg[0],
                                           '--%s' % arg,
@@ -139,17 +139,17 @@ class Command(object):
                                           dest=arg,
                                           required=False,
                                           default=default))
-                else:                     
+                else:
                     options.append(Option('-%s' % arg[0],
                                           '--%s' % arg,
                                           dest=arg,
                                           type=text_type,
                                           required=False,
                                           default=default))
-                                          
+
             else:
                 options.append(Option(arg, type=text_type))
-                
+
         self.run = func
         self.__doc__ = func.__doc__
         self.option_list = options
@@ -230,6 +230,12 @@ class Shell(Command):
     :param make_context: a callable returning a dict of variables
                          used in the shell namespace. By default
                          returns a dict consisting of just the app.
+    :param use_ptipython: use PtIPython shell if available, ignore if not.
+                          The PtIPython shell can be turned off in command
+                          line by passing the **--no-ptipython** flag.
+    :param use_ptpython: use PtPython shell if available, ignore if not.
+                         The PtPython shell can be turned off in command
+                         line by passing the **--no-ptpython** flag.
     :param use_bpython: use BPython shell if available, ignore if not.
                         The BPython shell can be turned off in command
                         line by passing the **--no-bpython** flag.
@@ -243,11 +249,13 @@ class Shell(Command):
     help = description = 'Runs a Python shell inside Flask application context.'
 
     def __init__(self, banner=None, make_context=None, use_ipython=True,
-                use_bpython=True):
+                 use_bpython=True, use_ptipython=True, use_ptpython=True):
 
         self.banner = banner or self.banner
         self.use_ipython = use_ipython
         self.use_bpython = use_bpython
+        self.use_ptipython = use_ptipython
+        self.use_ptpython = use_ptpython
 
         if make_context is None:
             make_context = lambda: dict(app=_request_ctx_stack.top.app)
@@ -266,6 +274,16 @@ class Shell(Command):
                 dest='no_bpython',
                 default=not(self.use_bpython),
                 help="Do not use the BPython shell"),
+            Option('--no-ptipython',
+                action="store_true",
+                dest='no_ptipython',
+                default=not(self.use_ptipython),
+                help="Do not use the PtIPython shell"),
+            Option('--no-ptpython',
+                action="store_true",
+                dest='no_ptpython',
+                default=not(self.use_ptpython),
+                help="Do not use the PtPython shell"),
         )
 
     def get_context(self):
@@ -274,14 +292,36 @@ class Shell(Command):
         """
         return self.make_context()
 
-    def run(self, no_ipython, no_bpython):
+    def run(self, no_ipython, no_bpython, no_ptipython, no_ptpython):
         """
-        Runs the shell.  If no_bpython is False or use_bpython is True, then
-        a BPython shell is run (if installed).  Else, if no_ipython is False or
-        use_python is True then a IPython shell is run (if installed).
+        Runs the shell.
+        If no_ptipython is False or use_ptipython is True, then a PtIPython shell is run (if installed).
+        If no_ptpython is False or use_ptpython is True, then a PtPython shell is run (if installed).
+        If no_bpython is False or use_bpython is True, then a BPython shell is run (if installed).
+        If no_ipython is False or use_python is True then a IPython shell is run (if installed).
         """
 
         context = self.get_context()
+
+        if not no_ptipython:
+            # Try PtIPython
+            try:
+                from ptpython.ipython import embed
+                history_filename = os.path.expanduser('~/.ptpython_history')
+                embed(banner1=self.banner, user_ns=context, history_filename=history_filename)
+                return
+            except ImportError:
+                pass
+
+        if not no_ptpython:
+            # Try PtPython
+            try:
+                from ptpython.repl import embed
+                history_filename = os.path.expanduser('~/.ptpython_history')
+                embed(globals=context, history_filename=history_filename)
+                return
+            except ImportError:
+                pass
 
         if not no_bpython:
             # Try BPython
@@ -507,5 +547,3 @@ class ShowUrls(Command):
 
         for row in rows:
             print(str_template % row[:column_length])
-
-
