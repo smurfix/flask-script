@@ -4,6 +4,18 @@ Flask-Script
 .. image:: https://travis-ci.org/smurfix/flask-script.svg?branch=master
     :target: https://travis-ci.org/smurfix/flask-script
 
+.. image:: https://img.shields.io/pypi/v/flask-script.svg
+    :target: http://flask-script.readthedocs.org/en/latest/
+    :alt: Latest Version
+
+.. image:: https://img.shields.io/pypi/pyversions/flask-script.svg
+    :target: https://pypi.python.org/pypi/flask-script/
+    :alt: Supported Python versions
+
+.. image:: https://img.shields.io/pypi/l/flask-script.svg
+    :target: https://github.com/smurfix/flask-script/blob/master/LICENSE
+    :alt: License
+
 A set of utilities for use with the Flask framework which provide
 decorators, classes and helpers for writing your own script commands.
 
