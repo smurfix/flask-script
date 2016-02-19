@@ -1,8 +1,8 @@
 Flask-Script
 ==============
 
-.. image:: https://travis-ci.org/smurfix/flask-script.png?branch=v2
-        :target: https://travis-ci.org/smurfix/flask-script
+.. image:: https://travis-ci.org/smurfix/flask-script.svg?branch=master
+    :target: https://travis-ci.org/smurfix/flask-script
 
 A set of utilities for use with the Flask framework which provide
 decorators, classes and helpers for writing your own script commands.
