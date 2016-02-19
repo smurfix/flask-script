@@ -164,7 +164,7 @@ class EmptyContext(object):
     def __exit__(self, a,b,c):
         pass
 
-class TestApp(object):
+class AppForTesting(object):
     def __init__(self, verbose=False):
         self.verbose = verbose
     def test_request_context(self):
@@ -179,7 +179,7 @@ class TestManager:
 
     def setup(self):
 
-        self.app = TestApp()
+        self.app = AppForTesting()
 
     def test_with_default_commands(self):
 
@@ -690,7 +690,7 @@ class TestManager:
             code = run('manage.py hello', manager.run)
             out, err = capsys.readouterr()
             assert 'correct [y]: no' in out
-			
+
     def test_command_with_prompt_choices(self, capsys):
 
         manager = Manager(self.app)
@@ -708,7 +708,7 @@ class TestManager:
             code = run('manage.py hello', manager.run)
             out, err = capsys.readouterr()
             assert 'hello - (peter, john, sam): john' in out
-			
+
     def test_command_with_default_prompt_choices(self, capsys):
 
         manager = Manager(self.app)
@@ -726,7 +726,7 @@ class TestManager:
             code = run('manage.py hello', manager.run)
             out, err = capsys.readouterr()
             assert 'hello - (peter, charlie, sam) [john]: john' in out
-            
+
         @Catcher
         def hello_charlie(msg):
             if re.search("hello", msg):
@@ -741,7 +741,7 @@ class TestSubManager:
 
     def setup(self):
 
-        self.app = TestApp()
+        self.app = AppForTesting()
 
     def test_add_submanager(self):
 
@@ -789,11 +789,11 @@ class TestSubManager:
 
     def test_submanager_separate_options(self, capsys):
 
-        sub_manager = Manager(TestApp(verbose=True), with_default_commands=False)
+        sub_manager = Manager(AppForTesting(verbose=True), with_default_commands=False)
         sub_manager.add_command('opt', CommandWithOptionalArg())
         sub_manager.add_option('-n', '--name', dest='name_sub', required=False)
 
-        manager = Manager(TestApp(verbose=True), with_default_commands=False)
+        manager = Manager(AppForTesting(verbose=True), with_default_commands=False)
         manager.add_command('sub_manager', sub_manager)
         manager.add_option('-n', '--name', dest='name_main', required=False)
 
