@@ -364,6 +364,8 @@ class Server(Command):
                      thread?
     :param processes: number of processes to spawn
     :param passthrough_errors: disable the error catching. This means that the server will die on errors but it can be useful to hook debuggers in (pdb etc.)
+    :param ssl_crt: path to ssl certificate file
+    :param ssl_key: path to ssl key file
     :param options: :func:`werkzeug.run_simple` options.
     """
 
@@ -371,7 +373,7 @@ class Server(Command):
 
     def __init__(self, host='127.0.0.1', port=5000, use_debugger=None,
                  use_reloader=None, threaded=False, processes=1,
-                 passthrough_errors=False, **options):
+                 passthrough_errors=False, ssl_crt=None, ssl_key=None, **options):
 
         self.port = port
         self.host = host
@@ -381,6 +383,8 @@ class Server(Command):
         self.threaded = threaded
         self.processes = processes
         self.passthrough_errors = passthrough_errors
+        self.ssl_crt = ssl_crt
+        self.ssl_key = ssl_key
 
     def get_options(self):
 
@@ -430,12 +434,22 @@ class Server(Command):
                    dest='use_reloader',
                    help='do not monitor Python files for changes',
                    default=self.use_reloader),
-            )
+            Option('--ssl-crt',
+                   dest='ssl_crt',
+                   type=str,
+                   help='Path to ssl certificate',
+                   default=self.ssl_crt),
+            Option('--ssl-key',
+                   dest='ssl_key',
+                   type=str,
+                   help='Path to ssl key',
+                   default=self.ssl_key),
+        )
 
         return options
 
     def __call__(self, app, host, port, use_debugger, use_reloader,
-               threaded, processes, passthrough_errors):
+                 threaded, processes, passthrough_errors, ssl_crt, ssl_key):
         # we don't need to run the server in request context
         # so just run it directly
 
@@ -447,6 +461,12 @@ class Server(Command):
                     print("Debugging is on. DANGER: Do not allow random users to connect to this server.", file=sys.stderr)
         if use_reloader is None:
             use_reloader = app.debug
+
+        if None in [ssl_crt, ssl_key]:
+            ssl_context = None
+        else:
+            ssl_context = (ssl_crt, ssl_key)
+
         app.run(host=host,
                 port=port,
                 debug=use_debugger,
@@ -455,6 +475,7 @@ class Server(Command):
                 threaded=threaded,
                 processes=processes,
                 passthrough_errors=passthrough_errors,
+                ssl_context=ssl_context,
                 **self.server_options)
 
 
