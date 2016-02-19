@@ -1,10 +1,18 @@
+sudo: false
 language: python
-python:
-  - "2.7"
-  - "3.3"
+python: 3.5 # TODO remove once https://github.com/travis-ci/travis-ci/issues/4794 fully resolved
 
+env:
+    - TOXENV=py27-lowest
+    - TOXENV=py27-release
+    - TOXENV=py27-devel
+    - TOXENV=py34-lowest
+    - TOXENV=py34-release
+    - TOXENV=py34-devel
+    - TOXENV=py35-lowest
+    - TOXENV=py35-release
+    - TOXENV=py35-devel
 install:
-  - pip install -r requirements.txt
-  - pip install -e .
-
-script: py.test tests.py --assert=reinterp
+    - pip install tox
+script:
+    - tox
