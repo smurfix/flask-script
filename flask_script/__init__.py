@@ -78,6 +78,8 @@ class Manager(object):
                  help=None, description=None, disable_argcomplete=False):
 
         self.app = app
+        
+        self.subparser_kwargs = dict()
 
         self._commands = OrderedDict()
         self._options = list()
@@ -182,7 +184,7 @@ class Manager(object):
 
         self._patch_argparser(parser)
 
-        subparsers = parser.add_subparsers()
+        subparsers = parser.add_subparsers(**self.subparser_kwargs)
 
         for name, command in self._commands.items():
             usage = getattr(command, 'usage', None)
