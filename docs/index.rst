@@ -155,14 +155,14 @@ If you want to restore the original meaning of ``-h``, set your manager's
 considered helpful::
 
     manager = Manager()
-    manager.help_args = ('-h','-?','--help)
+    manager.help_args = ('-h', '-?', '--help')
 
 You can override this list in sub-commands and -managers::
 
     def talker(host='localhost'):
         pass
     ccmd = ConnectCmd(talker)
-    ccmd.help_args = ('-?','--help)
+    ccmd.help_args = ('-?', '--help')
     manager.add_command("connect", ccmd)
     manager.run()
 
@@ -348,12 +348,12 @@ a command::
 
     @manager.option('-n', '--name', dest='name', default='joe')
     @manager.option('-c', '--clue', dest='clue', default='clue')
-    def hello(name,clue):
+    def hello(name, clue):
         uppercase = app.config.get('USE_UPPERCASE', False)
         if uppercase:
             name = name.upper()
             clue = clue.upper()
-        print "hello {0}, get a {1}!".format(name,clue)
+        print "hello {0}, get a {1}!".format(name, clue)
 
     > python manage.py -c dev.cfg hello -c cookie -n frank
     hello FRANK, get a COOKIE!
@@ -438,7 +438,7 @@ configuration file, is to enable debugging and auto-reloading.
 
 Unfortunately, Flask currently (as of May 2014) defaults to set the DEBUG
 configuration parameter to ``False``. Until this is changed, you can
-safely add ``DEFAULT=None`` to your Flask configuration. Flask-Script's
+safely add ``DEBUG=None`` to your Flask configuration. Flask-Script's
 ``runserver`` will then turn on debugging, but everything else will treat
 it as being turned off.
 
@@ -522,7 +522,7 @@ separate administrative application for improved security::
     > python manage.py admin runserver
     [ starts an administrative server ]
 
-You can cascade sub-managers, i.e. add one sub-manager to another. 
+You can cascade sub-managers, i.e. add one sub-manager to another.
 
 A sub-manager does not get default commands added to itself (by default)
 
@@ -606,9 +606,9 @@ In your command handler::
 
     [… if some command verification fails …]
     class MyCommand(Command):
-        def run(self, foo=None,bar=None):
+        def run(self, foo=None, bar=None):
             if foo and bar:
-	            raise InvalidCommand("Options foo and bar are incompatible")
+                raise InvalidCommand("Options foo and bar are incompatible")
 
 In your main loop::
 
@@ -634,7 +634,7 @@ API
 .. module:: flask_script
 
 .. autoclass:: Manager
-   :members: run, add_option, add_command, command, option, shell, get_usage, print_usage
+   :members: run, add_option, add_command, command, option, shell
 
 .. autoclass:: Command
    :members: run, get_options
