@@ -508,8 +508,6 @@ class ShowUrls(Command):
                    help='Property on Rule to order by (default: %s)' % self.order)
         )
 
-        return options
-
     def run(self, url, order):
         from flask import current_app
         from werkzeug.exceptions import NotFound, MethodNotAllowed
