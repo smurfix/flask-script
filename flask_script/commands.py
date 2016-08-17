@@ -460,7 +460,7 @@ class Server(Command):
                 if sys.stderr.isatty():
                     print("Debugging is on. DANGER: Do not allow random users to connect to this server.", file=sys.stderr)
         if use_reloader is None:
-            use_reloader = app.debug
+            use_reloader = use_debugger
 
         if None in [ssl_crt, ssl_key]:
             ssl_context = None
