@@ -9,7 +9,7 @@ The **Flask-Script** extension provides support for writing external scripts in 
 
     # manage.py
 
-    from flask.ext.script import Manager
+    from flask_script import Manager
 
     from myapp import app
 
@@ -57,7 +57,7 @@ with lots of commands you might want to split them into a number of files with r
 In your ``manage.py`` file you have to create a ``Manager`` instance. The ``Manager`` class
 keeps track of all the commands and handles how they are called from the command line::
 
-    from flask.ext.script import Manager
+    from flask_script import Manager
 
     app = Flask(__name__)
     # configure your app
@@ -81,7 +81,7 @@ The next step is to create and add your commands. There are three methods for cr
 To take a very simple example, we want to create a ``hello`` command that just prints out "hello world". It
 doesn't take any arguments so is very straightforward::
 
-    from flask.ext.script import Command
+    from flask_script import Command
 
     class Hello(Command):
         "prints hello world"
@@ -186,7 +186,7 @@ or alternatively::
 
 To facilitate this you use the ``option_list`` attribute of the ``Command`` class::
 
-    from flask.ext.script import Command, Manager, Option
+    from flask_script import Command, Manager, Option
 
     class Hello(Command):
 
@@ -381,7 +381,7 @@ Getting user input
 
 **Flask-Script** comes with a set of helper functions for grabbing user input from the command line. For example::
 
-    from flask.ext.script import Manager, prompt_bool
+    from flask_script import Manager, prompt_bool
 
     from myapp import app
     from myapp.models import db
@@ -411,7 +411,7 @@ runserver
 
 The ``Server`` command runs the **Flask** development server.::
 
-    from flask.ext.script import Server, Manager
+    from flask_script import Server, Manager
     from myapp import create_app
 
     manager = Manager(create_app)
@@ -452,7 +452,7 @@ shell
 
 The ``Shell`` command starts a Python shell. You can pass in a ``make_context`` argument, which must be a ``callable`` returning a ``dict``. By default, this is just a dict returning the your Flask application instance::
 
-    from flask.ext.script import Shell, Manager
+    from flask_script import Shell, Manager
 
     from myapp import app
     from myapp import models
@@ -597,12 +597,12 @@ Error handling
 
 Users do not like to see stack traces, but developers want them for bug reports.
 
-Therefore, ``flask.ext.script.commands`` provides an `InvalidCommand` error
+Therefore, ``flask_script.commands`` provides an `InvalidCommand` error
 class which is not supposed to print a stack trace when reported.
 
 In your command handler::
 
-    from flask.ext.script.commands import InvalidCommand
+    from flask_script.commands import InvalidCommand
 
     [… if some command verification fails …]
     class MyCommand(Command):
