@@ -5,8 +5,8 @@ import sys
 import unittest
 
 from flask import Flask
-from flask.ext.script._compat import StringIO, text_type
-from flask.ext.script import Command, Manager, Option, prompt, prompt_bool, prompt_choices
+from flask_script._compat import StringIO, text_type
+from flask_script import Command, Manager, Option, prompt, prompt_bool, prompt_choices
 
 from pytest import raises
 

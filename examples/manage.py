@@ -4,8 +4,8 @@
 import pprint
 
 from flask import Flask, current_app
-from flask.ext.script import Manager, prompt_choices, Server
-from flask.ext.script.commands import ShowUrls, Clean
+from flask_script import Manager, prompt_choices, Server
+from flask_script.commands import ShowUrls, Clean
 
 
 def create_app(config=None):

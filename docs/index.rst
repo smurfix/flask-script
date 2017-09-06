@@ -577,7 +577,7 @@ Then the user can register the sub-manager to their primary Manager (within mana
 
     manager = Manager(app)
 
-    from flask.ext.database import manager as database_manager
+    from flask_database import manager as database_manager
     manager.add_command("database", database_manager)
 
 The commands will then be available::
