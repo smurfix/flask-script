@@ -1,20 +1,11 @@
 sudo: false
 language: python
-
-env:
-    - TOXENV=py27-lowest
-    - TOXENV=py27-release
-    - TOXENV=py27-devel
-    - TOXENV=py34-lowest
-    - TOXENV=py34-release
-    - TOXENV=py34-devel
-    - TOXENV=py35-lowest
-    - TOXENV=py35-release
-    - TOXENV=py35-devel
-    - TOXENV=py36-lowest
-    - TOXENV=py36-release
-    - TOXENV=py36-devel
+python:
+    - '2.7'
+    - '3.4'
+    - '3.5'
+    - '3.6'
 install:
-    - pip install tox
+    - pip install tox-travis
 script:
     - tox
