@@ -1,6 +1,5 @@
 sudo: false
 language: python
-python: 3.5 # TODO remove once https://github.com/travis-ci/travis-ci/issues/4794 fully resolved
 
 env:
     - TOXENV=py27-lowest
