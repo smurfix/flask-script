@@ -11,6 +11,9 @@ env:
     - TOXENV=py35-lowest
     - TOXENV=py35-release
     - TOXENV=py35-devel
+    - TOXENV=py36-lowest
+    - TOXENV=py36-release
+    - TOXENV=py36-devel
 install:
     - pip install tox
 script:
