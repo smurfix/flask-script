@@ -3,6 +3,16 @@ Flask-Script
 
 .. module:: Flask-Script
 
+
+.. warning::
+
+    While the maintainers are willing to merge PR's, they are not actively developing features. As of Flask 0.11, Flask includes `a built-in CLI tool`__, and that may fit your needs better.
+:+1: 2
+
+
+__ http://flask.pocoo.org/docs/latest/cli/
+
+
 The **Flask-Script** extension provides support for writing external scripts in Flask. This includes running a development server, a customised Python shell, scripts to set up your database, cronjobs, and other command-line tasks that belong outside the web application itself.
 
 **Flask-Script** works in a similar way to Flask itself. You define and add commands that can be called from the command line to a ``Manager`` instance::

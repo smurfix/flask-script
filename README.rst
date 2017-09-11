@@ -1,3 +1,11 @@
+Deprecated
+------------
+
+While the maintainers are willing to merge PR's, they are not actively developing features. As of Flask 0.11, Flask includes `a built-in CLI tool`__, and that may fit your needs better.
+
+__ http://flask.pocoo.org/docs/latest/cli/
+
+
 Flask-Script
 ==============
 
